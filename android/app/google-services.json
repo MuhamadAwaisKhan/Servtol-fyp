@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "972752217378",
+    "project_id": "servtol-3405d",
+    "storage_bucket": "servtol-3405d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972752217378:android:b3f7dceeb8b77661b0b17b",
+        "android_client_info": {
+          "package_name": "com.example.servtol"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlMXqh4FwNUYAaxXTXVHhreEK91GsDqJQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
