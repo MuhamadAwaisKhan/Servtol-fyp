@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:servtol/login.dart';
+import 'package:servtol/signup.dart';
 import 'package:servtol/testing%20file.dart';
 import 'firebase_options.dart';
 
@@ -12,7 +13,7 @@ void main() async {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
 
-    home: login(),
+    home: signup(),
   ));
 }
 

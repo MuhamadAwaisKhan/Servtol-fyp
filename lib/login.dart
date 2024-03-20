@@ -13,7 +13,7 @@ class login extends StatefulWidget {
 class _loginState extends State<login> {
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
-  bool _hidePassword = true;
+  bool _hidePassword = false;
   bool _rememberMe = false;
 
   @override
@@ -207,7 +207,7 @@ class _loginState extends State<login> {
                 height: 18,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   uihelper.CustomtextButton(() {}, "Provider"),
                   uihelper.CustomtextButton(() {}, "Customer"),
