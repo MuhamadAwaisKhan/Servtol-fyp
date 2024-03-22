@@ -1,111 +1,116 @@
 
 import 'package:flutter/material.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
-class MyWidget extends StatefulWidget {
+
+class DropDownHelper extends StatefulWidget {
+  const DropDownHelper({Key? key}) : super(key: key);
+
   @override
-  _MyWidgetState createState() => _MyWidgetState();
+  State<DropDownHelper> createState() => _DropDownHelperState();
 }
 
-class _MyWidgetState extends State<MyWidget> {
-  final TextEditingController _textFieldController = TextEditingController();
-  String _phoneNumber = '';
+class _DropDownHelperState extends State<DropDownHelper> {
+  List dropDownListData = [
+    {"title": "BCA", "value": "1"},
+    {"title": "MCA", "value": "2"},
+    {"title": "B.Tech", "value": "3"},
+    {"title": "M.Tech", "value": "4"},
+  ];
+
+  String defaultValue = "";
+  String secondDropDown = "";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Phone Number Input'),
+        centerTitle: true,
+        title: const Text("DropDown Example"),
       ),
       body: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textFieldController,
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        _phoneNumber = value;
-                      });
-                    },
-                  ),
-                ),
-                SizedBox(width: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    // Clear the existing text field focus
-                    FocusScope.of(context).unfocus();
-
-                    // Navigate to the phone input widget
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PhoneNumberInputPage(),
-                      ),
-                    ).then((phoneNumber) {
-                      if (phoneNumber != null) {
-                        setState(() {
-                          _textFieldController.text = phoneNumber;
-                          _phoneNumber = phoneNumber;
-                        });
-                      }
+        padding: const EdgeInsets.all(10.0),
+        child: ListView(children: [
+          const SizedBox(
+            height: 20,
+          ),
+          InputDecorator(
+            decoration: InputDecoration(
+              border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(15.0)),
+              contentPadding: const EdgeInsets.all(10),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                  isDense: true,
+                  value: defaultValue,
+                  isExpanded: true,
+                  menuMaxHeight: 350,
+                  items: [
+                    const DropdownMenuItem(
+                        child: Text(
+                          "Select Course",
+                        ),
+                        value: ""),
+                    ...dropDownListData.map<DropdownMenuItem<String>>((data) {
+                      return DropdownMenuItem(
+                          child: Text(data['title']), value: data['value']);
+                    }).toList(),
+                  ],
+                  onChanged: (value) {
+                    print("selected Value $value");
+                    setState(() {
+                      defaultValue = value!;
                     });
-                  },
-                  child: Text('Select from List'),
-                ),
-              ],
+                  }),
             ),
-            SizedBox(height: 20),
-            Text(
-              'Phone Number: $_phoneNumber',
-              style: TextStyle(fontSize: 18),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          InputDecorator(
+            decoration: InputDecoration(
+              border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(15.0)),
+              contentPadding: const EdgeInsets.all(10),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class PhoneNumberInputPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Select Phone Number'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Select Phone Number',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                  isDense: true,
+                  value: secondDropDown,
+                  isExpanded: true,
+                  menuMaxHeight: 350,
+                  items: [
+                    const DropdownMenuItem(
+                        child: Text(
+                          "Select Course",
+                        ),
+                        value: ""),
+                    ...dropDownListData.map<DropdownMenuItem<String>>((data) {
+                      return DropdownMenuItem(
+                          child: Text(data['title']), value: data['value']);
+                    }).toList(),
+                  ],
+                  onChanged: (value) {
+                    print("selected Value $value");
+                    setState(() {
+                      secondDropDown = value!;
+                    });
+                  }),
             ),
-            SizedBox(height: 20),
-            Expanded(
-              child: InternationalPhoneNumberInput(
-                onInputChanged: (PhoneNumber number) {
-                  Navigator.pop(context, number.phoneNumber);
-                },
-                inputDecoration: InputDecoration(
-                  labelText: 'Phone Number',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          ElevatedButton(
+              onPressed: () {
+                if (secondDropDown == "") {
+                  print("Please select a course");
+                } else {
+                  print("user selected course $defaultValue");
+                }
+              },
+              child: const Text("Submit"))
+        ]),
       ),
     );
   }

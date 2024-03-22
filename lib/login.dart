@@ -15,12 +15,38 @@ class _loginState extends State<login> {
   TextEditingController passwordcontroller = TextEditingController();
   bool _hidePassword = false;
   bool _rememberMe = false;
+  bool isFirstButtonClicked = false;
+  bool isSecondButtonClicked = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: AppColors.background,
+          // title: (isFirstButtonClicked && !isSecondButtonClicked)
+          //     ? Center(
+          //         child: Text(
+          //           'Provider Portal',
+          //           style: TextStyle(
+          //             fontFamily: 'Poppins',
+          //             fontWeight: FontWeight.bold,
+          //             fontSize: 17,
+          //             color: AppColors.heading,
+          //           ),
+          //         ),
+          //       )
+          //     : (isSecondButtonClicked && !isFirstButtonClicked)
+          //         ? Center(
+          //           child: Text('Customer Portal',
+          //               style: TextStyle(
+          //                 fontFamily: 'Poppins',
+          //                 fontWeight: FontWeight.bold,
+          //                 fontSize: 17,
+          //                 color: AppColors.heading,
+          //               )),
+          //         )
+          //         : null,
+          // Text('Default Title'),
         ),
         backgroundColor: AppColors.background,
         body: SingleChildScrollView(
@@ -58,7 +84,7 @@ class _loginState extends State<login> {
               SizedBox(
                 height: 12,
               ),
-              uihelper.CustomTextfield(
+              uihelper.CustomTextField(
                   emailcontroller, "Email Address", Icons.email_rounded, false),
               uihelper.CustomTextfieldpassword(
                 context,
@@ -174,7 +200,7 @@ class _loginState extends State<login> {
                     child: Text(
                       "Don't have an account?",
                       style: TextStyle(
-                        color: Colors.indigo,
+                        color: Colors.black,
                         fontFamily: 'Poppins',
                         fontSize: 17,
                       ),
@@ -207,19 +233,42 @@ class _loginState extends State<login> {
                 height: 18,
               ),
               Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  uihelper.CustomtextButton(() {}, "Provider"),
-                  uihelper.CustomtextButton(() {}, "Customer"),
+
+                  uihelper.CustomTextButton(
+                     () {
+                      setState(() {
+                        isFirstButtonClicked = false; // Reset first button state
+                        isSecondButtonClicked = !isSecondButtonClicked; // Toggle second button state
+                      });
+                    },
+                     "Provider",
+                     Icons.supervised_user_circle,
+                     Colors.grey, // Specify the default color of the icon
+                    isSecondButtonClicked, // Pass the clicked state to the button
+                  ),
+                  uihelper.CustomTextButton(
+                     () {
+                      setState(() {
+                        isSecondButtonClicked = false; // Reset second button state
+                        isFirstButtonClicked = !isFirstButtonClicked; // Toggle first button state
+                      });
+                    },
+                     "Customer",
+                     Icons.contacts_sharp,
+                     Colors.grey, // Specify the default color of the icon
+                     isFirstButtonClicked, // Pass the clicked state to the button
+                  ),
                 ],
               ),
               SizedBox(
                 height: 13,
               ),
-              uihelper.CustomtextButton(() {
-                emailcontroller.text = "";
-                passwordcontroller.text = "";
-              }, "Reset"),
+              // uihelper.CustomTextButton(() {
+              //   emailcontroller.text = "";
+              //   passwordcontroller.text = "";
+              // }, "Reset", Icons.cancel_presentation_outlined),
             ],
           ),
         ));
