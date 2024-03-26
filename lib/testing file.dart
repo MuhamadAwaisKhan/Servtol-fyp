@@ -115,3 +115,99 @@ class _DropDownHelperState extends State<DropDownHelper> {
     );
   }
 }
+// DropdownButtonHideUnderline(
+// child: DropdownButton<String>(
+// isDense: true,
+// value: _selectedRole,
+// isExpanded: true,
+// menuMaxHeight: 200,
+// items: [
+// const DropdownMenuItem(
+// child: Text("Role"),
+// value: "",
+// ),
+// ...dropDownListData.map((data) {
+// return DropdownMenuItem(
+// child: Text(data['title']!),
+// value: data['value'],
+// );
+// }).toList(),
+// ],
+// onChanged: (value) {
+// setState(() {
+// _selectedRole = value!;
+// });
+// },
+// ),
+// ),
+// if (_selectedRole == "1") // If provider is selected
+// Padding(
+// padding: const EdgeInsets.only(top: 10),
+// child: TextFormField(
+// decoration: InputDecoration(
+// labelText: "Enter Provider Name",
+// border: OutlineInputBorder(
+// borderRadius: BorderRadius.circular(10),
+// ),
+// contentPadding: EdgeInsets.symmetric(
+// vertical: 12, horizontal: 10),
+// ),
+// ),
+// ),
+
+// (mobileNumber) {
+// numbercontroller.text = mobileNumber.parseNumber();
+// }
+// child: Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         DropdownButtonHideUnderline(
+//           child: DropdownButton<String>(
+//             isDense: true,
+//             value: _selectedRole,
+//             isExpanded: true,
+//             menuMaxHeight: 200,
+//             items: [
+//               const DropdownMenuItem<String>(
+//                 child: Text("Role"),
+//                 value: "",
+//               ),
+//               ...dropDownListData.map<DropdownMenuItem<String>>((data) {
+//                 return DropdownMenuItem<String>(
+//                   child: Text(data['title']!),
+//                   value: data['value'],
+//                 );
+//               }).toList(),
+//             ],
+//             onChanged: (value) {
+//               setState(() {
+//                 _selectedRole = value!;
+//               });
+//             },
+//           ),
+//         ),
+//
+//         if (_selectedRole == "1") // If provider is selected
+//           Padding(
+//             padding: const EdgeInsets.only(top: 10),
+//             child: TextFormField(
+//               decoration: InputDecoration(
+//                 labelText: "Enter Provider Name",
+//                 border: OutlineInputBorder(
+//                   borderRadius: BorderRadius.circular(10),
+//                 ),
+//                 contentPadding: EdgeInsets.symmetric(
+//                     vertical: 12, horizontal: 10),
+//               ),
+//             ),
+//           ),
+//       ],
+//     ),
+//   ),
+// ),
+// String _selectedRole = "";
+//
+// List dropDownListData = [
+//   {"title": "Provider", "value": "1"},
+//   {"title": "Customer", "value": "2"},
+// ];

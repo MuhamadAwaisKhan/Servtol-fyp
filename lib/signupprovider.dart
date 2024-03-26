@@ -3,17 +3,18 @@ import 'package:flutter/widgets.dart';
 import 'package:servtol/util/AppColors.dart';
 
 import 'package:flutter/cupertino.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+
 import 'package:servtol/util/uihelper.dart';
 
-class signup extends StatefulWidget {
-  const signup({super.key});
+class signupprovider extends StatefulWidget {
+  const signupprovider({super.key});
 
   @override
-  State<signup> createState() => _signupState();
+  State<signupprovider> createState() => _signupproviderState();
 }
 
-class _signupState extends State<signup> {
+class _signupproviderState extends State<signupprovider> {
+
   @override
   Widget build(BuildContext context) {
     TextEditingController firstcontroller = TextEditingController();
@@ -22,24 +23,17 @@ class _signupState extends State<signup> {
     TextEditingController emailcontroller = TextEditingController();
     TextEditingController numbercontroller = TextEditingController();
     TextEditingController passwordcontroller = TextEditingController();
+    TextEditingController cniccontroller = TextEditingController();
     bool _hidePassword = false;
     bool _rememberMe = false;
-
-    List dropDownListData = [
-      {"title": "Provider", "value": "1"},
-      {"title": "Customer", "value": "2"},
-    ];
-
-    String defaultValue = "";
-
     return Scaffold(
-      appBar: AppBar(
+        appBar: AppBar(
+          backgroundColor: AppColors.background,
+        ),
         backgroundColor: AppColors.background,
-      ),
-      backgroundColor: AppColors.background,
-      body: 
-          SingleChildScrollView(
-            child: Column(
+        body:
+        SingleChildScrollView(
+          child: Column(
               children: [
                 Center(
                   child: IconButton(
@@ -48,7 +42,7 @@ class _signupState extends State<signup> {
                   ),
                 ),
                 Center(
-                    child: Text("Hello User !",
+                    child: Text("Hello Provider !",
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.bold,
@@ -81,80 +75,35 @@ class _signupState extends State<signup> {
                     firstcontroller, "First Name", Icons.account_circle, false),
                 uihelper.CustomTextField(
                     lastcontroller, "Last Name", Icons.account_circle, false),
+                uihelper.CustomNumberField(cniccontroller, "CNIC", Icons.accessibility_new_sharp, false),
                 uihelper.CustomTextField(
                     usernamecontroller, "User Name", Icons.account_circle, false),
                 uihelper.CustomTextField(
                     emailcontroller, "Email Address", Icons.email_rounded, false),
                 uihelper.customPhoneField(
-                    numbercontroller, "Contact Number", Icons.phone_in_talk),
+                    numbercontroller, "Contact Number", Icons.phone_in_talk,(mobileNumber) {
+                  numbercontroller.text = mobileNumber.parseNumber();
+                }),
                 uihelper.CustomTextfieldpassword(
                   context,
                   passwordcontroller,
                   'Password',
                   _hidePassword,
-                  (bool value) {
+                      (bool value) {
                     setState(() {
                       _hidePassword = value;
                     });
                   },
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      contentPadding: const EdgeInsets.all(20),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            isDense: true,
-                            value: defaultValue,
-                            isExpanded: true,
-                            menuMaxHeight: 200,
-                            items: [
-                              const DropdownMenuItem(
-                                child: Text("Role"),
-                                value: "",
-                              ),
-                              ...dropDownListData.map<DropdownMenuItem<String>>((data) {
-                                return DropdownMenuItem(
-                                  child: Text(data['title']),
-                                  value: data['value'],
-                                );
-                              }).toList(),
-                            ],
-                            onChanged: (value) {
-                              print("selected Value $value");
-                              setState(() {
-                                defaultValue = value!; // Update defaultValue here
-                              });
-                            },
-                          ),
-                        ),
-                        if (defaultValue == "Provider")
-                          Padding(
-                            padding: EdgeInsets.only(top: 10), // Add top padding for separation
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                labelText: "Enter Provider Name",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-
-            
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(horizontal: 20),
+                //   child: InputDecorator(
+                //     decoration: InputDecoration(
+                //       border: OutlineInputBorder(
+                //         borderRadius: BorderRadius.circular(25),
+                //       ),
+                //       contentPadding: const EdgeInsets.all(20),
+                //     ),)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -228,7 +177,7 @@ class _signupState extends State<signup> {
                 ),
                 Row(
                   // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            
+
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(left: 58.0),
@@ -268,8 +217,7 @@ class _signupState extends State<signup> {
                   height: 35,
                 ),
 
-        ]),
-      ),
-    );
+              ]
+          ),) );
   }
 }

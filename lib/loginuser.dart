@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 
-class login extends StatefulWidget {
-  const login({super.key});
+class loginuser extends StatefulWidget {
+  const loginuser({super.key});
 
   @override
-  State<login> createState() => _loginState();
+  State<loginuser> createState() => _loginuserState();
 }
 
-class _loginState extends State<login> {
+class _loginuserState extends State<loginuser> {
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
   bool _hidePassword = false;
@@ -54,7 +54,7 @@ class _loginState extends State<login> {
             children: [
               Center(
                   child: Text(
-                "Hello Again !",
+                "Hello Customer !",
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
@@ -232,39 +232,7 @@ class _loginState extends State<login> {
               SizedBox(
                 height: 18,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
 
-                  uihelper.CustomTextButton(
-                     () {
-                      setState(() {
-                        isFirstButtonClicked = false; // Reset first button state
-                        isSecondButtonClicked = !isSecondButtonClicked; // Toggle second button state
-                      });
-                    },
-                     "Provider",
-                     Icons.supervised_user_circle,
-                     Colors.grey, // Specify the default color of the icon
-                    isSecondButtonClicked, // Pass the clicked state to the button
-                  ),
-                  uihelper.CustomTextButton(
-                     () {
-                      setState(() {
-                        isSecondButtonClicked = false; // Reset second button state
-                        isFirstButtonClicked = !isFirstButtonClicked; // Toggle first button state
-                      });
-                    },
-                     "Customer",
-                     Icons.contacts_sharp,
-                     Colors.grey, // Specify the default color of the icon
-                     isFirstButtonClicked, // Pass the clicked state to the button
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 13,
-              ),
               // uihelper.CustomTextButton(() {
               //   emailcontroller.text = "";
               //   passwordcontroller.text = "";

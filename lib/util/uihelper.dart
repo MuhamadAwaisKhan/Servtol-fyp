@@ -8,15 +8,18 @@ import 'package:servtol/util/AppColors.dart';
 class uihelper {
   static customPhoneField(TextEditingController controller,
       String text,
-      IconData iconData,) {
+      IconData iconData,
+      Function(PhoneNumber) mobileCallBack) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 11),
       child: InternationalPhoneNumberInput(
         onInputChanged: (PhoneNumber number) {
           // controller: controller;
           // onInputChanged: (value) => controller.text = value.phoneNumber??"",
+          mobileCallBack.call(number);
           print(number.phoneNumber);
         },
+
         initialValue: PhoneNumber(isoCode: 'PK'),
         inputDecoration: InputDecoration(
           labelText: text,
@@ -27,6 +30,7 @@ class uihelper {
           ),
           suffixIcon: Icon(iconData),
         ),
+
       ),
     );
   }
@@ -39,6 +43,27 @@ class uihelper {
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
       child: TextField(
         controller: controller,
+        obscureText: tohide,
+        decoration: InputDecoration(
+          labelText: text,
+          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
+          suffixIcon: Icon(iconData),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+      ),
+    );
+  }
+  static CustomNumberField(TextEditingController controller,
+      String text,
+      IconData iconData,
+      bool tohide,) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
+      child: TextField(
+        controller: controller,
+        keyboardType: TextInputType.number, // Set keyboard type to numeric
         obscureText: tohide,
         decoration: InputDecoration(
           labelText: text,
