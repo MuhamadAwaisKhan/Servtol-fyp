@@ -1,6 +1,8 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:servtol/logincustomer.dart';
+import 'package:servtol/loginprovider.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 
@@ -57,6 +59,10 @@ class _mainloginState extends State<mainlogin> {
 
                       uihelper.CustomTextButton(
                             () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (Context) => loginprovider()));
                           setState(() {
                             isFirstButtonClicked = false; // Reset first button state
                             isSecondButtonClicked = !isSecondButtonClicked; // Toggle second button state
@@ -72,6 +78,10 @@ class _mainloginState extends State<mainlogin> {
                       ),
                       uihelper.CustomTextButton(
                             () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (Context) => logincustomer()));
                           setState(() {
                             isSecondButtonClicked = false; // Reset second button state
                             isFirstButtonClicked = !isFirstButtonClicked; // Toggle first button state

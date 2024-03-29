@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:servtol/loginprovider.dart';
-import 'package:servtol/loginuser.dart';
+import 'package:servtol/logincustomer.dart';
 import 'package:servtol/main%20login.dart';
 import 'package:servtol/signupcustomer.dart';
 import 'package:servtol/signupmain.dart';
@@ -17,7 +17,7 @@ void main() async {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
 
-    home: signupprovider(),
+    home: mainlogin(),
   ));
 }
 

@@ -1,16 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:servtol/signupcustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 
-class loginuser extends StatefulWidget {
-  const loginuser({super.key});
+class logincustomer extends StatefulWidget {
+  const logincustomer({super.key});
 
   @override
-  State<loginuser> createState() => _loginuserState();
+  State<logincustomer> createState() => _logincustomerState();
 }
 
-class _loginuserState extends State<loginuser> {
+class _logincustomerState extends State<logincustomer> {
+
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
   bool _hidePassword = false;
@@ -97,9 +100,9 @@ class _loginuserState extends State<loginuser> {
                   });
                 },
               ),
-              SizedBox(
-                height: 5,
-              ),
+              // SizedBox(
+              //   height: 5,
+              // ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -210,6 +213,10 @@ class _loginuserState extends State<loginuser> {
                     padding: const EdgeInsets.only(left: 15.0),
                     child: GestureDetector(
                       onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (Context) => signupcustomer()));
                         // Replace the below line with your navigation logic
                         print(
                             "Sign Up tapped"); // Placeholder action, you can replace this line
@@ -237,6 +244,38 @@ class _loginuserState extends State<loginuser> {
               //   emailcontroller.text = "";
               //   passwordcontroller.text = "";
               // }, "Reset", Icons.cancel_presentation_outlined),
+
+              Row(children: [
+                Expanded(child: Divider(  thickness: 2,
+                  indent: 2,
+                  endIndent: 2,
+                  color: AppColors.grey,)),
+                Padding(
+                    padding: EdgeInsets.only(left: 10, right: 10),
+                    child: Text("Or Continue With",style: TextStyle(
+                      fontSize: 16,
+                      fontFamily: "Poppins"
+                    ),)),
+                Expanded(child: Divider(
+                  thickness: 2,
+                  indent: 2,
+                  endIndent: 2,
+                  color: AppColors.grey,
+                )),
+              ]),
+
+              // Text(
+              //   "-------------------  Or Continue With-------------------",
+
+              // ),
+              SizedBox(
+                height: 20,
+              ),
+              uihelper.CustomButton(() {}, "Sign In With Google"),
+              SizedBox(
+                height: 20,
+              ),
+              uihelper.CustomButton(() {}, "Sign In With OTP"),
             ],
           ),
         ));
