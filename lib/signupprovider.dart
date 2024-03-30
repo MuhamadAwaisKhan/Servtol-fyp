@@ -87,7 +87,7 @@ class _signupproviderState extends State<signupprovider> {
               lastcontroller.text.toString().trim(),
               usernamecontroller.text.toString().trim(),
               emailcontroller.text.toString().trim(),
-              numbercontroller.text.trim(),
+              mobile="+92"+  numbercontroller.text.trim(),
               cniccontroller.text.trim(),
             );
           });
@@ -178,10 +178,8 @@ class _signupproviderState extends State<signupprovider> {
                     usernamecontroller, "User Name", Icons.account_circle, false),
                 uihelper.CustomTextField(
                     emailcontroller, "Email Address", Icons.email_rounded, false),
-                uihelper.customPhoneField(
-                    numbercontroller, "Contact", Icons.phone_in_talk,(mobileNumber) {
-                  numbercontroller.text = mobileNumber.parseNumber();
-                }),
+                uihelper.CustomNumberField(
+                    numbercontroller, "Contact", Icons.phone_in_talk,false),
                 uihelper.CustomTextfieldpassword(
                   context,
                   passwordcontroller,

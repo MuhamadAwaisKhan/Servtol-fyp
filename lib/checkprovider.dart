@@ -16,9 +16,10 @@ class _checkproviderState extends State<checkprovider> {
   Widget build(BuildContext context) {
     return Scaffold();
   }
-  checkuser() async{
-    final user=FirebaseAuth.instance.currentUser;
-    if(user != Null){
+  checkuser() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != Null) {
       return homeprovider();
     }
+  }
   }

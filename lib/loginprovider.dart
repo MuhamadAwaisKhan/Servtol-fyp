@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:servtol/forgetpassword.dart';
 import 'package:servtol/homeprovider.dart';
 import 'package:servtol/signupprovider.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -187,6 +188,10 @@ class _loginproviderState extends State<loginprovider> {
                   // ),
                   GestureDetector(
                     onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (Context) => forgetpassword()));
                       // Replace the below line with your navigation logic
                       print(
                           "Forget Password tapped"); // Placeholder action, you can replace this line

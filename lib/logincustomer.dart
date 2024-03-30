@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:servtol/PhoneAuth.dart';
+import 'package:servtol/forgetpassword.dart';
 import 'package:servtol/homecustomer.dart';
 import 'package:servtol/homeprovider.dart';
 import 'package:servtol/signupcustomer.dart';
@@ -189,6 +191,10 @@ class _logincustomerState extends State<logincustomer> {
                   // ),
                   GestureDetector(
                     onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (Context) => forgetpassword()));
                       // Replace the below line with your navigation logic
                       print(
                           "Forget Password tapped"); // Placeholder action, you can replace this line
@@ -310,10 +316,13 @@ class _logincustomerState extends State<logincustomer> {
                 height: 20,
               ),
               uihelper.CustomButton(() {}, "Sign In With Google"),
+
               SizedBox(
                 height: 20,
               ),
-              uihelper.CustomButton(() {}, "Sign In With OTP"),
+              uihelper.CustomButton(() {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneAuth()));
+              }, "Sign In With OTP"),
 
 
 
