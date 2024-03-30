@@ -1,7 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:servtol/homeprovider.dart';
+import 'package:servtol/signupprovider.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/widgets.dart';
+import 'firebase_options.dart';
 
 class loginprovider extends StatefulWidget {
   const loginprovider({super.key});
@@ -15,6 +20,32 @@ class _loginproviderState extends State<loginprovider> {
   TextEditingController passwordcontroller = TextEditingController();
   bool _hidePassword = false;
   bool _rememberMe = false;
+  bool _isLoading = false;
+  login(String email, String password) async {
+    setState(() {
+      _isLoading = true;
+    });
+    if (email == "" && password == "") {
+      uihelper.CustomAlertbox(context, "Enter Required  fields");
+      setState(() {
+        _isLoading = false;
+      });
+    } else {
+      UserCredential? usercreddntial;
+      try {
+        usercreddntial = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(email: email, password: password)
+            .then((value) => Navigator.push(
+            context, MaterialPageRoute(builder: (context) => homeprovider())));
+      } on FirebaseAuthException catch (ex) {
+        return uihelper.CustomAlertbox(context, ex.code.toString());
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +216,11 @@ class _loginproviderState extends State<loginprovider> {
               SizedBox(
                 height: 30,
               ),
-              uihelper.CustomButton(() {}, "Login"),
+              uihelper.CustomButton(() { login(emailcontroller.text.toString().trim(),
+                  passwordcontroller.text.toString().trim());
+
+                // Navigator.push(context, MaterialPageRoute(builder: (context)=>MyHomePage()));
+              }, "Login"),
               SizedBox(
                 height: 20,
               ),
@@ -194,7 +229,7 @@ class _loginproviderState extends State<loginprovider> {
 
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 58.0),
+                    padding: const EdgeInsets.only(left: 38.0),
                     child: Text(
                       "Don't have an account?",
                       style: TextStyle(
@@ -211,8 +246,8 @@ class _loginproviderState extends State<loginprovider> {
                         // Replace the below line with your navigation logic
                         print(
                             "Sign Up tapped"); // Placeholder action, you can replace this line
-                        // Navigator.pushReplacement(context,
-                        //     MaterialPageRoute(builder: (context) => SignUp())); // Replace this with your navigation logic
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (context) => signupprovider())); // Replace this with your navigation logic
                       },
                       child: Text(
                         'Sign Up',
@@ -235,8 +270,11 @@ class _loginproviderState extends State<loginprovider> {
               //   emailcontroller.text = "";
               //   passwordcontroller.text = "";
               // }, "Reset", Icons.cancel_presentation_outlined),
-            ],
-          ),
+        if (_isLoading == true) Center(child: CircularProgressIndicator())
+            ]
+          )
+
         ));
+
   }
 }

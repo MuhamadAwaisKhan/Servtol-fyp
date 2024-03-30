@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:servtol/logincustomer.dart';
+import 'package:servtol/loginprovider.dart';
 import 'package:servtol/util/AppColors.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:servtol/util/uihelper.dart';
 
@@ -14,18 +17,113 @@ class signupprovider extends StatefulWidget {
 }
 
 class _signupproviderState extends State<signupprovider> {
-
+  TextEditingController firstcontroller = TextEditingController();
+  TextEditingController lastcontroller = TextEditingController();
+  TextEditingController usernamecontroller = TextEditingController();
+  TextEditingController emailcontroller = TextEditingController();
+  TextEditingController numbercontroller = TextEditingController();
+  TextEditingController passwordcontroller = TextEditingController();
+  TextEditingController cniccontroller = TextEditingController();
+  bool _hidePassword = false;
+  bool _rememberMe = false;
   @override
   Widget build(BuildContext context) {
-    TextEditingController firstcontroller = TextEditingController();
-    TextEditingController lastcontroller = TextEditingController();
-    TextEditingController usernamecontroller = TextEditingController();
-    TextEditingController emailcontroller = TextEditingController();
-    TextEditingController numbercontroller = TextEditingController();
-    TextEditingController passwordcontroller = TextEditingController();
-    TextEditingController cniccontroller = TextEditingController();
-    bool _hidePassword = false;
-    bool _rememberMe = false;
+    Future<void> _addData(String fname,
+        String lname,
+        String mobile,
+        String username,
+        String email,
+        String cnic) async {
+      try {
+        await FirebaseFirestore.instance.collection('provider').add({
+          fname = 'FirstName': firstcontroller.text,
+          lname = 'LastName': lastcontroller.text,
+          email = 'Email': emailcontroller.text,
+          mobile = 'Mobile': numbercontroller.text,
+          username = 'Username': usernamecontroller.text,
+          cnic='CNIC':cniccontroller.text,
+          // Add more fields as needed
+        }).then((value) {
+          firstcontroller.clear();
+          lastcontroller.clear();
+          usernamecontroller.clear();
+          emailcontroller.clear();
+          numbercontroller.clear();
+          cniccontroller.clear();
+          // Show a success message or navigate to a different screen
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Account Created successfully')),
+          );
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => loginprovider()));
+        });
+        // Reset text fields after data is added
+
+      } catch (e) {
+        // Handle errors
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to Created Account: $e')),
+        );
+      }
+    }
+
+    signup({required String email,
+      required String password,
+      required String fname,
+      required String lname,
+      required String mobile,
+      required String username,
+      required String cnic,
+    }) async {
+      print("Signup function called");
+      if (fname != "" && lname != "" && mobile != "" && username != "" && cnic != "") {
+        try {
+          await FirebaseAuth.instance
+              .createUserWithEmailAndPassword(email: email, password: password)
+              .then((value) {
+            print("Sign up complete");
+            _addData(
+              firstcontroller.text.toString().trim(),
+              lastcontroller.text.toString().trim(),
+              usernamecontroller.text.toString().trim(),
+              emailcontroller.text.toString().trim(),
+              numbercontroller.text.trim(),
+              cniccontroller.text.trim(),
+            );
+          });
+        } on FirebaseAuthException catch (ex) {
+          return uihelper.CustomAlertbox(context, ex.code.toString());
+        }
+      } else {
+        if (fname == "") {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid first Name')),
+          );
+        }
+        if (lname == "") {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid last name')),
+          );
+        }
+        if (mobile == "") {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid mobile number')),
+          );
+        }
+
+        if (username == "") {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid userName')),
+          );
+        }
+        if (cnic == "") {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Cnic')),
+          );
+        }
+      }
+    }
+
     return Scaffold(
         appBar: AppBar(
           backgroundColor: AppColors.background,
@@ -81,7 +179,7 @@ class _signupproviderState extends State<signupprovider> {
                 uihelper.CustomTextField(
                     emailcontroller, "Email Address", Icons.email_rounded, false),
                 uihelper.customPhoneField(
-                    numbercontroller, "Contact Number", Icons.phone_in_talk,(mobileNumber) {
+                    numbercontroller, "Contact", Icons.phone_in_talk,(mobileNumber) {
                   numbercontroller.text = mobileNumber.parseNumber();
                 }),
                 uihelper.CustomTextfieldpassword(
@@ -120,7 +218,7 @@ class _signupproviderState extends State<signupprovider> {
                       style: TextStyle(
                         color: Colors.black,
                         fontFamily: 'Poppins',
-                        fontSize: 13,
+                        fontSize: 9,
                       ),
                     ),
                     GestureDetector(
@@ -136,7 +234,7 @@ class _signupproviderState extends State<signupprovider> {
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w600,
-                          fontSize: 13,
+                          fontSize: 9,
                           color: Colors.indigo,
                         ),
                       ),
@@ -146,7 +244,7 @@ class _signupproviderState extends State<signupprovider> {
                       style: TextStyle(
                         color: Colors.black,
                         fontFamily: 'Poppins',
-                        fontSize: 13,
+                        fontSize: 9,
                       ),
                     ),
                     GestureDetector(
@@ -162,7 +260,7 @@ class _signupproviderState extends State<signupprovider> {
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w600,
-                          fontSize: 13,
+                          fontSize: 9,
                           color: Colors.indigo,
                         ),
                       ),
@@ -170,6 +268,16 @@ class _signupproviderState extends State<signupprovider> {
                   ],
                 ),
                 uihelper.CustomButton(() {
+                  print("Signup button tapped");
+                  signup(
+                    email: emailcontroller.text.toString().trim(),
+                    password: passwordcontroller.text.toString(),
+                    fname: firstcontroller.text.toString().trim(),
+                    lname: lastcontroller.text.toString().trim(),
+                    mobile: emailcontroller.text.toString().trim(),
+                    username: usernamecontroller.text.toString().trim(),
+                    cnic: cniccontroller.text.toString().trim(),
+                  );
                   // print("Entered phone number: ${numbercontroller.text}");
                 }, "Sign Up"),
                 SizedBox(
@@ -180,7 +288,7 @@ class _signupproviderState extends State<signupprovider> {
 
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 58.0),
+                      padding: const EdgeInsets.only(left: 28.0),
                       child: Text(
                         "Already have an Account?",
                         style: TextStyle(

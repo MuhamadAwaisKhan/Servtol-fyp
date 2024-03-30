@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:servtol/homecustomer.dart';
+import 'package:servtol/homeprovider.dart';
 import 'package:servtol/signupcustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class logincustomer extends StatefulWidget {
   const logincustomer({super.key});
@@ -18,8 +21,33 @@ class _logincustomerState extends State<logincustomer> {
   TextEditingController passwordcontroller = TextEditingController();
   bool _hidePassword = false;
   bool _rememberMe = false;
-  bool isFirstButtonClicked = false;
-  bool isSecondButtonClicked = false;
+  bool _isLoading = false;
+  login(String email, String password) async {
+    setState(() {
+      _isLoading = true;
+    });
+    if (email == "" && password == "") {
+      uihelper.CustomAlertbox(context, "Enter Required  fields");
+      setState(() {
+        _isLoading = false;
+      });
+    } else {
+      UserCredential? usercreddntial;
+      try {
+        usercreddntial = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(email: email, password: password)
+            .then((value) => Navigator.push(
+            context, MaterialPageRoute(builder: (context) => homecustomer())));
+      } on FirebaseAuthException catch (ex) {
+        return uihelper.CustomAlertbox(context, ex.code.toString());
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -187,10 +215,20 @@ class _logincustomerState extends State<logincustomer> {
                   //  ),
                 ],
               ),
+              if (_isLoading == true) Center(child: CircularProgressIndicator()),
               SizedBox(
                 height: 30,
               ),
-              uihelper.CustomButton(() {}, "Login"),
+              uihelper.CustomButton(() {
+      login(emailcontroller.text.toString().trim(),
+          passwordcontroller.text.toString().trim());
+
+                // Navigator.pushReplacement(
+                //   context,
+                //   MaterialPageRoute(
+                //       builder: (context) => homecustomer()));
+      },
+                  "Login"),
               SizedBox(
                 height: 20,
               ),
@@ -199,7 +237,7 @@ class _logincustomerState extends State<logincustomer> {
 
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 58.0),
+                    padding: const EdgeInsets.only(left: 38.0),
                     child: Text(
                       "Don't have an account?",
                       style: TextStyle(
@@ -276,6 +314,9 @@ class _logincustomerState extends State<logincustomer> {
                 height: 20,
               ),
               uihelper.CustomButton(() {}, "Sign In With OTP"),
+
+
+
             ],
           ),
         ));

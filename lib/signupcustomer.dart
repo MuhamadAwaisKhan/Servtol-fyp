@@ -206,7 +206,7 @@ class _signupcustomerState extends State<signupcustomer> {
                   style: TextStyle(
                     color: Colors.black,
                     fontFamily: 'Poppins',
-                    fontSize: 13,
+                    fontSize: 9,
                   ),
                 ),
                 GestureDetector(
@@ -222,7 +222,7 @@ class _signupcustomerState extends State<signupcustomer> {
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                      fontSize: 9,
                       color: Colors.indigo,
                     ),
                   ),
@@ -232,7 +232,7 @@ class _signupcustomerState extends State<signupcustomer> {
                   style: TextStyle(
                     color: Colors.black,
                     fontFamily: 'Poppins',
-                    fontSize: 13,
+                    fontSize: 9,
                   ),
                 ),
                 GestureDetector(
@@ -248,7 +248,7 @@ class _signupcustomerState extends State<signupcustomer> {
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                      fontSize: 9,
                       color: Colors.indigo,
                     ),
                   ),
@@ -277,7 +277,7 @@ class _signupcustomerState extends State<signupcustomer> {
 
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 58.0),
+                  padding: const EdgeInsets.only(left: 28.0),
                   child: Text(
                     "Already have an Account?",
                     style: TextStyle(

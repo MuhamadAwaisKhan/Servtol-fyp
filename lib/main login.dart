@@ -57,7 +57,7 @@ class _mainloginState extends State<mainlogin> {
                     children: [
 
 
-                      uihelper.CustomTextButton(
+                      uihelper.CustomButton(
                             () {
                               Navigator.push(
                                   context,
@@ -69,14 +69,14 @@ class _mainloginState extends State<mainlogin> {
                           });
                         },
                         "Provider",
-                        Icons.supervised_user_circle,
-                        Colors.grey, // Specify the default color of the icon
-                        isSecondButtonClicked, // Pass the clicked state to the button
+                        // Icons.supervised_user_circle,
+                        // Colors.grey, // Specify the default color of the icon
+                        // isSecondButtonClicked, // Pass the clicked state to the button
                       ),
                       SizedBox(
                         height: 30,
                       ),
-                      uihelper.CustomTextButton(
+                      uihelper.CustomButton(
                             () {
                               Navigator.push(
                                   context,
@@ -88,9 +88,9 @@ class _mainloginState extends State<mainlogin> {
                           });
                         },
                         "Customer",
-                        Icons.contacts_sharp,
-                        Colors.grey, // Specify the default color of the icon
-                        isFirstButtonClicked, // Pass the clicked state to the button
+                        // Icons.contacts_sharp,
+                        // Colors.grey, // Specify the default color of the icon
+                        // isFirstButtonClicked, // Pass the clicked state to the button
                       ),
                       ]
 
