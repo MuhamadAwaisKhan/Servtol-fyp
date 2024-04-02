@@ -9,7 +9,7 @@ import 'package:servtol/signupcustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:google_sign_in/google_sign_in.dart';
 class logincustomer extends StatefulWidget {
   const logincustomer({super.key});
 
@@ -24,6 +24,7 @@ class _logincustomerState extends State<logincustomer> {
   bool _hidePassword = false;
   bool _rememberMe = false;
   bool _isLoading = false;
+  // GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
   login(String email, String password) async {
     setState(() {
       _isLoading = true;
@@ -49,6 +50,17 @@ class _logincustomerState extends State<logincustomer> {
       }
     }
   }
+  // Future<void> _handleSignIn() async {
+  //   try {
+  //     await _googleSignIn.signIn();
+  //     // After sign in, you can get the user's information like this:
+  //     // print(_googleSignIn.currentUser.displayName);
+  //     // print(_googleSignIn.currentUser.email);
+  //     // You can navigate to another screen or do further actions here
+  //   } catch (error) {
+  //     print(error);
+  //   }
+  // }
 
 
   @override
@@ -289,42 +301,45 @@ class _logincustomerState extends State<logincustomer> {
               //   passwordcontroller.text = "";
               // }, "Reset", Icons.cancel_presentation_outlined),
 
-              Row(children: [
-                Expanded(child: Divider(  thickness: 2,
-                  indent: 2,
-                  endIndent: 2,
-                  color: AppColors.grey,)),
-                Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                    child: Text("Or Continue With",style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: "Poppins"
-                    ),)),
-                Expanded(child: Divider(
-                  thickness: 2,
-                  indent: 2,
-                  endIndent: 2,
-                  color: AppColors.grey,
-                )),
-              ]),
-
-              // Text(
-              //   "-------------------  Or Continue With-------------------",
-
+              // Row(children: [
+              //   Expanded(child: Divider(  thickness: 2,
+              //     indent: 2,
+              //     endIndent: 2,
+              //     color: AppColors.grey,)),
+              //   Padding(
+              //       padding: EdgeInsets.only(left: 10, right: 10),
+              //       child: Text("Or Continue With",style: TextStyle(
+              //         fontSize: 16,
+              //         fontFamily: "Poppins"
+              //       ),)),
+              //   Expanded(child: Divider(
+              //     thickness: 2,
+              //     indent: 2,
+              //     endIndent: 2,
+              //     color: AppColors.grey,
+              //   )),
+              // ]),
+              //
+              // // Text(
+              // //   "-------------------  Or Continue With-------------------",
+              //
+              // // ),
+              // SizedBox(
+              //   height: 20,
               // ),
-              SizedBox(
-                height: 20,
-              ),
-              uihelper.CustomButton(() {}, "Sign In With Google"),
-
-              SizedBox(
-                height: 20,
-              ),
-              uihelper.CustomButton(() {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneAuth()));
-              }, "Sign In With OTP"),
-
-
+              // uihelper.CustomButton(() {
+              //   _handleSignIn;
+              //   print("google tapped");
+              // }, "Sign In With Google"),
+              //
+              // SizedBox(
+              //   height: 20,
+              // ),
+              // uihelper.CustomButton(() {
+              //   Navigator.push(context, MaterialPageRoute(builder: (context)=>PhoneAuth()));
+              // }, "Sign In With OTP"),
+              //
+              //
 
             ],
           ),

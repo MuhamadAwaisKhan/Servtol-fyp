@@ -111,8 +111,8 @@ class uihelper {
 
   static CustomButton(VoidCallback voidCallback, String text) {
     return SizedBox(
-      height: 58,
-      width: 300,
+      height: 40,
+      width: 130,
       child: ElevatedButton(
         onPressed: voidCallback,
         style: ElevatedButton.styleFrom(
@@ -124,7 +124,7 @@ class uihelper {
         child: Text(
           text,
           style: TextStyle(
-              color: Colors.white, fontSize: 22, fontFamily: "Poppins"),
+              color: Colors.white,  fontFamily: "Poppins"),
         ),
       ),
     );
