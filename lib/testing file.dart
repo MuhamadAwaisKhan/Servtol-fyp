@@ -9,39 +9,44 @@ class LineChartSample extends StatelessWidget {
         title: Text('Line Chart Example'),
       ),
       body: Center(
-        child: LineChart(
-          LineChartData(
-            gridData: FlGridData(
-              show: true,
-            ),
-            titlesData: FlTitlesData(
-              leftTitles: SideTitles(showTitles: true),
-              bottomTitles: SideTitles(showTitles: true),
-            ),
-            borderData: FlBorderData(
-              show: true,
-              border: Border.all(color: Colors.grey),
-            ),
-            lineBarsData: [
-              LineChartBarData(
-                spots: [
-                  FlSpot(0, 3),
-                  FlSpot(1, 4),
-                  FlSpot(2, 2),
-                  FlSpot(3, 5),
-                  FlSpot(4, 1),
-                ],
-                isCurved: true,
-                colors: [Colors.blue],
-                barWidth: 4,
-                isStrokeCapRound: true,
-                belowBarData: BarAreaData(show: false),
+        child: Container(
+          width: 300, // Adjust width as needed
+          height: 200, // Adjust height as needed
+          child: LineChart(
+            LineChartData(
+              gridData: FlGridData(
+                show: true,
               ),
-            ],
+              titlesData: FlTitlesData(
+                leftTitles: SideTitles(showTitles: true),
+                bottomTitles: SideTitles(showTitles: true),
+              ),
+              borderData: FlBorderData(
+                show: true,
+                border: Border.all(color: Colors.grey),
+              ),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: [
+                    FlSpot(0, 3),
+                    FlSpot(1, 4),
+                    FlSpot(2, 2),
+                    FlSpot(3, 5),
+                    FlSpot(4, 1),
+                  ],
+                  isCurved: true,
+                  colors: [Colors.blue],
+                  barWidth: 2,
+                  isStrokeCapRound: true,
+                  belowBarData: BarAreaData(show: false),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+
 

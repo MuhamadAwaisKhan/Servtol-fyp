@@ -19,8 +19,7 @@ void main() async {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
 
-    home: mainlogin(),
+    home: providermainlayout(),
   ));
 }
-
 
