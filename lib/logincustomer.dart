@@ -246,7 +246,7 @@ class _logincustomerState extends State<logincustomer> {
                 //   MaterialPageRoute(
                 //       builder: (context) => homecustomer()));
       },
-                  "Login"),
+                  "Login",50,190),
               SizedBox(
                 height: 20,
               ),

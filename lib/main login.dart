@@ -68,7 +68,7 @@ class _mainloginState extends State<mainlogin> {
                             isSecondButtonClicked = !isSecondButtonClicked; // Toggle second button state
                           });
                         },
-                        "Provider",
+                        "Provider",40,130,
                         // Icons.supervised_user_circle,
                         // Colors.grey, // Specify the default color of the icon
                         // isSecondButtonClicked, // Pass the clicked state to the button
@@ -87,7 +87,7 @@ class _mainloginState extends State<mainlogin> {
                             isFirstButtonClicked = !isFirstButtonClicked; // Toggle first button state
                           });
                         },
-                        "Customer",
+                        "Customer",40,130,
                         // Icons.contacts_sharp,
                         // Colors.grey, // Specify the default color of the icon
                         // isFirstButtonClicked, // Pass the clicked state to the button

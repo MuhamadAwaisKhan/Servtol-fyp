@@ -265,7 +265,7 @@ class _signupcustomerState extends State<signupcustomer> {
               );
 
               // print("Entered phone number: ${numbercontroller.text}");
-            }, "Sign Up"),
+            }, "Sign Up",50,190),
             SizedBox(
               height: 15,
             ),

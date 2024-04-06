@@ -109,10 +109,10 @@ class uihelper {
     );
   }
 
-  static CustomButton(VoidCallback voidCallback, String text) {
+  static CustomButton(VoidCallback voidCallback, String text,double h,double w) {
     return SizedBox(
-      height: 40,
-      width: 130,
+      height: h,
+      width: w,
       child: ElevatedButton(
         onPressed: voidCallback,
         style: ElevatedButton.styleFrom(
@@ -132,15 +132,17 @@ class uihelper {
 
   static CustomTextButton(VoidCallback voidCallback, String text,
       IconData iconData, Color iconColor,
-       bool isClicked,) {
+       // bool isClicked,
+  ) {
     return SizedBox(
       height: 70,
       width: 150,
       child: TextButton(
         onPressed: voidCallback,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isClicked ? Colors.green : AppColors.heading,
-          // backgroundColor: AppColors.heading,
+           // backgroundColor: isClicked ? Colors.green : AppColors.customButton,
+            backgroundColor: AppColors.customButton,
+
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(26),
           ),
@@ -148,7 +150,9 @@ class uihelper {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(iconData, color: isClicked ? Colors.white : iconColor),
+            Icon(iconData,
+                color: Colors.white ,
+            ),
             SizedBox(width: 8),
             Text(
               text,

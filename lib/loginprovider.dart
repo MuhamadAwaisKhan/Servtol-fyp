@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:servtol/forgetpassword.dart';
 import 'package:servtol/homeprovider.dart';
+import 'package:servtol/providermain.dart';
 import 'package:servtol/signupprovider.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
@@ -36,8 +37,8 @@ class _loginproviderState extends State<loginprovider> {
       try {
         usercreddntial = await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password)
-            .then((value) => Navigator.push(
-            context, MaterialPageRoute(builder: (context) => homeprovider())));
+            .then((value) => Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => providermainlayout())));
       } on FirebaseAuthException catch (ex) {
         return uihelper.CustomAlertbox(context, ex.code.toString());
       } finally {
@@ -225,7 +226,7 @@ class _loginproviderState extends State<loginprovider> {
                   passwordcontroller.text.toString().trim());
 
                 // Navigator.push(context, MaterialPageRoute(builder: (context)=>MyHomePage()));
-              }, "Login"),
+              }, "Login",40,190),
               SizedBox(
                 height: 20,
               ),

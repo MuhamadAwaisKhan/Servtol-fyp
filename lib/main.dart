@@ -18,8 +18,10 @@ void main() async {
   );
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-
-    home: providermainlayout(),
+    // theme: AppTheme.lightTheme,
+    // darkTheme: AppTheme.darkTheme,
+    // themeMode: ThemeMode.system,
+    home: mainlogin(),
   ));
 }
 

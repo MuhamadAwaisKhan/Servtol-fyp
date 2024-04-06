@@ -66,7 +66,7 @@ class _signupmainState extends State<signupmain> {
                 "Provider",
                 Icons.supervised_user_circle,
                 Colors.grey, // Specify the default color of the icon
-                isSecondButtonClicked, // Pass the clicked state to the button
+                // isSecondButtonClicked, // Pass the clicked state to the button
               ),
               SizedBox(
                 height: 30,
@@ -81,7 +81,7 @@ class _signupmainState extends State<signupmain> {
                 "Customer",
                 Icons.contacts_sharp,
                 Colors.grey, // Specify the default color of the icon
-                isFirstButtonClicked, // Pass the clicked state to the button
+                // isFirstButtonClicked, // Pass the clicked state to the button
               ),
             ]
 

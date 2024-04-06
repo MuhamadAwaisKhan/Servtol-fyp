@@ -61,7 +61,7 @@ class _OTPScreenState extends State<OTPScreen> {
              () async {
               verifyOTP();
             },
-             "Verify OTP",
+             "Verify OTP",30,140,
           ),
         ],
       ),

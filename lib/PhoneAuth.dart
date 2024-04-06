@@ -56,10 +56,11 @@ class _PhoneAuthState extends State<PhoneAuth> {
           ),
 
           uihelper.CustomButton(() async
+
             {
               sendOTP();
             },
-            "Verify Phone",
+            "Verify Phone",30,140,
           ),
         ],
       ),

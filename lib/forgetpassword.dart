@@ -40,7 +40,7 @@ class _forgetpasswordState extends State<forgetpassword> {
           ),
           uihelper.CustomButton(() {
             forgetpassword(emailcontroller.text.toString().trim());
-          }, "Reset Password")
+          }, "Reset Password",30,140)
         ],
       ),
     );

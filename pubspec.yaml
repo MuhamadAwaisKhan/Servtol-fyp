@@ -45,6 +45,9 @@ dependencies:
   google_sign_in: ^6.2.1
   flutter_chart: ^0.1.6
   fl_chart: ^0.35.0
+  firebase_storage: ^11.7.0
+  image_picker: ^1.0.7
+  firebase_app_check: ^0.2.2
 
 dev_dependencies:
   flutter_test:
