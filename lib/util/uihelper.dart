@@ -55,6 +55,7 @@ class uihelper {
       ),
     );
   }
+
   static CustomNumberField(TextEditingController controller,
       String text,
       IconData iconData,
@@ -77,7 +78,7 @@ class uihelper {
     );
   }
 
-  static Widget CustomTextfieldpassword(BuildContext context,
+  static  CustomTextfieldpassword(BuildContext context,
       TextEditingController controller,
       String text,
       bool passwordVisible,
@@ -109,7 +110,8 @@ class uihelper {
     );
   }
 
-  static CustomButton(VoidCallback voidCallback, String text,double h,double w) {
+  static CustomButton(VoidCallback voidCallback, String text, double h,
+      double w) {
     return SizedBox(
       height: h,
       width: w,
@@ -124,7 +126,7 @@ class uihelper {
         child: Text(
           text,
           style: TextStyle(
-              color: Colors.white,  fontFamily: "Poppins"),
+              color: Colors.white, fontFamily: "Poppins"),
         ),
       ),
     );
@@ -132,16 +134,16 @@ class uihelper {
 
   static CustomTextButton(VoidCallback voidCallback, String text,
       IconData iconData, Color iconColor,
-       // bool isClicked,
-  ) {
+      // bool isClicked,
+      ) {
     return SizedBox(
       height: 70,
       width: 150,
       child: TextButton(
         onPressed: voidCallback,
         style: ElevatedButton.styleFrom(
-           // backgroundColor: isClicked ? Colors.green : AppColors.customButton,
-            backgroundColor: AppColors.customButton,
+          // backgroundColor: isClicked ? Colors.green : AppColors.customButton,
+          backgroundColor: AppColors.customButton,
 
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(26),
@@ -151,7 +153,7 @@ class uihelper {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(iconData,
-                color: Colors.white ,
+              color: Colors.white,
             ),
             SizedBox(width: 8),
             Text(
@@ -183,4 +185,49 @@ class uihelper {
       },
     );
   }
+
+  static CustomTimeDuration(TextEditingController controller,
+      String text,
+      IconData iconData,
+     ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
+      child: TextField(
+        controller: controller,
+      keyboardType: TextInputType.datetime,
+        decoration: InputDecoration(
+          labelText: text,
+          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
+          suffixIcon: Icon(iconData),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+
+      ),
+    );
+  }
+  static CustomDescritionfield(TextEditingController controller,
+      String text,
+      IconData iconData,
+      ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
+      child: TextField(
+
+        controller: controller,
+
+        decoration: InputDecoration(
+          labelText: text,
+          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
+          suffixIcon: Icon(iconData),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+      ),
+    );
+  }
+
+
 }
