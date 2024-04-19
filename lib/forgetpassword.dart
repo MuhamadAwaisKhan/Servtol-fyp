@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 
 class forgetpassword extends StatefulWidget {
@@ -31,7 +32,8 @@ class _forgetpasswordState extends State<forgetpassword> {
       appBar: AppBar(
         title: Text("Forget Passowrd"),
         centerTitle: true,
-      ),
+        backgroundColor: AppColors.background,
+      ),   backgroundColor: AppColors.background,
       body: Column(
         children: [
           uihelper.CustomTextField(emailcontroller, "Email", Icons.mail_outline, false),
@@ -40,7 +42,7 @@ class _forgetpasswordState extends State<forgetpassword> {
           ),
           uihelper.CustomButton(() {
             forgetpassword(emailcontroller.text.toString().trim());
-          }, "Reset Password",30,140)
+          }, "Reset Password",50,190)
         ],
       ),
     );

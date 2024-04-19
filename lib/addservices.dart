@@ -1,10 +1,13 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 
 enum WageType { Free, Hourly, Fixed }
+
 enum Subcategory {
   // Digital Marketing
   SEO,
@@ -109,8 +112,8 @@ enum Subcategory {
   DigitalShowcases,
 }
 
-
 enum ServiceType { Digital, Hybrid, Physical }
+
 enum Category {
   DigitalMarketing,
   OnlineConsultation,
@@ -137,7 +140,6 @@ enum Category {
   PersonalTraining,
   EventPlanning,
 }
-
 
 enum Province {
   Punjab,
@@ -212,18 +214,21 @@ class servicesaddition extends StatefulWidget {
 }
 
 class _servicesadditionState extends State<servicesaddition> {
-  TextEditingController firstcontroller = TextEditingController();
-  TextEditingController lastcontroller = TextEditingController();
-  TextEditingController usernamecontroller = TextEditingController();
-  TextEditingController emailcontroller = TextEditingController();
-  TextEditingController numbercontroller = TextEditingController();
-  TextEditingController passwordcontroller = TextEditingController();
-  TextEditingController cniccontroller = TextEditingController();
+  TextEditingController snanmecontroller = TextEditingController();
+  TextEditingController categorycontroller = TextEditingController();
+  TextEditingController subcategorycontroller = TextEditingController();
+  TextEditingController citycontroller = TextEditingController();
+  TextEditingController provincecontroller = TextEditingController();
+  TextEditingController areacontroller = TextEditingController();
+  TextEditingController pricecontroller = TextEditingController();
+  TextEditingController timecontroller = TextEditingController();
+  TextEditingController discountcontroller = TextEditingController();
   TextEditingController _wageTypeController = TextEditingController();
   TextEditingController _serviceTypeController = TextEditingController();
+  TextEditingController descriptioncontroller = TextEditingController();
   File? profilepic;
   Province? _selectedprovince;
-   City? _selectedcity;
+  City? _selectedcity;
   WageType? _selectedWageType;
   ServiceType? _selectedservicetype;
   Category? _selectedcategory;
@@ -231,6 +236,129 @@ class _servicesadditionState extends State<servicesaddition> {
 
   @override
   Widget build(BuildContext context) {
+    Future<String> _uploadImageToFirebaseStorage() async {
+      try {
+        String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+        Reference reference =
+        FirebaseStorage.instance.ref().child('images/Servicepics/$fileName.jpg');
+        UploadTask uploadTask = reference.putFile(profilepic!);
+        TaskSnapshot storageTaskSnapshot = await uploadTask;
+        String downloadURL = await storageTaskSnapshot.ref.getDownloadURL();
+        return downloadURL;
+      } catch (e) {
+        throw Exception('Failed to upload image to Firebase Storage: $e');
+      }
+    }
+    Future<void> _addData() async {
+      try {
+
+          // Validation checks
+          if (profilepic == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Please enter a valid Service Picture')),
+            );
+          }
+          if (snanmecontroller.text.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please enter a valid Service Name')),
+            );
+          }
+          if (timecontroller.text.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please enter a valid Time Slot')),
+            );
+          }
+          if (_selectedcategory == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please enter a valid Category')),
+            );          }
+          if (_selectedsubcategory == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please enter a valid  Sub-Category')),
+            );          }
+          if (_selectedprovince == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please enter a valid  Province')),
+            );
+          }
+          if (_selectedcity == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please enter a valid  City')),
+            );           }
+          if (areacontroller.text.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please enter a valid  Area')),
+            );           }
+          if (pricecontroller.text.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please enter a valid Price')),
+            );           }
+          if (discountcontroller.text.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please enter a valid  Discount %')),
+            );           }
+          if (_selectedWageType == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please enter a valid  Wage Type')),
+            );           }
+          if (_selectedservicetype == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please enter a valid  Service Type')),
+            );           }
+          if (descriptioncontroller.text.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please enter a valid Description')),
+            );           }
+
+          // Upload image to Firebase Storage
+        String imageUrl = await _uploadImageToFirebaseStorage();
+
+        // Save image URL and service details to Firestore
+        await FirebaseFirestore.instance.collection('service').add({
+          'ServiceName': snanmecontroller.text.trim(),
+          'Category': categorycontroller.text.trim(),
+          'Subcategory': subcategorycontroller.text.trim(),
+          'Province': provincecontroller.text.trim(),
+          'City': citycontroller.text.trim(),
+          'Area': areacontroller.text.trim(),
+          'Price': pricecontroller.text.trim(),
+          'Discount': discountcontroller.text.trim(),
+          'WageType': _wageTypeController.text.trim(),
+          'ServiceType': _serviceTypeController.text.trim(),
+          'Description': descriptioncontroller.text.trim(),
+          'ImageUrl': imageUrl,
+          'TimeSlot':timecontroller.text.trim(),
+        });
+
+        setState(() {
+          profilepic = null;
+          snanmecontroller.clear();
+          _selectedcategory = null;
+          _selectedservicetype = null;
+          _selectedsubcategory = null;
+          _selectedprovince = null;
+          _selectedcity = null;
+          areacontroller.clear();
+          pricecontroller.clear();
+          discountcontroller.clear();
+          _selectedWageType = null;
+          _selectedservicetype = null;
+          descriptioncontroller.clear();
+          timecontroller.clear();
+        });
+
+        // Show a success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Service added successfully')),
+        );
+      } catch (e) {
+        // Handle errors
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add service: $e')),
+        );
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -277,7 +405,7 @@ class _servicesadditionState extends State<servicesaddition> {
             SizedBox(
               height: 12,
             ),
-            uihelper.CustomTextField(firstcontroller, "Service Name",
+            uihelper.CustomTextField(snanmecontroller, "Service Name",
                 Icons.home_repair_service, false),
             SizedBox(height: 10.0),
             Container(
@@ -295,7 +423,7 @@ class _servicesadditionState extends State<servicesaddition> {
                   if (newValue != null) {
                     setState(() {
                       _selectedcategory = newValue;
-                      _serviceTypeController.text =
+                      categorycontroller.text =
                           newValue.toString().split('.').last;
                     });
                   }
@@ -310,38 +438,37 @@ class _servicesadditionState extends State<servicesaddition> {
                 ),
               ),
             ),
-        SizedBox(height: 10.0),
-        Container(
-          width: 325,
-          height: 70,
-          child: DropdownButtonFormField(
-            value: _selectedsubcategory,
-            items: Subcategory.values.map((Subcategory) {
-              return DropdownMenuItem(
-                value: Subcategory,
-                child: Text(Subcategory.toString().split('.').last),
-              );
-            }).toList(),
-            onChanged: (Subcategory? newValue) {
-              if (newValue != null) {
-                setState(() {
-                  _selectedsubcategory = newValue;
-                  _serviceTypeController.text =
-                      newValue.toString().split('.').last;
-                });
-              }
-            },
-            decoration: InputDecoration(
-              labelText: " Sub-Category",
-              labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
-              suffixIcon: Icon(Icons.merge_type),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
+            SizedBox(height: 10.0),
+            Container(
+              width: 325,
+              height: 70,
+              child: DropdownButtonFormField(
+                value: _selectedsubcategory,
+                items: Subcategory.values.map((Subcategory) {
+                  return DropdownMenuItem(
+                    value: Subcategory,
+                    child: Text(Subcategory.toString().split('.').last),
+                  );
+                }).toList(),
+                onChanged: (Subcategory? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      _selectedsubcategory = newValue;
+                      subcategorycontroller.text =
+                          newValue.toString().split('.').last;
+                    });
+                  }
+                },
+                decoration: InputDecoration(
+                  labelText: " Sub-Category",
+                  labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
+                  suffixIcon: Icon(Icons.merge_type),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-
             SizedBox(height: 10.0),
             Container(
               width: 325,
@@ -358,7 +485,7 @@ class _servicesadditionState extends State<servicesaddition> {
                   if (newValue != null) {
                     setState(() {
                       _selectedprovince = newValue;
-                      _serviceTypeController.text =
+                      provincecontroller.text =
                           newValue.toString().split('.').last;
                     });
                   }
@@ -389,8 +516,7 @@ class _servicesadditionState extends State<servicesaddition> {
                   if (newValue != null) {
                     setState(() {
                       _selectedcity = newValue;
-                      _serviceTypeController.text =
-                          newValue.toString().split('.').last;
+                      citycontroller.text = newValue.toString().split('.').last;
                     });
                   }
                 },
@@ -404,19 +530,14 @@ class _servicesadditionState extends State<servicesaddition> {
                 ),
               ),
             ),
-
             uihelper.CustomTextField(
-                lastcontroller, "Service Area", Icons.compare_arrows, false),
-            uihelper.CustomTextField(lastcontroller, "Service Type",
-                Icons.miscellaneous_services, false),
-            uihelper.CustomTextField(
-                lastcontroller, "Wage Type", Icons.type_specimen, false),
+                areacontroller, "Area", Icons.area_chart, false),
             uihelper.CustomNumberField(
-                cniccontroller, "Price", Icons.money_outlined, false),
+                pricecontroller, "Price", Icons.money_outlined, false),
             uihelper.CustomNumberField(
-                cniccontroller, "Discount  ", Icons.percent_rounded, false),
+                discountcontroller, "Discount  ", Icons.percent_rounded, false),
             uihelper.CustomTimeDuration(
-                lastcontroller, "Time Duration", Icons.timer),
+                timecontroller, "Time Duration", Icons.timer, "hour:min==00:00"),
             SizedBox(height: 10.0),
             Container(
               width: 325,
@@ -480,11 +601,13 @@ class _servicesadditionState extends State<servicesaddition> {
               ),
             ),
             uihelper.CustomDescritionfield(
-                lastcontroller, " Description", Icons.description),
+                descriptioncontroller, " Description", Icons.description),
             SizedBox(
               height: 15,
             ),
-            uihelper.CustomButton(() {}, "Save", 50, 170),
+            uihelper.CustomButton(() {
+              _addData();
+            }, "Save", 50, 170),
             SizedBox(
               height: 15,
             ),

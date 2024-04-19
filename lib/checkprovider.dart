@@ -18,7 +18,7 @@ class _checkproviderState extends State<checkprovider> {
   }
   checkuser() async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user != Null) {
+    if (user != null) {
       return homeprovider();
     }
   }

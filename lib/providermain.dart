@@ -6,7 +6,7 @@ import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:servtol/paymentprovider.dart';
-import 'serviceprovider.dart';
+import 'servicescreenprovider.dart';
 
 class providermainlayout extends StatefulWidget {
   const providermainlayout({super.key});

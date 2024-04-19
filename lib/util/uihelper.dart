@@ -189,6 +189,7 @@ class uihelper {
   static CustomTimeDuration(TextEditingController controller,
       String text,
       IconData iconData,
+      String hinttext,
      ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
@@ -197,6 +198,7 @@ class uihelper {
       keyboardType: TextInputType.datetime,
         decoration: InputDecoration(
           labelText: text,
+          hintText:hinttext,
           labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
           suffixIcon: Icon(iconData),
           border: OutlineInputBorder(

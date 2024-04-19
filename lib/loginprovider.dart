@@ -219,6 +219,7 @@ class _loginproviderState extends State<loginprovider> {
                   //  ),
                 ],
               ),
+              if (_isLoading == true) Center(child: CircularProgressIndicator()),
               SizedBox(
                 height: 30,
               ),
@@ -276,7 +277,7 @@ class _loginproviderState extends State<loginprovider> {
               //   emailcontroller.text = "";
               //   passwordcontroller.text = "";
               // }, "Reset", Icons.cancel_presentation_outlined),
-        if (_isLoading == true) Center(child: CircularProgressIndicator())
+
             ]
           )
 
