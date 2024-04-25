@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:servtol/addservices.dart';
+import 'package:servtol/edit%20service.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 
@@ -33,6 +34,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,7 +127,6 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.active) {
                   if (snapshot.hasData) {
-
                     return Center(
                       child: Container(
                         height: MediaQuery.of(context).size.height * 0.7,
@@ -133,7 +134,8 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                           itemCount: snapshot.data!.docs.length,
                           itemBuilder: (context, index) {
                             // Get the image URL from Firestore document
-                            String ImageUrl = snapshot.data!.docs[index]["ImageUrl"];
+                            String ImageUrl =
+                                snapshot.data!.docs[index]["ImageUrl"];
                             return Padding(
                               padding: EdgeInsets.symmetric(vertical: 10.0),
                               child: Container(
@@ -143,9 +145,9 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                                     CircleAvatar(
                                       child: ImageUrl.isNotEmpty
                                           ? Image.network(
-                                        ImageUrl,
-                                        // fit: BoxFit.cover,
-                                      )
+                                              ImageUrl,
+                                              // fit: BoxFit.cover,
+                                            )
                                           : Icon(Icons.account_circle),
                                       radius: 60, // adjust the radius as needed
                                       // child: Icon(Icons.account_circle),
@@ -155,7 +157,8 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                                   Column(
                                     children: [
                                       Text("${snapshot.data!.docs[index].id}"),
-                                      Text("${snapshot.data!.docs[index]["ServiceName"]}"),
+                                      Text(
+                                          "${snapshot.data!.docs[index]["ServiceName"]}"),
 
                                       Text(
                                           "${snapshot.data!.docs[index]["Category"]}"),
@@ -190,12 +193,52 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                                             _deletedata(
                                                 snapshot.data!.docs[index].id);
                                           },
-                                          child: Icon(Icons.delete))
+                                          child: Icon(Icons.delete)),
+                                      SizedBox(height: 15.0,),
+                                      GestureDetector(
+                                        onTap: () {
+                                          // Navigate to a new screen or show a dialog to allow the user to edit the attributes
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => editservice(
+                                                serviceId: snapshot
+                                                    .data!.docs[index].id,
+                                                sericename:snapshot.data!.docs[index]
+                                                    ["ServiceName"],
+                                               category: snapshot.data!.docs[index]
+                                                    ["Category"],
+                                                Subcategory:snapshot.data!.docs[index]
+                                                    ["Subcategory"],
+                                                Province:snapshot.data!.docs[index]
+                                                    ["Province"],
+                                                City: snapshot.data!.docs[index]
+                                                    ["City"],
+                                                Area:snapshot.data!.docs[index]
+                                                    ["Area"],
+                                                ServiceType: snapshot.data!.docs[index]
+                                                    ["ServiceType"],
+                                                WageType:snapshot.data!.docs[index]
+                                                    ["WageType"],
+                                                Price:snapshot.data!.docs[index]
+                                                    ["Price"],
+                                                Discount: snapshot.data!.docs[index]
+                                                    ["Discount"],
+
+                                                TimeSlot: snapshot.data!.docs[index]
+                                                    ["TimeSlot"],
+                                                Description:snapshot.data!.docs[index]
+                                                    ["Description"],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Icon(Icons.edit),
+                                      )
                                     ],
                                   )
                                 ],
                               )),
-
                             );
 
                             //   ListTile(
