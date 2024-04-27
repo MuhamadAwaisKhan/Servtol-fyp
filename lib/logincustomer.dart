@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:servtol/PhoneAuth.dart';
+import 'package:servtol/customermain.dart';
 import 'package:servtol/forgetpassword.dart';
 import 'package:servtol/homecustomer.dart';
 import 'package:servtol/homeprovider.dart';
@@ -35,14 +37,29 @@ class _logincustomerState extends State<logincustomer> {
         _isLoading = false;
       });
     } else {
-      UserCredential? usercreddntial;
+      // UserCredential? usercreddntial;
       try {
-        usercreddntial = await FirebaseAuth.instance
-            .signInWithEmailAndPassword(email: email, password: password)
-            .then((value) => Navigator.push(
-            context, MaterialPageRoute(builder: (context) => homecustomer())));
+        // usercreddntial =
+        await FirebaseAuth.instance  .signInWithEmailAndPassword(email: email, password: password);
+        // Check if the user exists in the Firestore database
+        QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('customer').where('email', isEqualTo: email).get();
+
+// If user exists, navigate to next screen
+        if (snapshot.docs.isNotEmpty) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => customermainscreen()),
+          );
+        } else {
+          // If user does not exist, show an alert
+          uihelper.CustomAlertbox(context, "User not found with this email");
+        }
       } on FirebaseAuthException catch (ex) {
-        return uihelper.CustomAlertbox(context, ex.code.toString());
+        // Handle Firebase Auth exceptions
+        uihelper.CustomAlertbox(context, ex.code.toString());
+      } catch (e) {
+        // Handle other exceptions
+        print(e.toString());
       } finally {
         setState(() {
           _isLoading = false;

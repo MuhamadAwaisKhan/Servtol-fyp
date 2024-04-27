@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:servtol/homecustomer.dart';
 import 'package:servtol/logincustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -52,7 +53,7 @@ class _signupcustomerState extends State<signupcustomer> {
           SnackBar(content: Text('Account Created successfully')),
         );
         Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => logincustomer()));
+            MaterialPageRoute(builder: (context) => homecustomer()));
       });
       // Reset text fields after data is added
 

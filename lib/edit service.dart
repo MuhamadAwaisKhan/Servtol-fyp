@@ -291,72 +291,72 @@ class _editserviceState extends State<editservice> {
 
     Future<void> _updateService(String documentId) async {
       try {
-        // // Validation checks
-        // if (profilepic == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid Service Picture')),
-        //   );
-        // }
-        // if (snanmecontroller.text.isEmpty) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid Service Name')),
-        //   );
-        // }
-        // if (timecontroller.text.isEmpty) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid Time Slot')),
-        //   );
-        // }
-        // if (_selectedcategory == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid Category')),
-        //   );
-        // }
-        // if (_selectedsubcategory == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  Sub-Category')),
-        //   );
-        // }
-        // if (_selectedprovince == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  Province')),
-        //   );
-        // }
-        // if (_selectedcity == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  City')),
-        //   );
-        // }
-        // if (areacontroller.text.isEmpty) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  Area')),
-        //   );
-        // }
-        // if (pricecontroller.text.isEmpty) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid Price')),
-        //   );
-        // }
-        // if (discountcontroller.text.isEmpty) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  Discount %')),
-        //   );
-        // }
-        // if (_selectedWageType == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  Wage Type')),
-        //   );
-        // }
-        // if (_selectedservicetype == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  Service Type')),
-        //   );
-        // }
-        // if (descriptioncontroller.text.isEmpty) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid Description')),
-        //   );
-        // }
+        // Validation checks
+        if (profilepic == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Service Picture')),
+          );
+        }
+        if (snanmecontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Service Name')),
+          );
+        }
+        if (timecontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Time Slot')),
+          );
+        }
+        if (_selectedcategory == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Category')),
+          );
+        }
+        if (_selectedsubcategory == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Sub-Category')),
+          );
+        }
+        if (_selectedprovince == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Province')),
+          );
+        }
+        if (_selectedcity == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  City')),
+          );
+        }
+        if (areacontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Area')),
+          );
+        }
+        if (pricecontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Price')),
+          );
+        }
+        if (discountcontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Discount %')),
+          );
+        }
+        if (_selectedWageType == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Wage Type')),
+          );
+        }
+        if (_selectedservicetype == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Service Type')),
+          );
+        }
+        if (descriptioncontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Description')),
+          );
+        }
         await FirebaseAppCheck.instance.activate();
 
         // Upload image to Firebase Storage
@@ -398,12 +398,12 @@ class _editserviceState extends State<editservice> {
 
         // Show a success message
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Service added successfully')),
+          SnackBar(content: Text('Service Edited successfully')),
         );
       } catch (e) {
         // Handle errors
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add service: $e')),
+          SnackBar(content: Text('Failed to edit service: $e')),
         );
       }
     }
