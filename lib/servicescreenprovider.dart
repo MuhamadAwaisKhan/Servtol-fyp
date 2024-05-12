@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:servtol/addservices.dart';
 import 'package:servtol/edit%20service.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -22,11 +24,15 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
           .doc(documentId)
           .delete();
       // Reset text fields after data is added
-
-      // Show a success message or navigate to a different screen
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Data Deleted successfully')),
-      );
+      if (mounted) {  // Check if the widget is still in the widget tree
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Data Deleted successfully')),
+        );
+      }
+      // // Show a success message or navigate to a different screen
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Data Deleted successfully')),
+      // );
     } catch (e) {
       // Handle errors
       ScaffoldMessenger.of(context).showSnackBar(
@@ -121,6 +127,9 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                 ),
               ],
             ),
+            SizedBox(
+              height: 15,
+            ),
             StreamBuilder(
               stream:
                   FirebaseFirestore.instance.collection('service').snapshots(),
@@ -133,102 +142,100 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                         child: ListView.builder(
                           itemCount: snapshot.data!.docs.length,
                           itemBuilder: (context, index) {
-                            // Get the image URL from Firestore document
                             String ImageUrl =
                                 snapshot.data!.docs[index]["ImageUrl"];
                             return Padding(
                               padding: EdgeInsets.symmetric(vertical: 10.0),
-                              child: Container(
-                                  child: Row(
+                              child: Row(
                                 children: [
-                                  Column(children: [
-                                    CircleAvatar(
-                                      child: ImageUrl.isNotEmpty
-                                          ? Image.network(
-                                              ImageUrl,
-                                              // fit: BoxFit.cover,
-                                            )
-                                          : Icon(Icons.account_circle),
-                                      radius: 60, // adjust the radius as needed
-                                      // child: Icon(Icons.account_circle),
-                                      // // child: Text("${index + 1}"),
+                                  CircleAvatar(
+                                    backgroundImage: ImageUrl.isNotEmpty
+                                        ? NetworkImage(ImageUrl)
+                                        : null,
+                                    child: ImageUrl.isEmpty
+                                        ? Icon(Icons.account_circle)
+                                        : null,
+                                    radius: 60, // Adjust the radius as needed
+                                  ),
+                                  SizedBox(width: 20),
+                                  // Adjust the spacing between the image and the text
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment
+                                          .start, // Align text to the left
+                                      children: [
+                                        Text(
+                                            "${snapshot.data!.docs[index].id}"),
+                                        Text(
+                                            "${snapshot.data!.docs[index]["ServiceName"]}"),
+                                        Text(
+                                            "${snapshot.data!.docs[index]["Category"]}"),
+                                        Text(
+                                            "${snapshot.data!.docs[index]["Subcategory"]}"),
+                                        Text(
+                                            "${snapshot.data!.docs[index]["Province"]}"),
+                                        Text(
+                                            "${snapshot.data!.docs[index]["City"]}"),
+                                        Text(
+                                            "${snapshot.data!.docs[index]["Area"]}"),
+                                        Text(
+                                            "${snapshot.data!.docs[index]["ServiceType"]}"),
+                                        Text(
+                                            "${snapshot.data!.docs[index]["WageType"]}"),
+                                        Text(
+                                            "${snapshot.data!.docs[index]["Price"]}"),
+                                        Text(
+                                            "${snapshot.data!.docs[index]["Discount"]}"),
+                                        Text(
+                                            "${snapshot.data!.docs[index]["TimeSlot"]}"),
+                                        Text(
+                                            "${snapshot.data!.docs[index]["Description"]}"),
+                                      ],
                                     ),
-                                  ]),
-                                  Column(
-                                    children: [
-                                      Text("${snapshot.data!.docs[index].id}"),
-                                      Text(
-                                          "${snapshot.data!.docs[index]["ServiceName"]}"),
-
-                                      Text(
-                                          "${snapshot.data!.docs[index]["Category"]}"),
-                                      Text(
-                                          "${snapshot.data!.docs[index]["Subcategory"]}"),
-                                      Text(
-                                          "${snapshot.data!.docs[index]["Province"]}"),
-                                      Text(
-                                          "${snapshot.data!.docs[index]["City"]}"),
-                                      Text(
-                                          "${snapshot.data!.docs[index]["Area"]}"),
-                                      Text(
-                                          "${snapshot.data!.docs[index]["ServiceType"]}"),
-                                      Text(
-                                          "${snapshot.data!.docs[index]["WageType"]}"),
-                                      Text(
-                                          "${snapshot.data!.docs[index]["Price"]}"),
-                                      Text(
-                                          "${snapshot.data!.docs[index]["Discount"]}"),
-                                      // Text("${snapshot.data!.docs[index]["TimeSlot"] ?? "N/A"}"),
-
-                                      Text(
-                                          "${snapshot.data!.docs[index]["TimeSlot"]}"),
-                                      Text(
-                                          "${snapshot.data!.docs[index]["Description"]}"),
-                                    ],
                                   ),
                                   Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       GestureDetector(
-                                          onTap: () {
-                                            _deletedata(
-                                                snapshot.data!.docs[index].id);
-                                          },
-                                          child: Icon(Icons.delete)),
-                                      SizedBox(height: 15.0,),
+                                        onTap: () {
+                                          _deletedata(
+                                              snapshot.data!.docs[index].id);
+                                        },
+                                        child: Icon(Icons.delete),
+                                      ),
+                                      SizedBox(height: 15.0),
                                       GestureDetector(
                                         onTap: () {
-                                          // Navigate to a new screen or show a dialog to allow the user to edit the attributes
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) => editservice(
                                                 serviceId: snapshot
                                                     .data!.docs[index].id,
-                                                sericename:snapshot.data!.docs[index]
-                                                    ["ServiceName"],
-                                               category: snapshot.data!.docs[index]
-                                                    ["Category"],
-                                                Subcategory:snapshot.data!.docs[index]
-                                                    ["Subcategory"],
-                                                Province:snapshot.data!.docs[index]
-                                                    ["Province"],
+                                                sericename: snapshot.data!
+                                                    .docs[index]["ServiceName"],
+                                                category: snapshot.data!
+                                                    .docs[index]["Category"],
+                                                Subcategory: snapshot.data!
+                                                    .docs[index]["Subcategory"],
+                                                Province: snapshot.data!
+                                                    .docs[index]["Province"],
                                                 City: snapshot.data!.docs[index]
                                                     ["City"],
-                                                Area:snapshot.data!.docs[index]
+                                                Area: snapshot.data!.docs[index]
                                                     ["Area"],
-                                                ServiceType: snapshot.data!.docs[index]
-                                                    ["ServiceType"],
-                                                WageType:snapshot.data!.docs[index]
-                                                    ["WageType"],
-                                                Price:snapshot.data!.docs[index]
-                                                    ["Price"],
-                                                Discount: snapshot.data!.docs[index]
-                                                    ["Discount"],
-
-                                                TimeSlot: snapshot.data!.docs[index]
-                                                    ["TimeSlot"],
-                                                Description:snapshot.data!.docs[index]
-                                                    ["Description"],
+                                                ServiceType: snapshot.data!
+                                                    .docs[index]["ServiceType"],
+                                                WageType: snapshot.data!
+                                                    .docs[index]["WageType"],
+                                                Price: snapshot
+                                                    .data!.docs[index]["Price"],
+                                                Discount: snapshot.data!
+                                                    .docs[index]["Discount"],
+                                                TimeSlot: snapshot.data!
+                                                    .docs[index]["TimeSlot"],
+                                                Description: snapshot.data!
+                                                    .docs[index]["Description"],
                                               ),
                                             ),
                                           );
@@ -236,29 +243,29 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                                         child: Icon(Icons.edit),
                                       )
                                     ],
-                                  )
+                                  ),
                                 ],
-                              )),
+                              ),
                             );
-
-                            //   ListTile(
-                            //   leading: CircleAvatar(
-                            //    child: Icon(Icons.account_circle),
-                            //     // child: Text("${index + 1}"),
-                            //   ),
-                            //   title: Center(child: Text("${snapshot.data!.docs[index]["email"]}")),
-                            //    subtitle:
-                            //      Column(
-                            //        children: [
-                            //          Text("${snapshot.data!.docs[index].id}"),
-                            //          Text("${snapshot.data!.docs[index]["name"]}"),
-                            //          Text("${snapshot.data!.docs[index]["mobile"]}"),
-                            //
-                            //        ],
-                            //      ),
-                            // );
                           },
                         ),
+
+                        //   ListTile(
+                        //   leading: CircleAvatar(
+                        //    child: Icon(Icons.account_circle),
+                        //     // child: Text("${index + 1}"),
+                        //   ),
+                        //   title: Center(child: Text("${snapshot.data!.docs[index]["email"]}")),
+                        //    subtitle:
+                        //      Column(
+                        //        children: [
+                        //          Text("${snapshot.data!.docs[index].id}"),
+                        //          Text("${snapshot.data!.docs[index]["name"]}"),
+                        //          Text("${snapshot.data!.docs[index]["mobile"]}"),
+                        //
+                        //        ],
+                        //      ),
+                        // );
                       ),
                     );
                   } else if (snapshot.hasError) {

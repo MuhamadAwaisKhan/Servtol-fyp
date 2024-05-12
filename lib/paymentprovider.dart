@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 class PaymentScreenWidget extends StatefulWidget {
-  const PaymentScreenWidget({super.key});
+  PaymentScreenWidget({super.key, required this.backPress});
+  Function backPress;
 
   @override
   State<PaymentScreenWidget> createState() => _PaymentScreenWidgetState();

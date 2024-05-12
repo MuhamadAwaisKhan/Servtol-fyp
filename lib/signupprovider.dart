@@ -55,8 +55,13 @@ class _signupproviderState extends State<signupprovider> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Account Created successfully')),
           );
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => providermainlayout()));
+          // Similar correction as above
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProviderMainLayout(onBackPress: () {
+              Navigator.of(context).pop();
+            })),
+          );
         });
         // Reset text fields after data is added
 
@@ -304,8 +309,8 @@ class _signupproviderState extends State<signupprovider> {
                           // Replace the below line with your navigation logic
                           print(
                               "Sign Up tapped"); // Placeholder action, you can replace this line
-                          // Navigator.pushReplacement(context,
-                          //     MaterialPageRoute(builder: (context) => SignUp())); // Replace this with your navigation logic
+                          Navigator.pushReplacement(context,
+                              MaterialPageRoute(builder: (context) => loginprovider())); // Replace this with your navigation logic
                         },
                         child: Text(
                           'Sign In',

@@ -46,7 +46,7 @@ class _logincustomerState extends State<logincustomer> {
 
 // If user exists, navigate to next screen
         if (snapshot.docs.isNotEmpty) {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => customermainscreen()),
           );

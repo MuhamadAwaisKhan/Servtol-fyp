@@ -43,9 +43,12 @@ class _loginproviderState extends State<loginprovider> {
 
         // If user exists, navigate to next screen
         if (snapshot.docs.isNotEmpty) {
-          Navigator.pushReplacement(
+          // Correct the class name in the MaterialPageRoute
+          Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => providermainlayout()),
+            MaterialPageRoute(builder: (context) => ProviderMainLayout(onBackPress: () {
+              Navigator.of(context).pop();
+            })),
           );
         } else {
           // If user does not exist, show an alert
@@ -265,11 +268,15 @@ class _loginproviderState extends State<loginprovider> {
                     padding: const EdgeInsets.only(left: 15.0),
                     child: GestureDetector(
                       onTap: () {
+                        // Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (Context) => forgetpassword()));
                         // Replace the below line with your navigation logic
                         print(
                             "Sign Up tapped"); // Placeholder action, you can replace this line
-                        Navigator.pushReplacement(context,
-                            MaterialPageRoute(builder: (context) => signupprovider())); // Replace this with your navigation logic
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (Context) => signupprovider())); // Replace this with your navigation logic
                       },
                       child: Text(
                         'Sign Up',

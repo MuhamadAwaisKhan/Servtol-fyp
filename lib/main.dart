@@ -8,6 +8,7 @@ import 'package:servtol/providermain.dart';
 import 'package:servtol/signupcustomer.dart';
 import 'package:servtol/signupmain.dart';
 import 'package:servtol/signupprovider.dart';
+import 'package:servtol/startscreen.dart';
 import 'package:servtol/testing%20file.dart';
 import 'firebase_options.dart';
 
@@ -21,7 +22,7 @@ void main() async {
     // theme: AppTheme.lightTheme,
     // darkTheme: AppTheme.darkTheme,
     // themeMode: ThemeMode.system,
-    home: mainlogin(),
+    home: startingscreen(),
   ));
 }
 

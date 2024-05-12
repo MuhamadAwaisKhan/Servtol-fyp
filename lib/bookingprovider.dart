@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 class BookingScreenWidget extends StatefulWidget {
-  const BookingScreenWidget({super.key});
+  BookingScreenWidget({super.key, required this.backPress});
 
+  Function backPress;
   @override
   State<BookingScreenWidget> createState() => _BookingScreenWidgetState();
 }
 
 class _BookingScreenWidgetState extends State<BookingScreenWidget> {
   Widget build(BuildContext context) {
-    return Container(
-      child: Text('Booking Screen'),
+    return WillPopScope(
+      onWillPop: () {
+        widget.backPress.call();
+        return Future(() => false);
+      },
+      child: Container(
+        child: Text('Booking Screen'),
+      ),
     );
   }
 }
