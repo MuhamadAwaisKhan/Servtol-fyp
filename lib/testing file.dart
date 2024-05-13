@@ -18,8 +18,8 @@ class LineChartSample extends StatelessWidget {
                 show: true,
               ),
               titlesData: FlTitlesData(
-                leftTitles: SideTitles(showTitles: true),
-                bottomTitles: SideTitles(showTitles: true),
+                leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
+                bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
               ),
               borderData: FlBorderData(
                 show: true,
@@ -35,7 +35,7 @@ class LineChartSample extends StatelessWidget {
                     FlSpot(4, 1),
                   ],
                   isCurved: true,
-                  colors: [Colors.blue],
+                  color: Colors.blue,
                   barWidth: 2,
                   isStrokeCapRound: true,
                   belowBarData: BarAreaData(show: false),

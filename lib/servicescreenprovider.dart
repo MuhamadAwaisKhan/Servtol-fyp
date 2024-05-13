@@ -144,9 +144,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                           itemBuilder: (context, index) {
                             String ImageUrl =
                                 snapshot.data!.docs[index]["ImageUrl"];
-                            return Padding(
-                              padding: EdgeInsets.symmetric(vertical: 10.0),
-                              child: Row(
+                            return  Row(
                                 children: [
                                   CircleAvatar(
                                     backgroundImage: ImageUrl.isNotEmpty
@@ -245,8 +243,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                                     ],
                                   ),
                                 ],
-                              ),
-                            );
+                              );
                           },
                         ),
 

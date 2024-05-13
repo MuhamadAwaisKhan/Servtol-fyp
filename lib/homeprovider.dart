@@ -159,15 +159,15 @@ class _homeproviderState extends State<homeprovider> {
               Center(
                 child: Container(
                   width: 350, // Adjust width as needed
-                  height: 200, // Adjust height as needed
-                  child: LineChart(
+                  height: 210, // Adjust height as needed
+                  child:LineChart(
                     LineChartData(
                       gridData: FlGridData(
-                        show: true,
+                        show: false,
                       ),
                       titlesData: FlTitlesData(
-                        leftTitles: SideTitles(showTitles: true),
-                        bottomTitles: SideTitles(showTitles: true),
+                        leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
+                        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
                       ),
                       borderData: FlBorderData(
                         show: true,
@@ -183,10 +183,10 @@ class _homeproviderState extends State<homeprovider> {
                             FlSpot(4, 1),
                           ],
                           isCurved: true,
-                          colors: [Colors.blue],
+                          color: Colors.cyan,
                           barWidth: 2,
                           isStrokeCapRound: true,
-                          belowBarData: BarAreaData(show: false),
+                          belowBarData: BarAreaData(show: true),
                         ),
                       ],
                     ),
