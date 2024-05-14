@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:servtol/util/AppColors.dart';
-class chatcustomer extends StatefulWidget {
-  const chatcustomer({super.key});
+class notificationprovider extends StatefulWidget {
+  const notificationprovider({super.key});
 
   @override
-  State<chatcustomer> createState() => _chatcustomerState();
+  State<notificationprovider> createState() => _notificationproviderState();
 }
 
-class _chatcustomerState extends State<chatcustomer> {
+class _notificationproviderState extends State<notificationprovider> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat',
+        title: Text('Notificatons',
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,
@@ -28,12 +28,12 @@ class _chatcustomerState extends State<chatcustomer> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: 18, // Replace with the actual number of messages
+              itemCount: 17, // Replace with the actual number of messages
               itemBuilder: (context, index) {
                 // Replace this with your message widget
                 return Center(
                   child: ListTile(
-                    title: Center(child: Text('Message $index',
+                    title: Center(child: Text('Notification $index',
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w400,
@@ -47,32 +47,8 @@ class _chatcustomerState extends State<chatcustomer> {
               },
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                     hintText: 'Type a message...',
-                      labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
 
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 16.0),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () {
-                    // Handle send message
-                  },
-                ),
-              ],
-            ),
-          ),
+
         ],
       ),
     );

@@ -1,19 +1,109 @@
 import 'package:flutter/material.dart';
+import 'package:servtol/util/AppColors.dart';
 
 class Categoriescustomer extends StatefulWidget {
-  const Categoriescustomer({super.key});
+  const Categoriescustomer({Key? key}) : super(key: key);
 
   @override
   State<Categoriescustomer> createState() => _CategoriescustomerState();
 }
 
 class _CategoriescustomerState extends State<Categoriescustomer> {
+  final List<Category> categories = [
+    Category(name: 'Marketing', icon: Icons.shopping_basket),
+    Category(name: 'Consultation', icon: Icons.chat),
+    Category(name: 'Events', icon: Icons.event),
+    Category(name: 'Cloud Storage', icon: Icons.cloud),
+    Category(name: 'Web Dev', icon: Icons.language),
+    Category(name: 'App Dev', icon: Icons.phone_android),
+    Category(name: 'Social Media', icon: Icons.group),
+    Category(name: 'SEO', icon: Icons.search),
+    Category(name: 'Design', icon: Icons.brush),
+    Category(name: 'Video Edit', icon: Icons.videocam),
+    Category(name: 'Support', icon: Icons.desktop_windows),
+    Category(name: 'E-Commerce', icon: Icons.shopping_cart),
+    Category(name: 'Training', icon: Icons.school),
+    Category(name: 'Telemedicine', icon: Icons.local_hospital),
+    Category(name: 'Remote Work', icon: Icons.work),
+    Category(name: 'Mixed Reality', icon: Icons.videogame_asset),
+    Category(name: 'Virtual Tour', icon: Icons.explore),
+    Category(name: 'Cleaning', icon: Icons.cleaning_services),
+    Category(name: 'Plumbing', icon: Icons.plumbing),
+    Category(name: 'Electrician', icon: Icons.electrical_services),
+    Category(name: 'Car Repair', icon: Icons.car_repair),
+    Category(name: 'Catering', icon: Icons.restaurant),
+    Category(name: 'Fitness', icon: Icons.fitness_center),
+    Category(name: 'Event Plan', icon: Icons.event),
+    // Add more categories as needed
+  ];
+
   @override
-
-
   Widget build(BuildContext context) {
-    return Container(
-      child: Text(' Customer Categories Screen'),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Service Categories',
+          style: TextStyle(
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.bold,
+          fontSize: 17,
+          color: AppColors.heading,
+        ),
+        ),
+      ),
+      body: GridView.builder(
+        padding: EdgeInsets.all(10),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4, // Number of columns
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 0.8, // Ensure a square aspect ratio for each grid cell
+        ),
+        itemCount: categories.length,
+        itemBuilder: (context, index) {
+          return CategoryWidget(category: categories[index]);
+        },
+      ),
     );
   }
 }
+
+class CategoryWidget extends StatelessWidget {
+  final Category category;
+
+  CategoryWidget({required this.category});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        print('Clicked on ${category.name}');
+        // Handle click event, navigate or display details
+      },
+      child: Column(
+        children: [
+          category.icon != null
+              ? Icon(
+            category.icon!,
+            size: 50, // Adjust the size of the icon as needed
+            color: Colors.blue, // Adjust the color of the icon as needed
+          )
+              : Icon(Icons.error), // Display an error icon if the icon is null
+          SizedBox(height: 4), // Space between icon and text
+          Text(
+            category.name,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class Category {
+  final String name;
+  final IconData? icon;
+
+  Category({required this.name, required this.icon});
+}
+

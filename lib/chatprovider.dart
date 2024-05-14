@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:servtol/util/AppColors.dart';
-class chatcustomer extends StatefulWidget {
-  const chatcustomer({super.key});
+class chatprovider extends StatefulWidget {
+  const chatprovider({super.key});
 
   @override
-  State<chatcustomer> createState() => _chatcustomerState();
+  State<chatprovider> createState() => _chatproviderState();
 }
 
-class _chatcustomerState extends State<chatcustomer> {
+class _chatproviderState extends State<chatprovider> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +28,7 @@ class _chatcustomerState extends State<chatcustomer> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: 18, // Replace with the actual number of messages
+              itemCount: 17, // Replace with the actual number of messages
               itemBuilder: (context, index) {
                 // Replace this with your message widget
                 return Center(
@@ -54,7 +54,7 @@ class _chatcustomerState extends State<chatcustomer> {
                 Expanded(
                   child: TextField(
                     decoration: InputDecoration(
-                     hintText: 'Type a message...',
+                      hintText: 'Type a message...',
                       labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
 
                       border: OutlineInputBorder(

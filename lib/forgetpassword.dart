@@ -20,6 +20,8 @@ class _forgetpasswordState extends State<forgetpassword> {
       try {
         await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
         uihelper.CustomAlertbox(context, "Password reset link sent to $email");
+        emailcontroller.clear();
+
       } catch (e) {
         print("Error sending password reset email: $e");
         uihelper.CustomAlertbox(context, "Error sending reset password email");

@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:servtol/NotificationProvider.dart';
+import 'package:servtol/chatprovider.dart';
 
 import 'package:servtol/loginprovider.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -42,12 +44,20 @@ class _homeproviderState extends State<homeprovider> {
             IconButton(
               icon: Icon(Icons.message_outlined),
               onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (Context) => chatprovider()));
                 // Add your search functionality here
               },
             ),
             IconButton(
               icon: Icon(Icons.notifications),
               onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (Context) => notificationprovider()));
                 // Add your notifications functionality here
               },
             ),
