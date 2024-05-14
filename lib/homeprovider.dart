@@ -171,7 +171,7 @@ class _homeproviderState extends State<homeprovider> {
                       ),
                       borderData: FlBorderData(
                         show: true,
-                        border: Border.all(color: Colors.grey),
+                        border: Border.all(color: Colors.black),
                       ),
                       lineBarsData: [
                         LineChartBarData(
@@ -182,7 +182,7 @@ class _homeproviderState extends State<homeprovider> {
                             FlSpot(3, 5),
                             FlSpot(4, 1),
                           ],
-                          isCurved: true,
+                          isCurved: false,
                           color: Colors.cyan,
                           barWidth: 2,
                           isStrokeCapRound: true,

@@ -24,14 +24,28 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
       'paymentId': '#221',
       'status': 'Paid',
       'method': 'Stripe',
-      'amount': '\$38.00'
+      'amount': '\$128.00'
     },
     {
       'name': 'Tracy Jones',
-      'paymentId': '#209',
+      'paymentId': '#200',
       'status': 'Paid',
       'method': 'Stripe',
+      'amount': '\$28.00'
+    },
+    {
+      'name': 'Awais Jones',
+      'paymentId': '#219',
+      'status': 'Paid',
+      'method': 'Cash',
       'amount': '\$38.00'
+    },
+    {
+      'name': 'Wisha Noor ',
+      'paymentId': '#002',
+      'status': 'Pending',
+      'method': 'Cash',
+      'amount': '\$68.00'
     },
   ];
 
@@ -56,7 +70,7 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
         itemCount: payments.length,
         itemBuilder: (context, index) {
           return Card(
-            color: Colors.grey[900],
+            color: Colors.teal,
             margin: EdgeInsets.all(8),
             child: ListTile(
               title: Text(
