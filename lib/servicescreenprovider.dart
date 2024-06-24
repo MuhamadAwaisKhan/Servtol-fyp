@@ -57,7 +57,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
         backgroundColor: AppColors.background,
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.category_rounded),
+            icon: Icon(Icons.reorder),
             onPressed: () {},
           ),
           IconButton(
@@ -71,65 +71,24 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
       ),
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
-        child: Column(
+        child:
+        Column(
           children: [
             uihelper.CustomTextField(
                 searchcontroller, "Search", Icons.search, false),
-            Row(
-              children: [
-                Expanded(
-                  child: uihelper.CustomButton(
-                    () {
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (Context) => physicalservices()));
-                    },
-                    "Physical ",
-                    40,
-                    150,
-                    // Icons.supervised_user_circle,
-                    // Colors.grey, // Specify the default color of the icon
-                    // isSecondButtonClicked, // Pass the clicked state to the button
-                  ),
-                ),
-                Expanded(
-                  child: uihelper.CustomButton(
-                    () {
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         // builder: (Context) => digitalservices()));
-                    },
-                    "Digital ",
-                    40,
-                    150,
-                    // Icons.contacts_sharp,
-                    // Colors.grey, // Specify the default color of the icon
-                    // isFirstButtonClicked, // Pass the clicked state to the button
-                  ),
-                ),
-                Expanded(
-                  child: uihelper.CustomButton(
-                    () {
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (Context) => hybridservices()));
-                    },
-                    "Hybrid ",
-                    40,
-                    150,
-                    // Icons.contacts_sharp,
-                    // Colors.grey, // Specify the default color of the icon
-                    // isFirstButtonClicked, // Pass the clicked state to the button
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 15,
-            ),
+            // SingleChildScrollView(
+            //   scrollDirection: Axis.horizontal,
+            //   child: Row(
+            //     children: [
+            //       uihelper.CustomButton(() {}, "Physical", 40, 120),
+            //       SizedBox(width: 10),
+            //       uihelper.CustomButton(() {}, "Digital", 40, 120),
+            //       SizedBox(width: 10),
+            //       uihelper.CustomButton(() {}, "Hybrid", 40, 120),
+            //     ],
+            //   ),
+            // ),
+            SizedBox(height: 15),
             StreamBuilder(
               stream:
                   FirebaseFirestore.instance.collection('service').snapshots(),
@@ -191,6 +150,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                                       ],
                                     ),
                                   ),
+
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
@@ -242,6 +202,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                                       )
                                     ],
                                   ),
+
                                 ],
                               );
                           },
@@ -276,7 +237,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                 );
               },
             ),
-          ],
+  ],
         ),
       ),
     );

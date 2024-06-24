@@ -1,40 +1,73 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:servtol/categoriescustomer.dart';
+import 'package:servtol/notificationcustomer.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-class homecustomer extends StatefulWidget {
-  const homecustomer({super.key});
+class HomeCustomer extends StatefulWidget {
+  const HomeCustomer({super.key});
 
   @override
-  State<homecustomer> createState() => _homecustomerState();
+  State<HomeCustomer> createState() => _HomeCustomerState();
 }
 
-class _homecustomerState extends State<homecustomer> {
+class _HomeCustomerState extends State<HomeCustomer> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
+  bool useCloudImages = false; // Flag to switch between cloud and local images
 
-  final List<String> _images = [
+  List<String> _localImages = [
     'assets/images/sofa1.webp',
     'assets/images/sofa2.jpeg',
     'assets/images/sofa3.jpg',
     'assets/images/sofa4.jpg',
   ];
 
+  List<String> _cloudImages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if (useCloudImages) {
+      fetchImages();
+    }
+  }
+
+  fetchImages() async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    QuerySnapshot snapshot = await firestore.collection('carousel_images').get();
+    setState(() {
+      _cloudImages = snapshot.docs.map((doc) => doc['url'] as String).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<String> imagesToDisplay = useCloudImages ? _cloudImages : _localImages;
+
     return Scaffold(
       appBar: AppBar(
-        // title: Text('Home'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => customernotification()),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             SizedBox(height: 20),
-            // Adding space from top
-            CarouselSlider(
+            imagesToDisplay.isNotEmpty
+                ? CarouselSlider(
               options: CarouselOptions(
                 height: 250.0,
                 enlargeCenterPage: true,
@@ -44,19 +77,20 @@ class _homecustomerState extends State<homecustomer> {
                   });
                 },
               ),
-              items: _images.map((imageUrl) {
+              items: imagesToDisplay.map((imageUrl) {
                 return Builder(
                   builder: (BuildContext context) {
                     return Container(
-                      width: MediaQuery
-                          .of(context)
-                          .size
-                          .width,
-                      // margin: EdgeInsets.symmetric(horizontal: 5.0),
+                      width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
                         color: Colors.grey,
                       ),
-                      child: Image.asset(
+                      child: useCloudImages
+                          ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                      )
+                          : Image.asset(
                         imageUrl,
                         fit: BoxFit.cover,
                       ),
@@ -64,9 +98,9 @@ class _homecustomerState extends State<homecustomer> {
                   },
                 );
               }).toList(),
-            ),
+            )
+                : Center(child: CircularProgressIndicator()),
             SizedBox(height: 20),
-            // Adding space between carousel and other content
             Container(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Column(
@@ -84,10 +118,12 @@ class _homecustomerState extends State<homecustomer> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(
-                                  builder: (context) => Categoriescustomer()));
-                          // Replace this with your navigation logic
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Categoriescustomer(),
+                            ),
+                          );
                         },
                         child: Text(
                           'View All',
@@ -100,89 +136,86 @@ class _homecustomerState extends State<homecustomer> {
                     ],
                   ),
                   SizedBox(height: 5),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            // Handle the tap event for the first circle avatar
-                          },
-                          child: Column(
-                            children: [
-                              CircleAvatar(
-                                radius: 20,
-                                backgroundColor: Colors.blue,
-                                child: Icon(Icons.code, color: Colors.white),
-                              ),
-                              SizedBox(height: 5),
-                              Text('Developer'),
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        InkWell(
-                          onTap: () {
-                            // Handle the tap event for the second circle avatar
-                          },
-                          child: Column(
-                            children: [
-                              CircleAvatar(
-                                radius: 20,
-                                backgroundColor: Colors.green,
-                              child: Icon(Icons.plumbing, color: Colors.white),
 
-                              ),
-                              SizedBox(height: 5),
-                              Text('Plumber'),
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        InkWell(
-                          onTap: () {
-                            // Handle the tap event for the third circle avatar
-                          },
-                          child: Column(
+                  Stack(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
                             children: [
-                              CircleAvatar(
-                                radius: 20,
-                                backgroundColor: Colors.orange,
-                                child: Icon(Icons.alternate_email, color: Colors.white),
-                              ),
-                              SizedBox(height: 5),
-                              Text('Social Media'),
+                              buildCategoryItem(Icons.code, 'Developer', Colors.blue),
+                              SizedBox(width: 20),
+                              buildCategoryItem(Icons.plumbing, 'Plumber', Colors.green),
+                              SizedBox(width: 20),
+                              buildCategoryItem(Icons.alternate_email, 'Social Media', Colors.orange),
+                              SizedBox(width: 20),
+                              buildCategoryItem(Icons.search, 'SEO', Colors.amber),
+                              SizedBox(width: 20),
+                              buildCategoryItem(Icons.document_scanner_rounded, 'Thesis', Colors.red),
+                              SizedBox(width: 20),
                             ],
                           ),
                         ),
-                        SizedBox(width: 10),
-                        InkWell(
-                          onTap: () {
-                            // Handle the tap event for the fourth circle avatar
-                          },
-                          child: Column(
-                            children: [
-                              CircleAvatar(
-                                radius: 20,
-                                backgroundColor: Colors.amber,
-                                child: Icon(Icons.search, color: Colors.white),
-                              ),
-                              SizedBox(height: 5),
-                              Text('SEO '),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                      // Positioned(
+                      //   bottom: 0,
+                      //   left: 0,
+                      //   right: 0,
+                      //   child: Container(
+                      //     height: 2,
+                      //     color: Colors.grey,
+                      //   ),
+                      // ),
+                      // Positioned(
+                      //   bottom: 0,
+                      //   left: 0,
+                      //   right: 0,
+                      //   child: IgnorePointer(
+                      //     child: Container(
+                      //       height: 30,
+                      //       decoration: BoxDecoration(
+                      //         gradient: LinearGradient(
+                      //           colors: [
+                      //             Colors.black.withOpacity(0.0),
+                      //             Colors.white.withOpacity(0.5),
+                      //             Colors.white,
+                      //           ],
+                      //           stops: [0.0, 0.5, 1.0],
+                      //           begin: Alignment.centerLeft,
+                      //           end: Alignment.centerRight,
+                      //          ),),
+                      //     ),
+                      //   ),
+                      // ),
+                    ],
                   ),
-                  ),],
-              ),
+                ],
             ),
-          ],
+            )],
         ),
       ),
     );
   }
+
+  Widget buildCategoryItem(IconData icon, String label, Color color) {
+    return InkWell(
+      onTap: () {
+        // Handle the tap event
+      },
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: color,
+            child: Icon(icon, color: Colors.white),
+          ),
+          SizedBox(height: 5),
+          Text(label),
+        ],
+      ),
+    );
+  }
 }
+

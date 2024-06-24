@@ -53,7 +53,7 @@ class _signupcustomerState extends State<signupcustomer> {
           SnackBar(content: Text('Account Created successfully')),
         );
         Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => homecustomer()));
+            MaterialPageRoute(builder: (context) => HomeCustomer()));
       });
       // Reset text fields after data is added
 

@@ -24,7 +24,7 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout> {
   void initState() {
     super.initState();
     widgetlist = [
-      homeprovider(),
+      HomeProvider(),
       BookingScreenWidget(backPress: widget.onBackPress),
       // Corrected callback usage
       PaymentScreenWidget(backPress: widget.onBackPress),

@@ -42,7 +42,7 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
               children: [
 
                 Container(
-                  child: Text('Customer Profile'),
+                  child: Text('Provider Profile'),
                 ),
 
               ],

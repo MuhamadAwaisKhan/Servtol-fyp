@@ -31,7 +31,7 @@ class _OTPScreenState extends State<OTPScreen> {
         Navigator.popUntil(context, (route) => route.isFirst);
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => homecustomer()),
+          MaterialPageRoute(builder: (context) => HomeCustomer()),
         );
       }
     } on FirebaseAuthException catch (ex) {
