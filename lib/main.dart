@@ -10,6 +10,8 @@ import 'package:servtol/signupmain.dart';
 import 'package:servtol/signupprovider.dart';
 import 'package:servtol/startscreen.dart';
 import 'package:servtol/testing%20file.dart';
+import 'package:servtol/testing/exerciselist.dart';
+import 'package:servtol/testing/myapptesting.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -22,7 +24,10 @@ void main() async {
     // theme: AppTheme.lightTheme,
     // darkTheme: AppTheme.darkTheme,
     // themeMode: ThemeMode.system,
-    home: startingscreen(),
+    home:
+      // ExerciseList(),
+    // myapptesting(),
+     startingscreen(),
   ));
 }
 
