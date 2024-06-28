@@ -230,6 +230,57 @@ class uihelper {
       ),
     );
   }
+  static detailCard(String title, String value, {bool lastItem = false}) {
+    return Card(
+      margin: EdgeInsets.only(top: 10, left: 10, right: 10, bottom: lastItem ? 10 : 15),  // Adjusted for consistency and visual spacing
+      elevation: 2,  // Adds a subtle shadow for depth
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),  // Slightly larger padding for a better touch target
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              flex: 2,  // Adjust flex to manage space allocation if title tends to be longer
+              child: Tooltip(
+                message: title,  // Tooltip to show full title on long press if truncated
+                child: Text(
+                  title,
+                  style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.lightBlue),
+                  overflow: TextOverflow.ellipsis,  // Ensures text does not break layout
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 3,  // Gives more room for the value which might be longer
+              child: Text(
+                value,
+                style: TextStyle(fontFamily: 'Poppins', fontSize: 16, color: Colors.black54),
+                textAlign: TextAlign.right,
+                maxLines: 2,  // Allows text wrapping if very long
+                overflow: TextOverflow.ellipsis,  // Adds ellipsis if text overflows
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
+
+  static Widget actionButton(String label, Color color, IconData icon, VoidCallback onPressed) {
+    return ElevatedButton.icon(
+      icon: Icon(icon, color: Colors.white), // Icon color is white to contrast with button color
+      label: Text(label, style: TextStyle(fontFamily: 'Poppins')),
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20), // Adjust padding for better visual balance
+      ),
+    );
+  }
 
 }
+
+
+

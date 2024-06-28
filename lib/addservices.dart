@@ -3,8 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:servtol/servicescreenprovider.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 enum WageType { Free, Hourly, Fixed }
 
@@ -250,67 +252,68 @@ class _servicesadditionState extends State<servicesaddition> {
       }
     }
     Future<void> _addData() async {
+
       try {
 
-          // Validation checks
-          if (profilepic == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Please enter a valid Service Picture')),
-            );
-          }
-          if (snanmecontroller.text.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please enter a valid Service Name')),
-            );
-          }
-          if (timecontroller.text.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please enter a valid Time Slot')),
-            );
-          }
-          if (_selectedcategory == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please enter a valid Category')),
-            );          }
-          if (_selectedsubcategory == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please enter a valid  Sub-Category')),
-            );          }
-          if (_selectedprovince == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please enter a valid  Province')),
-            );
-          }
-          if (_selectedcity == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please enter a valid  City')),
-            );           }
-          if (areacontroller.text.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please enter a valid  Area')),
-            );           }
-          if (pricecontroller.text.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please enter a valid Price')),
-            );           }
-          if (discountcontroller.text.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please enter a valid  Discount %')),
-            );           }
-          if (_selectedWageType == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please enter a valid  Wage Type')),
-            );           }
-          if (_selectedservicetype == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please enter a valid  Service Type')),
-            );           }
-          if (descriptioncontroller.text.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please enter a valid Description')),
-            );           }
+        // Validation checks
+        if (profilepic == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Service Picture')),
+          );
+        }
+        if (snanmecontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Service Name')),
+          );
+        }
+        if (timecontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Time Slot')),
+          );
+        }
+        if (_selectedcategory == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Category')),
+          );          }
+        if (_selectedsubcategory == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Sub-Category')),
+          );          }
+        if (_selectedprovince == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Province')),
+          );
+        }
+        if (_selectedcity == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  City')),
+          );           }
+        if (areacontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Area')),
+          );           }
+        if (pricecontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Price')),
+          );           }
+        if (discountcontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Discount %')),
+          );           }
+        if (_selectedWageType == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Wage Type')),
+          );           }
+        if (_selectedservicetype == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Service Type')),
+          );           }
+        if (descriptioncontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Description')),
+          );           }
 
-          // Upload image to Firebase Storage
+        // Upload image to Firebase Storage
         String imageUrl = await _uploadImageToFirebaseStorage();
 
         // Save image URL and service details to Firestore
@@ -375,32 +378,56 @@ class _servicesadditionState extends State<servicesaddition> {
       ),
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
-        child: Column(
-          children: [
+        child:  Column(
+            children: [
             GestureDetector(
-              onTap: () async {
-                XFile? selectedImage = await ImagePicker().pickImage(
-                  source: ImageSource.gallery,
-                );
-
-                if (selectedImage != null) {
-                  File convertedfile = File(selectedImage.path);
-                  uihelper.CustomAlertbox(context, "Image Selected!");
-                  setState(() {
-                    profilepic = convertedfile;
-                  });
-                } else {
-                  uihelper.CustomAlertbox(context, "No Image Selected!");
-                }
-              },
-              child: Center(
-                child: CircleAvatar(
-                  radius: 64,
-                  backgroundColor: Colors.grey,
-                  backgroundImage:
-                      (profilepic != null) ? FileImage(profilepic!) : null,
-                ),
-              ),
+            onTap: () async {
+      try {
+      XFile? selectedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (selectedImage != null) {
+      File convertedFile = File(selectedImage.path);
+      // Assuming your UIHelper has a method to show a dialog, otherwise use ScaffoldMessenger
+      showDialog(
+      context: context,
+      builder: (BuildContext context) {
+      return AlertDialog(
+      content: Text("Image Selected!"),
+      );
+      },
+      );
+      setState(() {
+      profilepic = convertedFile;
+      });
+      } else {
+      showDialog(
+      context: context,
+      builder: (BuildContext context) {
+      return AlertDialog(
+      content: Text("No Image Selected!"),
+      );
+      },
+      );
+      }
+      } catch (e) {
+      showDialog(
+      context: context,
+      builder: (BuildContext context) {
+      return AlertDialog(
+      title: Text("Error"),
+      content: Text("Failed to pick image: $e"),
+      );
+      },
+      );
+      }
+      },
+        child: Center(
+          child: CircleAvatar(
+            radius: 64,
+            backgroundColor: Colors.grey[300], // Make sure to use a MaterialColor for consistency
+            backgroundImage: profilepic != null ? FileImage(profilepic!) : null,
+            child: profilepic == null ? Icon(FontAwesomeIcons.camera, size: 50) : null,
+          ),
+        ),
             ),
             SizedBox(
               height: 12,
@@ -409,7 +436,7 @@ class _servicesadditionState extends State<servicesaddition> {
                 Icons.home_repair_service, false),
             SizedBox(height: 10.0),
             Container(
-              width: 325,
+              width: 360,
               height: 70,
               child: DropdownButtonFormField(
                 value: _selectedcategory,
@@ -431,7 +458,7 @@ class _servicesadditionState extends State<servicesaddition> {
                 decoration: InputDecoration(
                   labelText: " Category",
                   labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
-                  suffixIcon: Icon(Icons.merge_type),
+                  suffixIcon: Icon(FontAwesomeIcons.stream),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -440,7 +467,7 @@ class _servicesadditionState extends State<servicesaddition> {
             ),
             SizedBox(height: 10.0),
             Container(
-              width: 325,
+              width: 360,
               height: 70,
               child: DropdownButtonFormField(
                 value: _selectedsubcategory,
@@ -462,7 +489,7 @@ class _servicesadditionState extends State<servicesaddition> {
                 decoration: InputDecoration(
                   labelText: " Sub-Category",
                   labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
-                  suffixIcon: Icon(Icons.merge_type),
+                  suffixIcon: Icon(FontAwesomeIcons.stream),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -471,7 +498,7 @@ class _servicesadditionState extends State<servicesaddition> {
             ),
             SizedBox(height: 10.0),
             Container(
-              width: 325,
+              width: 360,
               height: 70,
               child: DropdownButtonFormField(
                 value: _selectedprovince,
@@ -493,7 +520,7 @@ class _servicesadditionState extends State<servicesaddition> {
                 decoration: InputDecoration(
                   labelText: " Province",
                   labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
-                  suffixIcon: Icon(Icons.merge_type),
+                  suffixIcon: Icon(FontAwesomeIcons.patreon),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -502,7 +529,7 @@ class _servicesadditionState extends State<servicesaddition> {
             ),
             SizedBox(height: 10.0),
             Container(
-              width: 325,
+              width: 360,
               height: 70,
               child: DropdownButtonFormField(
                 value: _selectedcity,
@@ -523,7 +550,7 @@ class _servicesadditionState extends State<servicesaddition> {
                 decoration: InputDecoration(
                   labelText: "City",
                   labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
-                  suffixIcon: Icon(Icons.merge_type),
+                  suffixIcon: Icon(FontAwesomeIcons.city),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -531,16 +558,16 @@ class _servicesadditionState extends State<servicesaddition> {
               ),
             ),
             uihelper.CustomTextField(
-                areacontroller, "Area", Icons.area_chart, false),
+                areacontroller, "Area", FontAwesomeIcons.areaChart, false),
             uihelper.CustomNumberField(
-                pricecontroller, "Price", Icons.money_outlined, false),
+                pricecontroller, "Price", FontAwesomeIcons.moneyBill, false),
             uihelper.CustomNumberField(
-                discountcontroller, "Discount  ", Icons.percent_rounded, false),
+                discountcontroller, "Discount  ", FontAwesomeIcons.percent, false),
             uihelper.CustomTimeDuration(
-                timecontroller, "Time Duration", Icons.timer, "hour:min==00:00"),
+                timecontroller, "Time Duration", FontAwesomeIcons.clock, "hour:min==00:00"),
             SizedBox(height: 10.0),
             Container(
-              width: 325,
+              width: 360,
               height: 70,
               child: DropdownButtonFormField(
                 value: _selectedservicetype,
@@ -562,7 +589,7 @@ class _servicesadditionState extends State<servicesaddition> {
                 decoration: InputDecoration(
                   labelText: "Service type",
                   labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
-                  suffixIcon: Icon(Icons.merge_type),
+                  suffixIcon: Icon(FontAwesomeIcons.servicestack),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -571,7 +598,7 @@ class _servicesadditionState extends State<servicesaddition> {
             ),
             SizedBox(height: 10.0),
             Container(
-              width: 325,
+              width: 360,
               height: 70,
               child: DropdownButtonFormField(
                 value: _selectedWageType,
@@ -593,7 +620,7 @@ class _servicesadditionState extends State<servicesaddition> {
                 decoration: InputDecoration(
                   labelText: "Wage type",
                   labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
-                  suffixIcon: Icon(Icons.merge_type),
+                  suffixIcon: Icon(FontAwesomeIcons.servicestack),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -607,6 +634,8 @@ class _servicesadditionState extends State<servicesaddition> {
             ),
             uihelper.CustomButton(() {
               _addData();
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => ServiceScreenWidget()));
             }, "Save", 50, 170),
             SizedBox(
               height: 15,
