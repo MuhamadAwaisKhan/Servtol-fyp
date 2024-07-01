@@ -4,20 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:servtol/ServiceScreenDetail.dart';
 import 'package:servtol/addservices.dart';
-import 'package:servtol/edit%20service.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 
 class ServiceScreenWidget extends StatefulWidget {
-   ServiceScreenWidget({Key? key}) : super(key: key);
+  ServiceScreenWidget({Key? key}) : super(key: key);
 
   @override
   State<ServiceScreenWidget> createState() => _ServiceScreenWidgetState();
 }
 
-TextEditingController searchcontroller = TextEditingController();
-
 class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
+  TextEditingController searchcontroller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,11 +44,47 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            uihelper.CustomTextField(
-                searchcontroller, "Search", Icons.search, false),
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: TextField(
+                controller: searchcontroller,
+                style: TextStyle(fontSize: 16),
+                decoration: InputDecoration(
+                  labelText: 'Search Services',
+                 labelStyle: TextStyle(fontFamily: 'Poppins'),
+                  prefixIcon: Icon(Icons.search, color: Colors.grey),
+                  suffixIcon: searchcontroller.text.isNotEmpty
+                      ? GestureDetector(
+                    child: Icon(Icons.clear, color: Colors.grey),
+                    onTap: () {
+                      searchcontroller.clear();
+                      setState(() {}); // Refresh the search
+                    },
+                  )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                ),
+                onChanged: (value) {
+                  setState(() {}); // Trigger rebuild with every change
+                },
+              ),
+            ),
             SizedBox(height: 15),
             StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('service').snapshots(),
+              stream: (searchcontroller.text.isEmpty)
+                  ? FirebaseFirestore.instance.collection('service').snapshots()
+                  : FirebaseFirestore.instance
+                  .collection('service')
+                  .where('ServiceName', isGreaterThanOrEqualTo: searchcontroller.text)
+                  .where('ServiceName', isLessThanOrEqualTo: searchcontroller.text + '\uf8ff')
+
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Text("Error: ${snapshot.error}");
@@ -85,44 +120,37 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                                 ),
                               ],
                             ),
-                            child: Card(
-                              color: Colors.transparent,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                            child: ListTile(
+                              contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                              leading: doc['ImageUrl'] != null
+                                  ? CircleAvatar(
+                                backgroundImage: NetworkImage(doc['ImageUrl']),
+                                radius: 25,
+                              )
+                                  : CircleAvatar(
+                                child: Icon(Icons.image_not_supported_rounded, size: 50),
                               ),
-                              child: ListTile(
-                                contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                                leading: doc['ImageUrl'] != null
-                                    ? CircleAvatar(
-                                  backgroundImage: NetworkImage(doc['ImageUrl']),
-                                  radius: 25,
-                                )
-                                    : CircleAvatar(
-                                  child: Icon(Icons.image_not_supported_rounded, size: 50),
-                                ),
-                                title: Text(
-                                    doc['ServiceName'] ?? 'No name',
-                                    style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white)),
-                                subtitle: Text(
-                                    doc['Category'] ?? 'No category',
-                                    style: TextStyle(fontFamily: 'Poppins', color: Colors.white70)),
-                                trailing: Text(
-                                    "\$" + (doc['Price']?.toString() ?? 'No Price'),
-                                    style: TextStyle(
-                                        fontFamily: 'Poppins', color: Colors.amber, fontWeight: FontWeight.bold)),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ServiceDetailScreen(service: doc),
-                                    ),
-                                  );
-                                },
-                              ),
+                              title: Text(
+                                  doc['ServiceName'] ?? 'No name',
+                                  style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white)),
+                              subtitle: Text(
+                                  doc['Category'] ?? 'No category',
+                                  style: TextStyle(fontFamily: 'Poppins', color: Colors.white70)),
+                              trailing: Text(
+                                  "\$" + (doc['Price']?.toString() ?? 'No Price'),
+                                  style: TextStyle(
+                                      fontFamily: 'Poppins', color: Colors.amber, fontWeight: FontWeight.bold)),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ServiceDetailScreen(service: doc),
+                                  ),
+                                );
+                              },
                             ));
                       },
                     )
@@ -133,31 +161,21 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
           ],
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-
-      //   },
-      //   label
-      //   // child: Icon(Icons.add, size: 30),
-      //   // backgroundColor: AppColors.black,
-      //   // elevation: 5.0,
-      // ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => servicesaddition()));
         },
         label: Text(
           'Add Service',
-          style: TextStyle(color: AppColors.secondaryColor), // Set your text color here
+          style: TextStyle(color: Colors.white), // Set your text color here
         ),
         icon: Icon(
           Icons.add,
-          color: AppColors.iconColor, // Set your icon color here
+          color: AppColors.secondaryColor, // Set your icon color here
         ),
         backgroundColor: AppColors.primaryColor,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-
     );
   }
 }

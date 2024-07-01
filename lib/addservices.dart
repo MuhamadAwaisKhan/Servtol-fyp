@@ -241,8 +241,9 @@ class _servicesadditionState extends State<servicesaddition> {
     Future<String> _uploadImageToFirebaseStorage() async {
       try {
         String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-        Reference reference =
-        FirebaseStorage.instance.ref().child('images/Servicepics/$fileName.jpg');
+        Reference reference = FirebaseStorage.instance
+            .ref()
+            .child('images/Servicepics/$fileName.jpg');
         UploadTask uploadTask = reference.putFile(profilepic!);
         TaskSnapshot storageTaskSnapshot = await uploadTask;
         String downloadURL = await storageTaskSnapshot.ref.getDownloadURL();
@@ -251,10 +252,9 @@ class _servicesadditionState extends State<servicesaddition> {
         throw Exception('Failed to upload image to Firebase Storage: $e');
       }
     }
+
     Future<void> _addData() async {
-
       try {
-
         // Validation checks
         if (profilepic == null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -274,11 +274,13 @@ class _servicesadditionState extends State<servicesaddition> {
         if (_selectedcategory == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Please enter a valid Category')),
-          );          }
+          );
+        }
         if (_selectedsubcategory == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Please enter a valid  Sub-Category')),
-          );          }
+          );
+        }
         if (_selectedprovince == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Please enter a valid  Province')),
@@ -287,31 +289,38 @@ class _servicesadditionState extends State<servicesaddition> {
         if (_selectedcity == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Please enter a valid  City')),
-          );           }
+          );
+        }
         if (areacontroller.text.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Please enter a valid  Area')),
-          );           }
+          );
+        }
         if (pricecontroller.text.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Please enter a valid Price')),
-          );           }
+          );
+        }
         if (discountcontroller.text.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Please enter a valid  Discount %')),
-          );           }
+          );
+        }
         if (_selectedWageType == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Please enter a valid  Wage Type')),
-          );           }
+          );
+        }
         if (_selectedservicetype == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Please enter a valid  Service Type')),
-          );           }
+          );
+        }
         if (descriptioncontroller.text.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Please enter a valid Description')),
-          );           }
+          );
+        }
 
         // Upload image to Firebase Storage
         String imageUrl = await _uploadImageToFirebaseStorage();
@@ -330,7 +339,7 @@ class _servicesadditionState extends State<servicesaddition> {
           'ServiceType': _serviceTypeController.text.trim(),
           'Description': descriptioncontroller.text.trim(),
           'ImageUrl': imageUrl,
-          'TimeSlot':timecontroller.text.trim(),
+          'TimeSlot': timecontroller.text.trim(),
         });
 
         setState(() {
@@ -378,56 +387,61 @@ class _servicesadditionState extends State<servicesaddition> {
       ),
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
-        child:  Column(
-            children: [
+        child: Column(
+          children: [
             GestureDetector(
-            onTap: () async {
-      try {
-      XFile? selectedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
-      if (selectedImage != null) {
-      File convertedFile = File(selectedImage.path);
-      // Assuming your UIHelper has a method to show a dialog, otherwise use ScaffoldMessenger
-      showDialog(
-      context: context,
-      builder: (BuildContext context) {
-      return AlertDialog(
-      content: Text("Image Selected!"),
-      );
-      },
-      );
-      setState(() {
-      profilepic = convertedFile;
-      });
-      } else {
-      showDialog(
-      context: context,
-      builder: (BuildContext context) {
-      return AlertDialog(
-      content: Text("No Image Selected!"),
-      );
-      },
-      );
-      }
-      } catch (e) {
-      showDialog(
-      context: context,
-      builder: (BuildContext context) {
-      return AlertDialog(
-      title: Text("Error"),
-      content: Text("Failed to pick image: $e"),
-      );
-      },
-      );
-      }
-      },
-        child: Center(
-          child: CircleAvatar(
-            radius: 64,
-            backgroundColor: Colors.grey[300], // Make sure to use a MaterialColor for consistency
-            backgroundImage: profilepic != null ? FileImage(profilepic!) : null,
-            child: profilepic == null ? Icon(FontAwesomeIcons.camera, size: 50) : null,
-          ),
-        ),
+              onTap: () async {
+                try {
+                  XFile? selectedImage = await ImagePicker()
+                      .pickImage(source: ImageSource.gallery);
+                  if (selectedImage != null) {
+                    File convertedFile = File(selectedImage.path);
+                    // Assuming your UIHelper has a method to show a dialog, otherwise use ScaffoldMessenger
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: Text("Image Selected!"),
+                        );
+                      },
+                    );
+                    setState(() {
+                      profilepic = convertedFile;
+                    });
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: Text("No Image Selected!"),
+                        );
+                      },
+                    );
+                  }
+                } catch (e) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Error"),
+                        content: Text("Failed to pick image: $e"),
+                      );
+                    },
+                  );
+                }
+              },
+              child: Center(
+                child: CircleAvatar(
+                  radius: 64,
+                  backgroundColor: Colors.grey[300],
+                  // Make sure to use a MaterialColor for consistency
+                  backgroundImage:
+                      profilepic != null ? FileImage(profilepic!) : null,
+                  child: profilepic == null
+                      ? Icon(FontAwesomeIcons.camera, size: 50)
+                      : null,
+                ),
+              ),
             ),
             SizedBox(
               height: 12,
@@ -561,10 +575,10 @@ class _servicesadditionState extends State<servicesaddition> {
                 areacontroller, "Area", FontAwesomeIcons.areaChart, false),
             uihelper.CustomNumberField(
                 pricecontroller, "Price", FontAwesomeIcons.moneyBill, false),
-            uihelper.CustomNumberField(
-                discountcontroller, "Discount  ", FontAwesomeIcons.percent, false),
-            uihelper.CustomTimeDuration(
-                timecontroller, "Time Duration", FontAwesomeIcons.clock, "hour:min==00:00"),
+            uihelper.CustomNumberField(discountcontroller, "Discount  ",
+                FontAwesomeIcons.percent, false),
+            uihelper.CustomTimeDuration(timecontroller, "Time Duration",
+                FontAwesomeIcons.clock, "hour:min==00:00"),
             SizedBox(height: 10.0),
             Container(
               width: 360,
@@ -634,8 +648,10 @@ class _servicesadditionState extends State<servicesaddition> {
             ),
             uihelper.CustomButton(() {
               _addData();
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => ServiceScreenWidget()));
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ServiceScreenWidget()));
             }, "Save", 50, 170),
             SizedBox(
               height: 15,

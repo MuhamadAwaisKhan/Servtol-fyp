@@ -5,6 +5,7 @@ import 'package:servtol/loginprovider.dart';
 import 'package:servtol/logincustomer.dart';
 import 'package:servtol/main%20login.dart';
 import 'package:servtol/providermain.dart';
+import 'package:servtol/servtolsplashscreen.dart';
 import 'package:servtol/signupcustomer.dart';
 import 'package:servtol/signupmain.dart';
 import 'package:servtol/signupprovider.dart';
@@ -12,6 +13,7 @@ import 'package:servtol/startscreen.dart';
 import 'package:servtol/testing%20file.dart';
 import 'package:servtol/testing/exerciselist.dart';
 import 'package:servtol/testing/myapptesting.dart';
+import 'package:servtol/testing/slpash%20screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -25,9 +27,11 @@ void main() async {
     // darkTheme: AppTheme.darkTheme,
     // themeMode: ThemeMode.system,
     home:
+    // ServToolSplashScreen(),
+    // SplashScreen(),
       // ExerciseList(),
     // myapptesting(),
-     startingscreen(),
+      startingscreen(),
   ));
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:servtol/main%20login.dart';
+import 'package:servtol/servtolsplashscreen.dart';
 import 'package:servtol/util/AppColors.dart';
 class startingscreen extends StatefulWidget {
   const startingscreen({super.key});
@@ -64,7 +65,7 @@ class _startingscreenState extends State<startingscreen> {
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>mainlogin()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ServToolSplashScreen()));
                   // Navigate to your desired screen
                 },
                 style: ElevatedButton.styleFrom(
