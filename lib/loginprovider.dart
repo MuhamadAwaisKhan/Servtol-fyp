@@ -1,15 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:servtol/forgetpassword.dart';
-import 'package:servtol/homeprovider.dart';
 import 'package:servtol/providermain.dart';
 import 'package:servtol/signupprovider.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
-import 'firebase_options.dart';
 
 class loginprovider extends StatefulWidget {
   const loginprovider({super.key});
@@ -101,6 +100,12 @@ class _loginproviderState extends State<loginprovider> {
         body: SingleChildScrollView(
           child: Column(
             children: [
+              Lottie.asset(
+                'assets/images/provider.json',
+                height: 200,
+                fit: BoxFit.cover,
+              ),
+              SizedBox(height: 22),
               Center(
                   child: Text(
                     "Hello Provider !",

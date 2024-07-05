@@ -52,7 +52,7 @@ class _ServToolSplashScreenState extends State<ServToolSplashScreen> {
         ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
     Color textColor =
     isDark ? Colors.white : Colors.black; // High contrast text color
-    Color iconColor =
+    // Color iconColor =
     isDark ? Colors.white : Colors.teal; // High contrast icon color
 
     return Container(

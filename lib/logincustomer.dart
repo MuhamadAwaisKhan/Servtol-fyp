@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:lottie/lottie.dart';
 import 'package:servtol/PhoneAuth.dart';
 import 'package:servtol/customermain.dart';
 import 'package:servtol/forgetpassword.dart';
@@ -114,6 +115,12 @@ class _logincustomerState extends State<logincustomer> {
         body: SingleChildScrollView(
           child: Column(
             children: [
+              Lottie.asset(
+                'assets/images/customer.json',
+                height: 200,
+                fit: BoxFit.cover,
+              ),
+              SizedBox(height: 22),
               Center(
                   child: Text(
                 "Hello Customer !",
