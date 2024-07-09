@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:lottie/lottie.dart';
 import 'package:servtol/homecustomer.dart';
 import 'package:servtol/logincustomer.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -52,8 +53,8 @@ class _signupcustomerState extends State<signupcustomer> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Account Created successfully')),
         );
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => HomeCustomer()));
+        // Navigator.pushReplacement(context,
+        //     MaterialPageRoute(builder: (context) => HomeCustomer()));
       });
       // Reset text fields after data is added
 
@@ -121,12 +122,15 @@ class _signupcustomerState extends State<signupcustomer> {
         backgroundColor: AppColors.background,
         body: SingleChildScrollView(
           child: Column(children: [
-            Center(
-              child: IconButton(
-                icon: Icon(Icons.account_circle, size: 60),
-                onPressed: () {},
-              ),
+            Lottie.asset(
+              'assets/images/ab2.json',
+              height: 200,
+              fit: BoxFit.cover,
             ),
+            SizedBox(
+              height: 22,
+            ),
+
             Center(
                 child: Text("Hello Customer !",
                     style: TextStyle(

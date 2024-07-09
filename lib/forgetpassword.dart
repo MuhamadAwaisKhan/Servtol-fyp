@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 
@@ -38,6 +39,14 @@ class _forgetpasswordState extends State<forgetpassword> {
       ),   backgroundColor: AppColors.background,
       body: Column(
         children: [
+          Lottie.asset(
+            'assets/images/ab1.json',
+            height: 200,
+            fit: BoxFit.cover,
+          ),
+          SizedBox(
+            height: 22,
+          ),
           uihelper.CustomTextField(emailcontroller, "Email", Icons.mail_outline, false),
           SizedBox(
             height: 20,

@@ -6,6 +6,7 @@ import 'package:servtol/ServiceScreenDetail.dart';
 import 'package:servtol/addservices.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ServiceScreenWidget extends StatefulWidget {
   ServiceScreenWidget({Key? key}) : super(key: key);
@@ -16,6 +17,7 @@ class ServiceScreenWidget extends StatefulWidget {
 
 class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
   TextEditingController searchcontroller = TextEditingController();
+  final User? currentUser = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +53,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                 style: TextStyle(fontSize: 16),
                 decoration: InputDecoration(
                   labelText: 'Search Services',
-                 labelStyle: TextStyle(fontFamily: 'Poppins'),
+                  labelStyle: TextStyle(fontFamily: 'Poppins'),
                   prefixIcon: Icon(Icons.search, color: Colors.grey),
                   suffixIcon: searchcontroller.text.isNotEmpty
                       ? GestureDetector(
@@ -78,12 +80,15 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
             SizedBox(height: 15),
             StreamBuilder<QuerySnapshot>(
               stream: (searchcontroller.text.isEmpty)
-                  ? FirebaseFirestore.instance.collection('service').snapshots()
+                  ? FirebaseFirestore.instance
+                  .collection('service')
+                  .where('providerId', isEqualTo: currentUser?.uid)
+                  .snapshots()
                   : FirebaseFirestore.instance
                   .collection('service')
+                  .where('providerId', isEqualTo: currentUser?.uid)
                   .where('ServiceName', isGreaterThanOrEqualTo: searchcontroller.text)
                   .where('ServiceName', isLessThanOrEqualTo: searchcontroller.text + '\uf8ff')
-
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {

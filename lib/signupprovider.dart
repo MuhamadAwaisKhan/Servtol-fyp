@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:lottie/lottie.dart';
 import 'package:servtol/logincustomer.dart';
 import 'package:servtol/loginprovider.dart';
 import 'package:servtol/providermain.dart';
@@ -139,12 +140,15 @@ class _signupproviderState extends State<signupprovider> {
         SingleChildScrollView(
           child: Column(
               children: [
-                Center(
-                  child: IconButton(
-                    icon: Icon(Icons.account_circle, size: 60),
-                    onPressed: () {},
-                  ),
+                Lottie.asset(
+                  'assets/images/ab2.json',
+                  height: 200,
+                  fit: BoxFit.cover,
                 ),
+                SizedBox(
+                  height: 22,
+                ),
+
                 Center(
                     child: Text("Hello Provider !",
                         style: TextStyle(

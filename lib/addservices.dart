@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -254,94 +255,130 @@ class _servicesadditionState extends State<servicesaddition> {
     }
 
     Future<void> _addData() async {
-      try {
-        // Validation checks
-        if (profilepic == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter a valid Service Picture')),
-          );
-        }
-        if (snanmecontroller.text.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter a valid Service Name')),
-          );
-        }
-        if (timecontroller.text.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter a valid Time Slot')),
-          );
-        }
-        if (_selectedcategory == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter a valid Category')),
-          );
-        }
-        if (_selectedsubcategory == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter a valid  Sub-Category')),
-          );
-        }
-        if (_selectedprovince == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter a valid  Province')),
-          );
-        }
-        if (_selectedcity == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter a valid  City')),
-          );
-        }
-        if (areacontroller.text.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter a valid  Area')),
-          );
-        }
-        if (pricecontroller.text.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter a valid Price')),
-          );
-        }
-        if (discountcontroller.text.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter a valid  Discount %')),
-          );
-        }
-        if (_selectedWageType == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter a valid  Wage Type')),
-          );
-        }
-        if (_selectedservicetype == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter a valid  Service Type')),
-          );
-        }
-        if (descriptioncontroller.text.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter a valid Description')),
-          );
-        }
+      User currentUser = FirebaseAuth.instance.currentUser!;
 
+      // // Validation checks
+        // if (profilepic == null) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text('Please enter a valid Service Picture')),
+        //   );
+        // }
+        // if (snanmecontroller.text.isEmpty) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text('Please enter a valid Service Name')),
+        //   );
+        // }
+        // if (timecontroller.text.isEmpty) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text('Please enter a valid Time Slot')),
+        //   );
+        // }
+        // if (_selectedcategory == null) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text('Please enter a valid Category')),
+        //   );
+        // }
+        // if (_selectedsubcategory == null) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text('Please enter a valid  Sub-Category')),
+        //   );
+        // }
+        // if (_selectedprovince == null) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text('Please enter a valid  Province')),
+        //   );
+        // }
+        // if (_selectedcity == null) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text('Please enter a valid  City')),
+        //   );
+        // }
+        // if (areacontroller.text.isEmpty) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text('Please enter a valid  Area')),
+        //   );
+        // }
+        // if (pricecontroller.text.isEmpty) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text('Please enter a valid Price')),
+        //   );
+        // }
+        // if (discountcontroller.text.isEmpty) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text('Please enter a valid  Discount %')),
+        //   );
+        // }
+        // if (_selectedWageType == null) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text('Please enter a valid  Wage Type')),
+        //   );
+        // }
+        // if (_selectedservicetype == null) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text('Please enter a valid  Service Type')),
+        //   );
+        // }
+        // if (descriptioncontroller.text.isEmpty) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text('Please enter a valid Description')),
+        //   );
+        //
+      // }
+      // String userId = currentUser.uid;
+
+      if (profilepic == null ||
+          snanmecontroller.text.isEmpty ||
+          _selectedcategory == null ||
+          _selectedsubcategory == null ||
+          _selectedprovince == null ||
+          _selectedcity == null ||
+          areacontroller.text.isEmpty ||
+          pricecontroller.text.isEmpty ||
+          discountcontroller.text.isEmpty ||
+          _selectedWageType == null ||
+          _selectedservicetype == null ||
+          descriptioncontroller.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please fill all fields and select an image'))
+        );
+        return;
+      }
+      try {
         // Upload image to Firebase Storage
         String imageUrl = await _uploadImageToFirebaseStorage();
 
         // Save image URL and service details to Firestore
         await FirebaseFirestore.instance.collection('service').add({
-          'ServiceName': snanmecontroller.text.trim(),
-          'Category': categorycontroller.text.trim(),
-          'Subcategory': subcategorycontroller.text.trim(),
-          'Province': provincecontroller.text.trim(),
-          'City': citycontroller.text.trim(),
-          'Area': areacontroller.text.trim(),
-          'Price': pricecontroller.text.trim(),
-          'Discount': discountcontroller.text.trim(),
-          'WageType': _wageTypeController.text.trim(),
-          'ServiceType': _serviceTypeController.text.trim(),
-          'Description': descriptioncontroller.text.trim(),
-          'ImageUrl': imageUrl,
-          'TimeSlot': timecontroller.text.trim(),
-        });
 
+        'ServiceName': snanmecontroller.text.trim(),
+        'Category': _selectedcategory.toString().split('.').last,
+        'Subcategory': _selectedsubcategory.toString().split('.').last,
+        'Province': _selectedprovince.toString().split('.').last,
+        'City': _selectedcity.toString().split('.').last,
+        'Area': areacontroller.text.trim(),
+        'Price': pricecontroller.text.trim(),
+        'Discount': discountcontroller.text.trim(),
+        'WageType': _selectedWageType.toString().split('.').last,
+        'ServiceType': _selectedservicetype.toString().split('.').last,
+        'Description': descriptioncontroller.text.trim(),
+        'ImageUrl': imageUrl,
+        'TimeSlot': timecontroller.text.trim(),
+        'providerId':  currentUser.uid,
+          // 'ServiceName': snanmecontroller.text.trim(),
+          // 'Category': categorycontroller.text.trim(),
+          // 'Subcategory': subcategorycontroller.text.trim(),
+          // 'Province': provincecontroller.text.trim(),
+          // 'City': citycontroller.text.trim(),
+          // 'Area': areacontroller.text.trim(),
+          // 'Price': pricecontroller.text.trim(),
+          // 'Discount': discountcontroller.text.trim(),
+          // 'WageType': _wageTypeController.text.trim(),
+          // 'ServiceType': _serviceTypeController.text.trim(),
+          // 'Description': descriptioncontroller.text.trim(),
+          // 'ImageUrl': imageUrl,
+          // 'TimeSlot': timecontroller.text.trim(),
+          // 'providerId': currentUser?.uid,
+        });
         setState(() {
           profilepic = null;
           snanmecontroller.clear();
@@ -358,18 +395,23 @@ class _servicesadditionState extends State<servicesaddition> {
           descriptioncontroller.clear();
           timecontroller.clear();
         });
-
-        // Show a success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Service added successfully')),
-        );
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ServiceScreenWidget()));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Service added successfully')));
+         // Clear all fields after successful addition
       } catch (e) {
-        // Handle errors
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add service: $e')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to add service: $e')));
       }
     }
+
+
+
+        // Show a success message
+
+
+
 
     return Scaffold(
       appBar: AppBar(
@@ -648,10 +690,7 @@ class _servicesadditionState extends State<servicesaddition> {
             ),
             uihelper.CustomButton(() {
               _addData();
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ServiceScreenWidget()));
+
             }, "Save", 50, 170),
             SizedBox(
               height: 15,
