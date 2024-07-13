@@ -274,11 +274,34 @@ class uihelper {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20), // Adjust padding for better visual balance
       ),
     );
   }
+  static FormBuilderTextField(
+      // TextEditingController controller,
+      String text,
+      IconData iconData,
+      // bool tohide,
+      ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 15),
+      child: TextField(
+        // controller: controller,
+        // obscureText: tohide,
+        decoration: InputDecoration(
+          labelText: text,
+          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
+          suffixIcon: Icon(iconData),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+        ),
+      ),
+    );
+  }
+
 
 }
 

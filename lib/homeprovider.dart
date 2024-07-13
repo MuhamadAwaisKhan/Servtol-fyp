@@ -303,7 +303,8 @@ class _HomeProviderState extends State<HomeProvider> {
                   'View All',
                   style: TextStyle(
                     fontFamily: 'Poppins',
-                    color: Colors.teal[300],
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple[800],
                     // Soft teal for interactive elements
                     fontSize: 16,
                   ),
@@ -436,6 +437,7 @@ class _HomeProviderState extends State<HomeProvider> {
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.bold,
                                       ),
+
                                     ),
                                   ],
                                 ),
