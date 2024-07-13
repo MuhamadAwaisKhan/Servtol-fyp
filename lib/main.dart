@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:servtol/homeprovider.dart';
 import 'package:servtol/startscreen.dart';
 import 'firebase_options.dart';
 
@@ -13,12 +14,12 @@ void main() async {
     // theme: AppTheme.lightTheme,
     // darkTheme: AppTheme.darkTheme,
     // themeMode: ThemeMode.system,
-    home:
+    home: HomeProvider(),
     // ServToolSplashScreen(),
     // SplashScreen(),
       // ExerciseList(),
     // myapptesting(),
-      startingscreen(),
+    //   startingscreen(),
   ));
 }
 

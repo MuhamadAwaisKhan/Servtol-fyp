@@ -27,45 +27,52 @@ class _loginproviderState extends State<loginprovider> {
     setState(() {
       _isLoading = true;
     });
-    if (email == "" || password == "") {
-      uihelper.CustomAlertbox(context, "Enter Required fields");
+    if (email.isEmpty || password.isEmpty) {
+      uihelper.CustomAlertbox(context, "Please enter all required fields.");
       setState(() {
         _isLoading = false;
       });
-    } else {
-      try {
-        // Sign in with email and password
-        await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+      return;
+    }
+    if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email)) {
+      uihelper.CustomAlertbox(context, "Please enter a valid email address.");
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
 
-        // Check if the user exists in the Firestore database
-        QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('provider').where('Email', isEqualTo: email).get();
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('provider').where('Email', isEqualTo: email).get();
 
-        // If user exists, navigate to next screen
-        if (snapshot.docs.isNotEmpty) {
-          // Correct the class name in the MaterialPageRoute
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ProviderMainLayout(onBackPress: () {
-              Navigator.of(context).pop();
-            })),
-          );
-        } else {
-          // If user does not exist, show an alert
-          uihelper.CustomAlertbox(context, "User not found with this email");
-        }
-      } on FirebaseAuthException catch (ex) {
-        // Handle Firebase Auth exceptions
-        uihelper.CustomAlertbox(context, ex.code.toString());
-      } catch (e) {
-        // Handle other exceptions
-        print(e.toString());
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
+      if (snapshot.docs.isNotEmpty) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ProviderMainLayout(onBackPress: () {
+            Navigator.of(context).pop();
+          })),
+        );
+      } else {
+        uihelper.CustomAlertbox(context, "No account found with this email.");
       }
+    } on FirebaseAuthException catch (ex) {
+      String errorMessage = "An error occurred. Please try again.";
+      if (ex.code == 'user-not-found') {
+        errorMessage = "No user found for that email.";
+      } else if (ex.code == 'wrong-password') {
+        errorMessage = "Wrong password provided for that user.";
+      }
+      uihelper.CustomAlertbox(context, errorMessage);
+    } catch (e) {
+      print(e.toString());
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

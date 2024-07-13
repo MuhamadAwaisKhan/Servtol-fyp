@@ -12,13 +12,75 @@ import 'package:servtol/util/uihelper.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class HomeProvider extends StatefulWidget {
-   HomeProvider({super.key});
+  HomeProvider({super.key});
 
   @override
   State<HomeProvider> createState() => _HomeProviderState();
 }
 
 class _HomeProviderState extends State<HomeProvider> {
+  final User? currentUser =
+      FirebaseAuth.instance.currentUser; // Initial loading text
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String _userName = 'Loading...';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserName();
+  }
+
+  Future<void> fetchUserName() async {
+    User? currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      setState(() {
+        _userName = 'No user logged in';
+      });
+      return; // Exit if no user is logged in
+    }
+
+    final userEmail = currentUser.email;
+    if (userEmail == null) {
+      setState(() {
+        _userName = 'User email is not available';
+      });
+      return; // Exit if email is null
+    }
+
+    try {
+      // Query Firestore for a document where the 'Email' field matches the user's email
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('provider')
+          .where('Email', isEqualTo: userEmail)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        setState(() {
+          _userName = 'No matching user found in Firestore';
+        });
+      } else {
+        Map<String, dynamic> userData = snapshot.docs.first.data();
+        String? name = userData['FirstName'] as String?;
+        if (name == null) {
+          setState(() {
+            _userName = 'Name field is missing in Firestore document';
+          });
+        } else {
+          setState(() {
+            _userName = name;
+          });
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _userName = 'Failed to fetch user data: $e';
+      });
+      print(e); // Print the error to the console for debugging
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,30 +98,28 @@ class _HomeProviderState extends State<HomeProvider> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.message_outlined),
-            onPressed: () =>
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => chatprovider())),
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (context) => chatprovider())),
           ),
           IconButton(
             icon: Icon(Icons.notifications),
-            onPressed: () =>
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => notificationprovider())),
+            onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => notificationprovider())),
           ),
         ],
       ),
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
         child: Column(
-        children: <Widget>[
-          // Container(
-          //   height: 100, // Example fixed height
-          //   child: WidgetThatNeedsHeight(
-          //
-          //   ),// Any child widget that needs a defined size
-          // ),
+          children: <Widget>[
+            // Container(
+            //   height: 100, // Example fixed height
+            //   child: WidgetThatNeedsHeight(
+            //
+            //   ),// Any child widget that needs a defined size
+            // ),
             greetingSection(),
             earningsSection(),
             customButtonSection(),
@@ -72,14 +132,14 @@ class _HomeProviderState extends State<HomeProvider> {
     );
   }
 
-  Widget greetingSection() =>
-      Column(
+  Widget greetingSection() => Column(
         children: [
           Padding(
             padding: const EdgeInsets.only(right: 195.0),
-            child: Text("Hello, Awais Khan",
+            child: Text("Hello,$_userName ",
                 style: TextStyle(
                     fontFamily: 'Poppins',
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: AppColors.heading)),
           ),
@@ -87,21 +147,23 @@ class _HomeProviderState extends State<HomeProvider> {
           Padding(
             padding: const EdgeInsets.only(right: 215.0),
             child: Text("Welcome back!",
-                style: TextStyle(fontFamily: 'Poppins', color: AppColors.grey,
-                  fontWeight: FontWeight.bold,)),
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  color: AppColors.grey,
+                  fontWeight: FontWeight.bold,
+                )),
           ),
           SizedBox(height: 5),
         ],
       );
 
-  Widget earningsSection() =>
-      Padding(
+  Widget earningsSection() => Padding(
         padding: EdgeInsets.symmetric(horizontal: 78.0, vertical: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(Icons.account_balance_wallet_outlined, color: Colors.black,
-                size: 28),
+            Icon(Icons.account_balance_wallet_outlined,
+                color: Colors.black, size: 28),
             Text("Today's Earning:",
                 style: TextStyle(
                     fontFamily: 'Poppins',
@@ -117,11 +179,11 @@ class _HomeProviderState extends State<HomeProvider> {
         ),
       );
 
-
-  Widget customButtonSection() =>
-      Column(
+  Widget customButtonSection() => Column(
         children: [
-          SizedBox(height: 15,),
+          SizedBox(
+            height: 15,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -141,8 +203,7 @@ class _HomeProviderState extends State<HomeProvider> {
         ],
       );
 
-  Widget monthlyRevenueChart() =>
-      Column(
+  Widget monthlyRevenueChart() => Column(
         children: [
           Text("Monthly Revenue",
               style: TextStyle(
@@ -158,9 +219,9 @@ class _HomeProviderState extends State<HomeProvider> {
                 gridData: FlGridData(show: false),
                 titlesData: FlTitlesData(
                   leftTitles:
-                  AxisTitles(sideTitles: SideTitles(showTitles: true)),
+                      AxisTitles(sideTitles: SideTitles(showTitles: true)),
                   bottomTitles:
-                  AxisTitles(sideTitles: SideTitles(showTitles: true)),
+                      AxisTitles(sideTitles: SideTitles(showTitles: true)),
                 ),
                 borderData: FlBorderData(
                     show: true, border: Border.all(color: Colors.black)),
@@ -186,8 +247,7 @@ class _HomeProviderState extends State<HomeProvider> {
         ],
       );
 
-  Widget upcomingBookings() =>
-      Column(
+  Widget upcomingBookings() => Column(
         children: [
           Text("Upcoming Booking",
               style: TextStyle(
@@ -210,6 +270,7 @@ class _HomeProviderState extends State<HomeProvider> {
           SizedBox(height: 15),
         ],
       );
+
   Widget servicesList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,7 +285,8 @@ class _HomeProviderState extends State<HomeProvider> {
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple[800], // Rich purple color for headings
+                  color: Colors.deepPurple[800],
+                  // Rich purple color for headings
                   fontSize: 18,
                 ),
               ),
@@ -241,7 +303,8 @@ class _HomeProviderState extends State<HomeProvider> {
                   'View All',
                   style: TextStyle(
                     fontFamily: 'Poppins',
-                    color: Colors.teal[300], // Soft teal for interactive elements
+                    color: Colors.teal[300],
+                    // Soft teal for interactive elements
                     fontSize: 16,
                   ),
                 ),
@@ -250,10 +313,15 @@ class _HomeProviderState extends State<HomeProvider> {
           ),
         ),
         SizedBox(height: 15),
-        Padding( // Additional padding for overall grid spacing
-          padding: const EdgeInsets.symmetric(horizontal: 12.0), // Adjust the horizontal padding
+        Padding(
+          // Additional padding for overall grid spacing
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          // Adjust the horizontal padding
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('service').snapshots(),
+            stream: FirebaseFirestore.instance
+                .collection('service')
+                .where('providerId', isEqualTo: currentUser?.uid)
+                .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
@@ -270,7 +338,10 @@ class _HomeProviderState extends State<HomeProvider> {
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                 ),
-                itemCount: snapshot.data!.docs.length < 4 ? snapshot.data!.docs.length : 4, // Show only top 4 services
+                itemCount: snapshot.data!.docs.length < 4
+                    ? snapshot.data!.docs.length
+                    : 4,
+                // Show only top 4 services
                 itemBuilder: (context, index) {
                   DocumentSnapshot doc = snapshot.data!.docs[index];
                   return GestureDetector(
@@ -278,12 +349,14 @@ class _HomeProviderState extends State<HomeProvider> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ServiceDetailScreen(service: doc),
+                          builder: (context) =>
+                              ServiceDetailScreen(service: doc),
                         ),
                       );
                     },
                     child: Container(
-                      margin: EdgeInsets.all(8), // Adjusted for individual card margin
+                      margin: EdgeInsets.all(8),
+                      // Adjusted for individual card margin
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
@@ -313,7 +386,8 @@ class _HomeProviderState extends State<HomeProvider> {
                                   begin: Alignment.bottomCenter,
                                   end: Alignment.topCenter,
                                   colors: [
-                                    Colors.black.withOpacity(0.3), // Lighter gradient for text emphasis
+                                    Colors.black.withOpacity(0.3),
+                                    // Lighter gradient for text emphasis
                                     Colors.transparent,
                                   ],
                                 ),
@@ -323,7 +397,8 @@ class _HomeProviderState extends State<HomeProvider> {
                                 child: Text(
                                   doc['Category'] ?? 'No category',
                                   style: TextStyle(
-                                    color: Colors.amber[200], // Bright amber for categories
+                                    color: Colors.amber[200],
+                                    // Bright amber for categories
                                     fontSize: 12,
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.bold,
@@ -343,17 +418,21 @@ class _HomeProviderState extends State<HomeProvider> {
                                       doc['ServiceName'] ?? 'No name',
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 14,
+                                        fontSize: 12,
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.bold,
                                       ),
+                                      textAlign: TextAlign.center,
                                     ),
                                     SizedBox(height: 4),
                                     Text(
-                                      "\$" + (doc['Price']?.toString() ?? 'No Price'),
+                                      "\$" +
+                                          (doc['Price']?.toString() ??
+                                              'No Price'),
                                       style: TextStyle(
-                                        color: Colors.lightGreenAccent[400], // Light green accent for pricing
-                                        fontSize: 14,
+                                        color: Colors.lightGreenAccent[400],
+                                        // Light green accent for pricing
+                                        fontSize: 10,
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -375,13 +454,4 @@ class _HomeProviderState extends State<HomeProvider> {
       ],
     );
   }
-
-
-
-
-
-
-
-
-
 }
