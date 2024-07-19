@@ -49,7 +49,7 @@ class _logincustomerState extends State<logincustomer> {
         if (snapshot.docs.isNotEmpty) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => customermainscreen()),
+            MaterialPageRoute(builder: (Context) => customermainscreen()),
           );
         } else {
           // If user does not exist, show an alert

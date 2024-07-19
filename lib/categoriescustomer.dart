@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:servtol/util/AppColors.dart';
 
-class Categoriescustomer extends StatefulWidget {
-  const Categoriescustomer({Key? key}) : super(key: key);
+class CategoriesCustomer extends StatefulWidget {
+  const CategoriesCustomer({Key? key}) : super(key: key);
 
   @override
-  State<Categoriescustomer> createState() => _CategoriescustomerState();
+  State<CategoriesCustomer> createState() => _CategoriesCustomerState();
 }
 
-class _CategoriescustomerState extends State<Categoriescustomer> {
+class _CategoriesCustomerState extends State<CategoriesCustomer> {
   final List<Category> categories = [
     Category(name: 'Marketing', icon: Icons.shopping_basket),
     Category(name: 'Consultation', icon: Icons.chat),
@@ -34,29 +34,22 @@ class _CategoriescustomerState extends State<Categoriescustomer> {
     Category(name: 'Catering', icon: Icons.restaurant),
     Category(name: 'Fitness', icon: Icons.fitness_center),
     Category(name: 'Event Plan', icon: Icons.event),
-    // Add more categories as needed
+    // Add your category details here
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Service Categories',
-          style: TextStyle(
-          fontFamily: 'Poppins',
-          fontWeight: FontWeight.bold,
-          fontSize: 17,
-          color: AppColors.heading,
-        ),
-        ),
+        title: Text('Service Categories', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold, fontSize: 17, color: AppColors.heading)),
       ),
       body: GridView.builder(
         padding: EdgeInsets.all(10),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4, // Number of columns
+          crossAxisCount: 4,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          childAspectRatio: 0.8, // Ensure a square aspect ratio for each grid cell
+          childAspectRatio: 0.8,
         ),
         itemCount: categories.length,
         itemBuilder: (context, index) {
@@ -77,18 +70,16 @@ class CategoryWidget extends StatelessWidget {
     return InkWell(
       onTap: () {
         print('Clicked on ${category.name}');
-        // Handle click event, navigate or display details
       },
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          category.icon != null
-              ? Icon(
+          Icon(
             category.icon!,
-            size: 50, // Adjust the size of the icon as needed
-            color: Colors.blue, // Adjust the color of the icon as needed
-          )
-              : Icon(Icons.error), // Display an error icon if the icon is null
-          SizedBox(height: 4), // Space between icon and text
+            size: 50,
+            color: Colors.blue,
+          ),
+          SizedBox(height: 4),
           Text(
             category.name,
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
@@ -106,4 +97,3 @@ class Category {
 
   Category({required this.name, required this.icon});
 }
-
