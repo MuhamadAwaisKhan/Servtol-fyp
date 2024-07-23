@@ -13,11 +13,11 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    await FirebaseAppCheck.instance.activate(
-      webProvider: ReCaptchaV3Provider('your-actual-recaptcha-v3-site-key'),
-      androidProvider: AndroidProvider.debug,
-      appleProvider: AppleProvider.appAttest,
-    );
+    // await FirebaseAppCheck.instance.activate(
+    //   // webProvider: ReCaptchaV3Provider('your-actual-recaptcha-v3-site-key'),
+    //   androidProvider: AndroidProvider.debug,
+    //   // appleProvider: AppleProvider.appAttest,
+    // );
   } catch (e) {
     print('Failed to initialize Firebase App: $e');
   }

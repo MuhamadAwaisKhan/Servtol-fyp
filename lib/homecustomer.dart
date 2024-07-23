@@ -256,8 +256,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('service')
-                .snapshots(),
+            stream: FirebaseFirestore.instance.collection('service').snapshots(),
             builder: (context, serviceSnapshot) {
               if (serviceSnapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
@@ -276,9 +275,16 @@ class _HomeCustomerState extends State<HomeCustomer> {
                 ),
                 itemCount: serviceSnapshot.data!.docs.length,
                 itemBuilder: (context, index) {
-                  DocumentSnapshot serviceDoc = serviceSnapshot.data!
-                      .docs[index];
-                  return buildServiceCard(serviceDoc);
+                  DocumentSnapshot serviceDoc = serviceSnapshot.data!.docs[index];
+                  return FutureBuilder<DocumentSnapshot>(
+                      future: fetchProviderData(serviceDoc['providerId']),
+                      builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                        if (!snapshot.hasData) {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                        return buildServiceCard(serviceDoc, snapshot.data!);
+                      }
+                  );
                 },
               );
             },
@@ -288,26 +294,44 @@ class _HomeCustomerState extends State<HomeCustomer> {
     );
   }
 
-  Widget buildServiceCard(DocumentSnapshot serviceDoc) {
+  Future<DocumentSnapshot> fetchProviderData(String email) async {
+    var doc = await FirebaseFirestore.instance.collection('providers').doc(email).get();
+    print("Fetching provider data for: $email, found: ${doc.exists}");
+    return doc;
+  }
+
+
+  dynamic getDocumentField(DocumentSnapshot doc, String fieldName, [dynamic defaultValue = '']) {
+    var data = doc.data() as Map<String, dynamic>?;
+    return data != null && data.containsKey(fieldName) ? data[fieldName] : defaultValue;
+  }
+  Widget buildServiceCard(DocumentSnapshot serviceDoc, DocumentSnapshot providerDoc) {
+    // Using the utility function to handle potentially missing fields.
+    String imageUrl = getDocumentField(serviceDoc, 'ImageUrl', 'default_image_url');
+    String serviceName = getDocumentField(serviceDoc, 'ServiceName', 'No service name');
+    String providerPic = getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url');
+    String providerName = getDocumentField(providerDoc, 'FirstName', 'No provider name');
+
     return Card(
       child: Column(
         children: [
           Expanded(
             child: Image.network(
-              serviceDoc['ImageUrl'] ?? 'default_image_url',
+              imageUrl,
               fit: BoxFit.cover,
             ),
           ),
           ListTile(
             leading: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  serviceDoc['ProfilePic'] ?? 'default_profile_pic_url'),
+              backgroundImage: NetworkImage(providerPic),
             ),
-            title: Text(serviceDoc['ServiceName'] ?? 'No service name'),
-            subtitle: Text(serviceDoc['FirstName'] ?? 'No provider name'),
+            title: Text(serviceName),
+            subtitle: Text(providerName),
           ),
         ],
       ),
     );
   }
+
+
 }
