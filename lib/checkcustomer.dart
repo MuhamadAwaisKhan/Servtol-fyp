@@ -18,7 +18,7 @@ class _checkcustomerState extends State<checkcustomer> {
   checkuser() async{
     final user=FirebaseAuth.instance.currentUser;
     if(user != null){
-      return homecustomer();
+      return HomeCustomer();
     }
   }
 }

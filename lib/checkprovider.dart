@@ -6,14 +6,13 @@ import 'package:servtol/loginprovider.dart';
 import 'package:servtol/providermain.dart';
 import 'package:shimmer/main.dart';
 class checkprovider extends StatefulWidget {
-  const checkprovider({super.key});
+  checkprovider({super.key});
 
   @override
   State<checkprovider> createState() => _checkproviderState();
 }
 
 class _checkproviderState extends State<checkprovider> {
-
   @override
   void initState() {
     super.initState();
@@ -26,7 +25,7 @@ class _checkproviderState extends State<checkprovider> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: CircularProgressIndicator(), // Show loading indicator while checking
+        child: CircularProgressIndicator(),
       ),
     );
   }
@@ -34,11 +33,14 @@ class _checkproviderState extends State<checkprovider> {
   void checkUser() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      // If the user is logged in, redirect to the main layout
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>providermainlayout()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ProviderMainLayout(onBackPress: onBackPress)));
     } else {
-      // If not logged in, redirect to login screen
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>loginprovider()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => loginprovider()));
     }
+  }
+
+  void onBackPress() {
+    // Define what should happen when the back button is pressed
+    Navigator.of(context).pop();
   }
 }

@@ -14,13 +14,28 @@ class ProfileScreenWidget extends StatefulWidget {
 
 class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  late Stream<QuerySnapshot<Map<String, dynamic>>> userStream;
+
+  @override
+  void initState() {
+    super.initState();
+    userStream = FirebaseFirestore.instance
+        .collection('provider')
+        .where('Email', isEqualTo: _auth.currentUser?.email)
+        .snapshots();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    print("Current user email: ${_auth.currentUser?.email}");
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
-        // Rich deep purple color for the header
         title: Text("Profile Section",
             style: TextStyle(
                 fontFamily: 'Poppins',
@@ -31,90 +46,86 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.of(context).pop()),
       ),
-      backgroundColor: Colors.grey[100], // Light grey background for body
+      backgroundColor: Colors.grey[100],
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('provider')
-            .where('Email', isEqualTo: _auth.currentUser?.email)
-            .snapshots(),
+        stream: userStream,
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
           if (snapshot.hasError) {
+            print("Error fetching data: ${snapshot.error}");
             return Text("Error: ${snapshot.error}");
           }
-          switch (snapshot.connectionState) {
-            case ConnectionState.waiting:
-              return Center(child: CircularProgressIndicator());
-            default:
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return Text("No data available");
-              }
-              var doc = snapshot.data!.docs[0].data() as Map<String, dynamic>;
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 60,
-                      backgroundImage: doc['ProfilePic'] != null
-                          ? NetworkImage(doc['ProfilePic'])
-                          : null,
-                      child: doc['ProfilePic'] == null
-                          ? Icon(Icons.person,
-                              size: 60, color: Colors.grey[200])
-                          : null,
-                      backgroundColor:
-                          Colors.deepPurple[200], // Light purple if no image
-                    ),
-                    SizedBox(height: 20),
-                    detailItem('First Name:', doc['FirstName']),
-                    detailItem('Last Name:', doc['LastName']),
-                    detailItem('Username:', doc['Username']),
-                    detailItem('Email:', doc['Email']),
-                    detailItem('Mobile:', doc['Mobile']),
-                    detailItem('CNIC:', doc['CNIC']),
-                    SizedBox(height: 30),
-          ElevatedButton(
-          onPressed: () {
-          if (snapshot.hasData && !snapshot.data!.docs.isEmpty) {
-          var doc = snapshot.data!.docs.first.data() as Map<String, dynamic>;
-          Navigator.push(
-          context,
-          MaterialPageRoute(
-          builder: (context) => EditProfileScreen(
-          email: doc['Email'] ?? '',  // Ensure fields match those in your Firestore
-          cnic: doc['CNIC'] ?? '',
-          fname: doc['FirstName'] ?? '',
-          lname: doc['LastName'] ?? '',
-          username: doc['Username'] ?? '',
-          mobile: doc['Mobile'] ?? '',
-          )));
-          } else {
-          Fluttertoast.showToast(msg: "No data available for editing.");
-          }
-          },
-          style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.deepPurple,
-          padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
-          child: Text('Edit Profile', style: TextStyle(fontSize: 18, color: Colors.white)),
-          ),
 
-
-          SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: logout,
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 50, vertical: 15)),
-                      child: Text('Logout',
-                          style: TextStyle(fontSize: 18, color: Colors.white)),
-                    ),
-                  ]
-                ),
-              );
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            print("No data found");
+            return Text("No data available");
           }
+
+          var doc = snapshot.data!.docs[0].data() as Map<String, dynamic>;
+          print("Data retrieved: $doc"); // Check what data is fetched
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(children: [
+              CircleAvatar(
+                radius: 60,
+                backgroundImage: doc['ProfilePic'] != null
+                    ? NetworkImage(doc['ProfilePic'])
+                    : null,
+                child: doc['ProfilePic'] == null
+                    ? Icon(Icons.person, size: 60, color: Colors.grey[200])
+                    : null,
+                backgroundColor: Colors.deepPurple[200], // Light purple if no image
+              ),
+              SizedBox(height: 20),
+              detailItem('First Name:', doc['FirstName']),
+              detailItem('Last Name:', doc['LastName']),
+              detailItem('Username:', doc['Username']),
+              detailItem('Email:', doc['Email']),
+              detailItem('Mobile:', doc['Mobile']),
+              detailItem('CNIC:', doc['CNIC']),
+              SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: () => editProfile(doc), // Pass the document map directly
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
+                child: Text('Edit Profile',
+                    style: TextStyle(fontSize: 18, color: Colors.white)),
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: logout,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
+                child: Text('Logout',
+                    style: TextStyle(fontSize: 18, color: Colors.white)),
+              ),
+            ]),
+          );
         },
       ),
+
+
+    );
+  }
+
+  void editProfile(Map<String, dynamic> doc) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => EditProfileScreen(
+              email: doc['Email'] ?? '',
+              cnic: doc['CNIC'] ?? '',
+              fname: doc['FirstName'] ?? '',
+              lname: doc['LastName'] ?? '',
+              username: doc['Username'] ?? '',
+              mobile: doc['Mobile'] ?? '',
+            )
+        )
     );
   }
 
@@ -144,9 +155,7 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
     await FirebaseAuth.instance.signOut();
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-          builder: (context) =>
-              loginprovider()), // Adjust this to match your app's navigation structure
+      MaterialPageRoute(builder: (context) => loginprovider()),
     );
     Fluttertoast.showToast(msg: "Logged out successfully");
   }

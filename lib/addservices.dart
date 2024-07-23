@@ -258,72 +258,72 @@ class _servicesadditionState extends State<servicesaddition> {
       User currentUser = FirebaseAuth.instance.currentUser!;
 
       // // Validation checks
-        // if (profilepic == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid Service Picture')),
-        //   );
-        // }
-        // if (snanmecontroller.text.isEmpty) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid Service Name')),
-        //   );
-        // }
-        // if (timecontroller.text.isEmpty) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid Time Slot')),
-        //   );
-        // }
-        // if (_selectedcategory == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid Category')),
-        //   );
-        // }
-        // if (_selectedsubcategory == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  Sub-Category')),
-        //   );
-        // }
-        // if (_selectedprovince == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  Province')),
-        //   );
-        // }
-        // if (_selectedcity == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  City')),
-        //   );
-        // }
-        // if (areacontroller.text.isEmpty) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  Area')),
-        //   );
-        // }
-        // if (pricecontroller.text.isEmpty) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid Price')),
-        //   );
-        // }
-        // if (discountcontroller.text.isEmpty) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  Discount %')),
-        //   );
-        // }
-        // if (_selectedWageType == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  Wage Type')),
-        //   );
-        // }
-        // if (_selectedservicetype == null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid  Service Type')),
-        //   );
-        // }
-        // if (descriptioncontroller.text.isEmpty) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text('Please enter a valid Description')),
-        //   );
-        //
-      // }
+        if (profilepic == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Service Picture')),
+          );
+        }
+        if (snanmecontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Service Name')),
+          );
+        }
+        if (timecontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Time Slot')),
+          );
+        }
+        if (_selectedcategory == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Category')),
+          );
+        }
+        if (_selectedsubcategory == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Sub-Category')),
+          );
+        }
+        if (_selectedprovince == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Province')),
+          );
+        }
+        if (_selectedcity == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  City')),
+          );
+        }
+        if (areacontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Area')),
+          );
+        }
+        if (pricecontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Price')),
+          );
+        }
+        if (discountcontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Discount %')),
+          );
+        }
+        if (_selectedWageType == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Wage Type')),
+          );
+        }
+        if (_selectedservicetype == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid  Service Type')),
+          );
+        }
+        if (descriptioncontroller.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter a valid Description')),
+          );
+
+      }
       // String userId = currentUser.uid;
 
       if (profilepic == null ||
@@ -395,10 +395,7 @@ class _servicesadditionState extends State<servicesaddition> {
           descriptioncontroller.clear();
           timecontroller.clear();
         });
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ServiceScreenWidget()));
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Service added successfully')));
          // Clear all fields after successful addition
       } catch (e) {

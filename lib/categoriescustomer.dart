@@ -42,7 +42,9 @@ class _CategoriesCustomerState extends State<CategoriesCustomer> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Service Categories', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold, fontSize: 17, color: AppColors.heading)),
+        backgroundColor: AppColors.background,
       ),
+      backgroundColor: AppColors.background,
       body: GridView.builder(
         padding: EdgeInsets.all(10),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -67,6 +69,7 @@ class CategoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return InkWell(
       onTap: () {
         print('Clicked on ${category.name}');
@@ -77,7 +80,7 @@ class CategoryWidget extends StatelessWidget {
           Icon(
             category.icon!,
             size: 50,
-            color: Colors.blue,
+            color: Colors.indigo,
           ),
           SizedBox(height: 4),
           Text(
