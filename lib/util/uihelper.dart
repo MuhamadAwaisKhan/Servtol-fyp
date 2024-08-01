@@ -126,7 +126,7 @@ class uihelper {
         child: Text(
           text,
           style: TextStyle(
-              color: Colors.white, fontFamily: "Poppins"),
+              color: Colors.white, fontFamily: "Poppins",fontSize: 14),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:servtol/logincustomer.dart';
 import 'package:servtol/loginprovider.dart';
+import 'package:servtol/mainmenu.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 
@@ -70,11 +71,11 @@ class _mainloginState extends State<mainlogin> {
                   () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => loginprovider()));
-                setState(() {
-                  isFirstButtonClicked = false; // Reset first button state
-                  isSecondButtonClicked =
-                  !isSecondButtonClicked; // Toggle second button state
-                });
+                // setState(() {
+                //   isFirstButtonClicked = false; // Reset first button state
+                //   isSecondButtonClicked =
+                //   !isSecondButtonClicked; // Toggle second button state
+                // });
               },
               "Provider",
               40,
@@ -90,13 +91,33 @@ class _mainloginState extends State<mainlogin> {
                   () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => logincustomer()));
-                setState(() {
-                  isSecondButtonClicked = false; // Reset second button state
-                  isFirstButtonClicked =
-                  !isFirstButtonClicked; // Toggle first button state
-                });
+                // setState(() {
+                //   isSecondButtonClicked = false; // Reset second button state
+                //   isFirstButtonClicked =
+                //   !isFirstButtonClicked; // Toggle first button state
+                // });
               },
               "Customer",
+              40,
+              130,
+              // Icons.contacts_sharp,
+              // Colors.grey, // Specify the default color of the icon
+              // isFirstButtonClicked, // Pass the clicked state to the button
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            uihelper.CustomButton(
+                  () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => MainMenuScreen()));
+                // setState(() {
+                //   isSecondButtonClicked = false; // Reset second button state
+                //   isFirstButtonClicked =
+                //   !isFirstButtonClicked; // Toggle first button state
+                // });
+              },
+              "Admin",
               40,
               130,
               // Icons.contacts_sharp,

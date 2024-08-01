@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:servtol/customermain.dart';
 import 'package:servtol/homeprovider.dart';
+import 'package:servtol/mainmenu.dart';
 import 'package:servtol/profileprovider.dart';
 import 'package:servtol/startscreen.dart';
 import 'firebase_options.dart';
@@ -29,13 +30,14 @@ void main() async {
     // darkTheme: AppTheme.darkTheme,
     // themeMode: ThemeMode.system,
     home:
+    MainMenuScreen(),
       // customermainscreen(),
     // ProfileScreenWidget(),
     // ServToolSplashScreen(),
     // SplashScreen(),
       // ExerciseList(),
     // myapptesting(),
-      startingscreen(),
+    //   startingscreen(),
   ));
 }
 
