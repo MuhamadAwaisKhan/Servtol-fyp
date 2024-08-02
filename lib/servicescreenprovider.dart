@@ -5,7 +5,6 @@ import 'package:flutter/widgets.dart';
 import 'package:servtol/ServiceScreenDetail.dart';
 import 'package:servtol/addservices.dart';
 import 'package:servtol/util/AppColors.dart';
-import 'package:servtol/util/uihelper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ServiceScreenWidget extends StatefulWidget {
@@ -16,7 +15,7 @@ class ServiceScreenWidget extends StatefulWidget {
 }
 
 class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
-  TextEditingController searchcontroller = TextEditingController();
+  TextEditingController searchController = TextEditingController();
   final User? currentUser = FirebaseAuth.instance.currentUser;
 
   @override
@@ -49,17 +48,17 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
             Padding(
               padding: EdgeInsets.all(10),
               child: TextField(
-                controller: searchcontroller,
+                controller: searchController,
                 style: TextStyle(fontSize: 16),
                 decoration: InputDecoration(
                   labelText: 'Search Services',
                   labelStyle: TextStyle(fontFamily: 'Poppins'),
                   prefixIcon: Icon(Icons.search, color: Colors.grey),
-                  suffixIcon: searchcontroller.text.isNotEmpty
+                  suffixIcon: searchController.text.isNotEmpty
                       ? GestureDetector(
                     child: Icon(Icons.clear, color: Colors.grey),
                     onTap: () {
-                      searchcontroller.clear();
+                      searchController.clear();
                       setState(() {}); // Refresh the search
                     },
                   )
@@ -79,7 +78,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
             ),
             SizedBox(height: 15),
             StreamBuilder<QuerySnapshot>(
-              stream: (searchcontroller.text.isEmpty)
+              stream: (searchController.text.isEmpty)
                   ? FirebaseFirestore.instance
                   .collection('service')
                   .where('providerId', isEqualTo: currentUser?.uid)
@@ -87,80 +86,78 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                   : FirebaseFirestore.instance
                   .collection('service')
                   .where('providerId', isEqualTo: currentUser?.uid)
-                  .where('ServiceName', isGreaterThanOrEqualTo: searchcontroller.text)
-                  .where('ServiceName', isLessThanOrEqualTo: searchcontroller.text + '\uf8ff')
+                  .where('ServiceName', isGreaterThanOrEqualTo: searchController.text)
+                  .where('ServiceName', isLessThanOrEqualTo: searchController.text + '\uf8ff')
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Text("Error: ${snapshot.error}");
                 }
-                switch (snapshot.connectionState) {
-                  case ConnectionState.waiting:
-                    return CircularProgressIndicator();
-                  default:
-                    return snapshot.hasData
-                        ? ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index) {
-                        var doc = snapshot.data!.docs[index];
-                        return Container(
-                            margin: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.deepPurple,
-                                  Colors.deepPurple.shade200,
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  spreadRadius: 1,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: ListTile(
-                              contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                              leading: doc['ImageUrl'] != null
-                                  ? CircleAvatar(
-                                backgroundImage: NetworkImage(doc['ImageUrl']),
-                                radius: 25,
-                              )
-                                  : CircleAvatar(
-                                child: Icon(Icons.image_not_supported_rounded, size: 50),
-                              ),
-                              title: Text(
-                                  doc['ServiceName'] ?? 'No name',
-                                  style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white)),
-                              subtitle: Text(
-                                  doc['Category'] ?? 'No category',
-                                  style: TextStyle(fontFamily: 'Poppins', color: Colors.white70)),
-                              trailing: Text(
-                                  "\$" + (doc['Price']?.toString() ?? 'No Price'),
-                                  style: TextStyle(
-                                      fontFamily: 'Poppins', color: Colors.amber, fontWeight: FontWeight.bold)),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ServiceDetailScreen(service: doc),
-                                  ),
-                                );
-                              },
-                            ));
-                      },
-                    )
-                        : Text("No data available");
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
                 }
+                final data = snapshot.requireData;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: data.docs.length,
+                  itemBuilder: (context, index) {
+                    var doc = data.docs[index];
+                    return Container(
+                      margin: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.deepPurple,
+                            Colors.deepPurple.shade200,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 1,
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ListTile(
+                        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                        leading: doc['ImageUrl'] != null
+                            ? CircleAvatar(
+                          backgroundImage: NetworkImage(doc['ImageUrl']),
+                          radius: 25,
+                        )
+                            : CircleAvatar(
+                          child: Icon(Icons.image_not_supported_rounded, size: 50),
+                        ),
+                        title: Text(
+                            doc['ServiceName'] ?? 'No name',
+                            style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white)),
+                        subtitle: Text(
+                            doc['Category'] ?? 'No category',
+                            style: TextStyle(fontFamily: 'Poppins', color: Colors.white70)),
+                        trailing: Text(
+                            "\$" + (doc['Price']?.toString() ?? 'No Price'),
+                            style: TextStyle(
+                                fontFamily: 'Poppins', color: Colors.amber, fontWeight: FontWeight.bold)),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ServiceDetailScreen(service: doc),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
               },
             ),
           ],

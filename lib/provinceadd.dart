@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import 'package:lottie/lottie.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
+class provincetypeadd extends StatefulWidget {
+  const provincetypeadd({super.key});
 
-class AddWageTypeScreen extends StatefulWidget {
   @override
-  _AddWageTypeScreenState createState() => _AddWageTypeScreenState();
+  State<provincetypeadd> createState() => _provincetypeaddState();
 }
 
-class _AddWageTypeScreenState extends State<AddWageTypeScreen> {
+class _provincetypeaddState extends State<provincetypeadd> {
   final TextEditingController _nameController = TextEditingController();
   bool _isLoading = false;  // Initial state is not loading
 
@@ -19,7 +19,7 @@ class _AddWageTypeScreenState extends State<AddWageTypeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Add Wage Type",
+          "Add Province",
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,
@@ -38,18 +38,17 @@ class _AddWageTypeScreenState extends State<AddWageTypeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Lottie.network(
-              'https://assets5.lottiefiles.com/packages/lf20_jcikwtux.json',
+            Lottie.asset('assets/images/province1.json',
               width: 200,
               height: 200,
               fit: BoxFit.fill,
             ),
             SizedBox(height: 20),
-            uihelper.CustomTextField(_nameController, "Enter wage type name", Icons.warehouse, false),
+            uihelper.CustomTextField(_nameController, "Enter Province Name", Icons.warehouse, false),
             SizedBox(height: 20),
             uihelper.CustomButton(() {
               if (!_isLoading) {  // Prevent multiple submissions
-                _addWageType();
+                _addServiceType();
               }
             }, "Save", 50, 170),
           ],
@@ -58,10 +57,10 @@ class _AddWageTypeScreenState extends State<AddWageTypeScreen> {
     );
   }
 
-  Future<void> _addWageType() async {
+  Future<void> _addServiceType() async {
     if (_nameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please Enter a valid Wage type name')),
+        SnackBar(content: Text('Please Enter a valid Province name')),
       );
       return;
     }
@@ -71,16 +70,16 @@ class _AddWageTypeScreenState extends State<AddWageTypeScreen> {
     });
 
     try {
-      await FirebaseFirestore.instance.collection('wageTypes').add({
+      await FirebaseFirestore.instance.collection('Province').add({
         'Name': _nameController.text.trim(),
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Wage type added successfully')),
+        SnackBar(content: Text('Province  added successfully')),
       );
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add wage type: $e')),
+        SnackBar(content: Text('Failed to add Province: $e')),
       );
     } finally {
       setState(() {

@@ -30,14 +30,14 @@ void main() async {
     // darkTheme: AppTheme.darkTheme,
     // themeMode: ThemeMode.system,
     home:
-    MainMenuScreen(),
+    // MainMenuScreen(),
       // customermainscreen(),
     // ProfileScreenWidget(),
     // ServToolSplashScreen(),
     // SplashScreen(),
       // ExerciseList(),
     // myapptesting(),
-    //   startingscreen(),
+      startingscreen(),
   ));
 }
 

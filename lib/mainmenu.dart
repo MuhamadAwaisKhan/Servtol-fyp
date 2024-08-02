@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:servtol/category.dart';
+import 'package:servtol/city.dart';
+import 'package:servtol/province.dart';
+import 'package:servtol/service.dart';
+import 'package:servtol/subcategory.dart';
 
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
@@ -47,8 +52,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     ),
       uihelper.CustomButton(
             () {
-          // Navigator.push(context,
-          //     MaterialPageRoute(builder: (context) => logincustomer()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => servicetype()));
 
         },
         "Service Type",
@@ -79,8 +84,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       ),
       uihelper.CustomButton(
             () {
-          // Navigator.push(context,
-          //     MaterialPageRoute(builder: (context) => logincustomer()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => categoryscreen()));
 
         },
         "Category",
@@ -95,8 +100,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       ),
       uihelper.CustomButton(
             () {
-          // Navigator.push(context,
-          //     MaterialPageRoute(builder: (context) => logincustomer()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => SubcategoryScreen()));
 
         },
         "Sub-category",
@@ -111,8 +116,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       ),
       uihelper.CustomButton(
             () {
-          // Navigator.push(context,
-          //     MaterialPageRoute(builder: (context) => logincustomer()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => province()));
 
         },
         "Province",
@@ -127,8 +132,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       ),
       uihelper.CustomButton(
             () {
-          // Navigator.push(context,
-          //     MaterialPageRoute(builder: (context) => logincustomer()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => CityScreen()));
 
         },
         "City",

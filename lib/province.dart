@@ -1,37 +1,38 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:servtol/addservices.dart';
+import 'package:flutter/material.dart';
+import 'package:servtol/provinceadd.dart';  // Ensure this path is correct for adding new provinces
 import 'package:servtol/util/AppColors.dart';
-import 'package:servtol/wageadd.dart';
 
-class WageTypeListScreen extends StatefulWidget {
+class province extends StatefulWidget {
+  const province({super.key});
+
   @override
-  _WageTypeListScreenState createState() => _WageTypeListScreenState();
+  State<province> createState() => _provinceState();
 }
 
-class _WageTypeListScreenState extends State<WageTypeListScreen> {
+class _provinceState extends State<province> {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   TextEditingController searchController = TextEditingController();
-  Stream<QuerySnapshot>? wageTypesStream;
+  Stream<QuerySnapshot>? provincesStream;
 
   @override
   void initState() {
     super.initState();
-    wageTypesStream = _db.collection('wageTypes').snapshots();
+    provincesStream = _db.collection('Province').snapshots();
     searchController.addListener(_onSearchChanged);
   }
 
   void _onSearchChanged() {
     if (searchController.text.isNotEmpty) {
       setState(() {
-        wageTypesStream = _db.collection('wageTypes')
+        provincesStream = _db.collection('Province')
             .where('Name', isGreaterThanOrEqualTo: searchController.text)
             .where('Name', isLessThanOrEqualTo: searchController.text + '\uf8ff')
             .snapshots();
       });
     } else {
       setState(() {
-        wageTypesStream = _db.collection('wageTypes').snapshots();
+        provincesStream = _db.collection('Province').snapshots();
       });
     }
   }
@@ -41,7 +42,7 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Wage Types",
+          "Provinces",
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,
@@ -60,7 +61,7 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
                 controller: searchController,
                 style: TextStyle(fontSize: 16),
                 decoration: InputDecoration(
-                  labelText: 'Search Wage Types',
+                  labelText: 'Search Provinces',
                   labelStyle: TextStyle(fontFamily: 'Poppins'),
                   prefixIcon: Icon(Icons.search, color: Colors.grey),
                   suffixIcon: searchController.text.isNotEmpty
@@ -85,23 +86,22 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
                 },
               ),
             ),
-            SizedBox(height: 15),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: wageTypesStream,
+                stream: provincesStream,
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
-                    return Center(child: Text('Something went wrong'));
+                    return Text('Something went wrong');
                   }
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return CircularProgressIndicator();
                   }
                   final data = snapshot.requireData;
                   return ListView.separated(
                     itemCount: data.size,
                     separatorBuilder: (context, index) => Divider(color: Colors.grey),
                     itemBuilder: (context, index) {
-                      var wageType = data.docs[index];
+                      var province = data.docs[index];
                       return Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -119,7 +119,7 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
                             ),
                             child: Text('${index + 1}', style: TextStyle(color: Colors.white)),
                           ),
-                          title: Text(wageType['Name'], textAlign: TextAlign.center,
+                          title: Text(province['Name'], textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.bold,
@@ -130,11 +130,11 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
                               IconButton(
                                 icon: Icon(Icons.edit, color: Colors.blue),
                                 onPressed: () => _showEditDialog(
-                                    context, wageType.id, wageType['Name']),
+                                    context, province.id, province['Name']),
                               ),
                               IconButton(
                                 icon: Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _deleteWageType(wageType.id),
+                                onPressed: () => _deleteProvince(province.id),
                               ),
                             ],
                           ),
@@ -150,15 +150,15 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => AddWageTypeScreen()));
+              MaterialPageRoute(builder: (context) => provincetypeadd()));  // Adjust the class name if necessary
         },
         label: Text(
-          'Add Wage Type',
-          style: TextStyle(color: Colors.white), // Set your text color here
+          'Add Province',
+          style: TextStyle(color: Colors.white),
         ),
         icon: Icon(
           Icons.add,
-          color: AppColors.secondaryColor, // Set your icon color here
+          color: AppColors.secondaryColor,
         ),
         backgroundColor: AppColors.primaryColor,
       ),
@@ -166,8 +166,8 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
     );
   }
 
-  void _deleteWageType(String id) {
-    _db.collection('wageTypes').doc(id).delete();
+  void _deleteProvince(String id) {
+    _db.collection('Province').doc(id).delete();
   }
 
   void _showEditDialog(BuildContext context, String id, String currentName) {
@@ -177,10 +177,10 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit Wage Type'),
+          title: Text('Edit Province Name'),
           content: TextField(
             controller: _nameController,
-            decoration: InputDecoration(labelText: "Enter New Wage Type Name"),
+            decoration: InputDecoration(labelText: "Enter New Province Name"),
           ),
           actions: <Widget>[
             TextButton(
@@ -191,8 +191,8 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
               child: Text('Save', style: TextStyle(color: Colors.green)),
               onPressed: () {
                 if (_nameController.text.isNotEmpty) {
-                  _updateWageType(id, _nameController.text);
-                  Navigator.of(context). pop();
+                  _updateProvince(id, _nameController.text);
+                  Navigator.of(context).pop();
                 }
               },
             ),
@@ -202,7 +202,7 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
     );
   }
 
-  void _updateWageType(String id, String newName) {
-    _db.collection('wageTypes').doc(id).update({'Name': newName});
+  void _updateProvince(String id, String newName) {
+    _db.collection('Province').doc(id).update({'Name': newName});
   }
 }
