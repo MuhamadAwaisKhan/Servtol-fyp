@@ -36,7 +36,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
           IconButton(
             icon: Icon(Icons.add_box_rounded),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => servicesaddition()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ServicesAddition()));
             },
           ),
         ],
@@ -165,7 +165,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => servicesaddition()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ServicesAddition()));
         },
         label: Text(
           'Add Service',

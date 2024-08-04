@@ -35,26 +35,6 @@ class uihelper {
     );
   }
 
-  static CustomTextField(TextEditingController controller,
-      String text,
-      IconData iconData,
-      bool tohide,) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
-      child: TextField(
-        controller: controller,
-        obscureText: tohide,
-        decoration: InputDecoration(
-          labelText: text,
-          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
-          suffixIcon: Icon(iconData),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-        ),
-      ),
-    );
-  }
 
   static CustomNumberField(TextEditingController controller,
       String text,
@@ -73,12 +53,16 @@ class uihelper {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
           ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black),
+            borderRadius: BorderRadius.circular(25),
+          ),
         ),
       ),
     );
   }
 
-  static  CustomTextfieldpassword(BuildContext context,
+  static CustomTextfieldpassword(BuildContext context,
       TextEditingController controller,
       String text,
       bool passwordVisible,
@@ -126,7 +110,7 @@ class uihelper {
         child: Text(
           text,
           style: TextStyle(
-              color: Colors.white, fontFamily: "Poppins",fontSize: 14),
+              color: Colors.white, fontFamily: "Poppins", fontSize: 15),
         ),
       ),
     );
@@ -189,19 +173,22 @@ class uihelper {
   static CustomTimeDuration(TextEditingController controller,
       String text,
       IconData iconData,
-      String hinttext,
-     ) {
+      String hinttext,) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
       child: TextField(
         controller: controller,
-      keyboardType: TextInputType.datetime,
+        keyboardType: TextInputType.datetime,
         decoration: InputDecoration(
           labelText: text,
-          hintText:hinttext,
+          hintText: hinttext,
           labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
           suffixIcon: Icon(iconData),
           border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black),
             borderRadius: BorderRadius.circular(25),
           ),
         ),
@@ -209,55 +196,68 @@ class uihelper {
       ),
     );
   }
-  static CustomDescritionfield(TextEditingController controller,
-      String text,
-      IconData iconData,
-      ) {
+
+ static customDescriptionField(
+      TextEditingController controller, String labelText, IconData iconData) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
       child: TextField(
-
         controller: controller,
-
         decoration: InputDecoration(
-          labelText: text,
-          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
+          labelText: labelText,
+          labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 17),
           suffixIcon: Icon(iconData),
-          border: OutlineInputBorder(
+          border:  OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+          enabledBorder:  OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black),
             borderRadius: BorderRadius.circular(25),
           ),
         ),
       ),
     );
   }
+
   static detailCard(String title, String value, {bool lastItem = false}) {
     return Card(
-      margin: EdgeInsets.only(top: 10, left: 10, right: 10, bottom: lastItem ? 10 : 15),  // Adjusted for consistency and visual spacing
-      elevation: 2,  // Adds a subtle shadow for depth
+      margin: EdgeInsets.only(
+          top: 10, left: 10, right: 10, bottom: lastItem ? 10 : 15),
+      // Adjusted for consistency and visual spacing
+      elevation: 2,
+      // Adds a subtle shadow for depth
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),  // Slightly larger padding for a better touch target
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        // Slightly larger padding for a better touch target
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              flex: 2,  // Adjust flex to manage space allocation if title tends to be longer
+              flex: 2,
+              // Adjust flex to manage space allocation if title tends to be longer
               child: Tooltip(
-                message: title,  // Tooltip to show full title on long press if truncated
+                message: title,
+                // Tooltip to show full title on long press if truncated
                 child: Text(
                   title,
-                  style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.lightBlue),
-                  overflow: TextOverflow.ellipsis,  // Ensures text does not break layout
+                  style: TextStyle(fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.lightBlue),
+                  overflow: TextOverflow
+                      .ellipsis, // Ensures text does not break layout
                 ),
               ),
             ),
             Expanded(
-              flex: 3,  // Gives more room for the value which might be longer
+              flex: 3, // Gives more room for the value which might be longer
               child: Text(
                 value,
-                style: TextStyle(fontFamily: 'Poppins', fontSize: 16, color: Colors.black54),
+                style: TextStyle(
+                    fontFamily: 'Poppins', fontSize: 16, color: Colors.black54),
                 textAlign: TextAlign.right,
-                maxLines: 2,  // Allows text wrapping if very long
-                overflow: TextOverflow.ellipsis,  // Adds ellipsis if text overflows
+                maxLines: 2, // Allows text wrapping if very long
+                overflow: TextOverflow
+                    .ellipsis, // Adds ellipsis if text overflows
               ),
             ),
           ],
@@ -267,20 +267,23 @@ class uihelper {
   }
 
 
-  static Widget actionButton(String label, Color color, IconData icon, VoidCallback onPressed) {
+  static Widget actionButton(String label, Color color, IconData icon,
+      VoidCallback onPressed) {
     return ElevatedButton.icon(
-      icon: Icon(icon, color: Colors.white), // Icon color is white to contrast with button color
+      icon: Icon(icon, color: Colors.white),
+      // Icon color is white to contrast with button color
       label: Text(label, style: TextStyle(fontFamily: 'Poppins')),
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20), // Adjust padding for better visual balance
+        padding: EdgeInsets.symmetric(vertical: 10,
+            horizontal: 20), // Adjust padding for better visual balance
       ),
     );
   }
-  static FormBuilderTextField(
-      // TextEditingController controller,
+
+  static FormBuilderTextField(// TextEditingController controller,
       String text,
       IconData iconData,
       // bool tohide,
@@ -302,8 +305,66 @@ class uihelper {
     );
   }
 
+  static Widget customDropdownButtonFormField({
+    required String? value,
+    required List<DropdownMenuItem<String>> items,
+    required void Function(String?) onChanged,
+    required String labelText,
+    InputDecoration? decoration,
+  }) {
+    return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25), // Specify the padding you want around the dropdown
+      child: DropdownButtonFormField<String>(
+        value: value,
+        items: items,
+        onChanged: onChanged,
+        decoration: decoration ?? InputDecoration(
+          labelText: labelText,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          filled: true,
+          fillColor: AppColors.background,
+        ),
+        style: TextStyle(color: Colors.black, fontFamily: 'Poppins', fontSize: 17),
+        icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+        iconSize: 24,
+        elevation: 16,
+        isExpanded: true,
+      ),
+    );
+  }
+
+  static CustomTextField(TextEditingController controller,
+      String text,
+      IconData iconData,
+      bool tohide,) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
+      child: TextField(
+        controller: controller,
+        obscureText: tohide,
+        decoration: InputDecoration(
+          labelText: text,
+          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
+          suffixIcon: Icon(iconData),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black),
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+      ),
+    );
+  }
 
 }
-
 
 
