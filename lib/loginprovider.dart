@@ -49,7 +49,7 @@ class _loginproviderState extends State<loginprovider> {
       if (snapshot.docs.isNotEmpty) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => ProviderMainLayout(onBackPress: () {
+          MaterialPageRoute(builder: (_) => ProviderMainLayout(onBackPress: () {
             Navigator.of(context).pop();
           })),
         );
@@ -288,7 +288,7 @@ class _loginproviderState extends State<loginprovider> {
                         print(
                             "Sign Up tapped"); // Placeholder action, you can replace this line
                         Navigator.push(context,
-                            MaterialPageRoute(builder: (Context) => signupprovider())); // Replace this with your navigation logic
+                            MaterialPageRoute(builder: (Context) => SignupProvider())); // Replace this with your navigation logic
                       },
                       child: Text(
                         'Sign Up',

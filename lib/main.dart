@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:servtol/customermain.dart';
 import 'package:servtol/homeprovider.dart';
+import 'package:servtol/main%20login.dart';
 import 'package:servtol/mainmenu.dart';
 import 'package:servtol/profileprovider.dart';
 import 'package:servtol/startscreen.dart';
@@ -37,7 +38,8 @@ void main() async {
     // SplashScreen(),
       // ExerciseList(),
     // myapptesting(),
-      startingscreen(),
+    //   startingscreen(),
+      mainlogin(),
   ));
 }
 

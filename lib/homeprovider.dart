@@ -1,11 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:servtol/NotificationProvider.dart';
 import 'package:servtol/ServiceScreenDetail.dart';
 import 'package:servtol/chatprovider.dart';
-import 'package:servtol/loginprovider.dart';
 import 'package:servtol/servicescreenprovider.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
@@ -24,18 +22,20 @@ class _HomeProviderState extends State<HomeProvider> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String _userName = 'Loading...';
+  String? providerPicUrl ;
 
   @override
   void initState() {
     super.initState();
-    fetchUserName();
+    fetchUserInfo();
   }
 
-  Future<void> fetchUserName() async {
+  Future<void> fetchUserInfo() async {
     User? currentUser = _auth.currentUser;
     if (currentUser == null) {
       setState(() {
         _userName = 'No user logged in';
+        providerPicUrl = null;
       });
       return; // Exit if no user is logged in
     }
@@ -44,6 +44,7 @@ class _HomeProviderState extends State<HomeProvider> {
     if (userEmail == null) {
       setState(() {
         _userName = 'User email is not available';
+        providerPicUrl = null;
       });
       return; // Exit if email is null
     }
@@ -59,27 +60,28 @@ class _HomeProviderState extends State<HomeProvider> {
       if (snapshot.docs.isEmpty) {
         setState(() {
           _userName = 'No matching user found in Firestore';
+          providerPicUrl = null;
         });
       } else {
         Map<String, dynamic> userData = snapshot.docs.first.data();
         String? name = userData['FirstName'] as String?;
-        if (name == null) {
-          setState(() {
-            _userName = 'Name field is missing in Firestore document';
-          });
-        } else {
-          setState(() {
-            _userName = name;
-          });
-        }
+        String? profilePic = userData['ProfilePic'] as String?;
+
+        setState(() {
+          _userName = name ?? 'Name not available';
+          providerPicUrl = profilePic;  // Can be null if not available
+        });
       }
     } catch (e) {
       setState(() {
         _userName = 'Failed to fetch user data: $e';
+        providerPicUrl = null;
       });
       print(e); // Print the error to the console for debugging
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -114,12 +116,7 @@ class _HomeProviderState extends State<HomeProvider> {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            // Container(
-            //   height: 100, // Example fixed height
-            //   child: WidgetThatNeedsHeight(
-            //
-            //   ),// Any child widget that needs a defined size
-            // ),
+            providerInfoSection(),
             greetingSection(),
             earningsSection(),
             customButtonSection(),
@@ -132,17 +129,36 @@ class _HomeProviderState extends State<HomeProvider> {
     );
   }
 
+  Widget providerInfoSection() => Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+
+
+      Padding(
+        padding: const EdgeInsets.only(right: 100.0),
+        child: Text("Hello,$_userName  ",
+            style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.heading)),
+      ),
+      SizedBox(width: 10),
+      providerPicUrl != null
+          ? CircleAvatar(
+        backgroundImage: NetworkImage(providerPicUrl!),
+        radius: 30,
+      )
+          : CircleAvatar(
+        child: Icon(Icons.account_circle, size: 60),
+        radius: 30,
+      ),
+    ],
+  );
+
   Widget greetingSection() => Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 195.0),
-            child: Text("Hello,$_userName ",
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.heading)),
-          ),
+
           SizedBox(height: 15),
           Padding(
             padding: const EdgeInsets.only(right: 215.0),

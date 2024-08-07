@@ -23,6 +23,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
   void initState() {
     super.initState();
     fetchImages();
+
   }
 
   void fetchImages() async {
@@ -257,11 +258,11 @@ class _HomeCustomerState extends State<HomeCustomer> {
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance.collection('service').snapshots(),
-            builder: (context, serviceSnapshot) {
-              if (serviceSnapshot.connectionState == ConnectionState.waiting) {
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
               }
-              if (!serviceSnapshot.hasData) {
+              if (!snapshot.hasData) {
                 return Text("No Data Available");
               }
               return GridView.builder(
@@ -269,20 +270,20 @@ class _HomeCustomerState extends State<HomeCustomer> {
                 physics: NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.8,
+                  childAspectRatio: 1.0,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                 ),
-                itemCount: serviceSnapshot.data!.docs.length,
+                itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
-                  DocumentSnapshot serviceDoc = serviceSnapshot.data!.docs[index];
+                  DocumentSnapshot serviceDoc = snapshot.data!.docs[index];
                   return FutureBuilder<DocumentSnapshot>(
-                      future: fetchProviderData(serviceDoc['providerId']),
-                      builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                        if (!snapshot.hasData) {
+                      future: FirebaseFirestore.instance.collection('provider').doc(serviceDoc['providerId']).get(),
+                      builder: (context, providerSnapshot) {
+                        if (!providerSnapshot.hasData) {
                           return Center(child: CircularProgressIndicator());
                         }
-                        return buildServiceCard(serviceDoc, snapshot.data!);
+                        return buildServiceCard(serviceDoc, providerSnapshot.data!);
                       }
                   );
                 },
@@ -294,8 +295,51 @@ class _HomeCustomerState extends State<HomeCustomer> {
     );
   }
 
+  Widget buildServiceCard(DocumentSnapshot serviceDoc, DocumentSnapshot providerDoc) {
+    // Using the utility function to handle potentially missing fields.
+    String imageUrl = getDocumentField(serviceDoc, 'ImageUrl', 'default_image_url');
+    String serviceName = getDocumentField(serviceDoc, 'ServiceName', 'No service name');
+    String providerPic = getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url'); // Ensure 'ProfilePic' is the correct field key in Firestore
+    String providerName = getDocumentField(providerDoc, 'FirstName', 'No provider name');
+
+    return Card(
+      elevation: 5,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+              width: double.infinity,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              serviceName,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          ListTile(
+            leading: CircleAvatar(
+              backgroundImage: NetworkImage(providerPic), // Display provider's profile picture
+            ),
+            title: Text(serviceName, style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(providerName),
+          ),
+        ],
+      ),
+    );
+  }
+
+
   Future<DocumentSnapshot> fetchProviderData(String email) async {
-    var doc = await FirebaseFirestore.instance.collection('providers').doc(email).get();
+    var doc = await FirebaseFirestore.instance.collection('provider').doc(email).get();
     print("Fetching provider data for: $email, found: ${doc.exists}");
     return doc;
   }
@@ -305,33 +349,33 @@ class _HomeCustomerState extends State<HomeCustomer> {
     var data = doc.data() as Map<String, dynamic>?;
     return data != null && data.containsKey(fieldName) ? data[fieldName] : defaultValue;
   }
-  Widget buildServiceCard(DocumentSnapshot serviceDoc, DocumentSnapshot providerDoc) {
-    // Using the utility function to handle potentially missing fields.
-    String imageUrl = getDocumentField(serviceDoc, 'ImageUrl', 'default_image_url');
-    String serviceName = getDocumentField(serviceDoc, 'ServiceName', 'No service name');
-    String providerPic = getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url');
-    String providerName = getDocumentField(providerDoc, 'FirstName', 'No provider name');
-
-    return Card(
-      child: Column(
-        children: [
-          Expanded(
-            child: Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-            ),
-          ),
-          ListTile(
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(providerPic),
-            ),
-            title: Text(serviceName),
-            subtitle: Text(providerName),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget buildServiceCard(DocumentSnapshot serviceDoc, DocumentSnapshot providerDoc) {
+  //   // Using the utility function to handle potentially missing fields.
+  //   String imageUrl = getDocumentField(serviceDoc, 'ImageUrl', 'default_image_url');
+  //   String serviceName = getDocumentField(serviceDoc, 'ServiceName', 'No service name');
+  //   String providerPic = getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url');
+  //   String providerName = getDocumentField(providerDoc, 'FirstName', 'No provider name');
+  //
+  //   return Card(
+  //     child: Column(
+  //       children: [
+  //         Expanded(
+  //           child: Image.network(
+  //             imageUrl,
+  //             fit: BoxFit.cover,
+  //           ),
+  //         ),
+  //         ListTile(
+  //           leading: CircleAvatar(
+  //             backgroundImage: NetworkImage(providerPic),
+  //           ),
+  //           title: Text(serviceName),
+  //           subtitle: Text(providerName),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
 
 }

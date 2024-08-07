@@ -115,14 +115,73 @@ class _ServicesAdditionState extends State<ServicesAddition> {
     }
   }
 
+  // Future<void> _addData() async {
+  //   if (FirebaseAuth.instance.currentUser == null) {
+  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  //         content:
+  //         Text('You are not logged in. Please log in and try again.')));
+  //     return;
+  //   }
+  //
+  //   if (profilePic == null ||
+  //       nameController.text.isEmpty ||
+  //       selectedCategoryId == null ||
+  //       selectedSubcategoryId == null ||
+  //       selectedProvinceId == null ||
+  //       selectedCityId == null ||
+  //       areaController.text.isEmpty ||
+  //       priceController.text.isEmpty ||
+  //       discountController.text.isEmpty ||
+  //       selectedWageTypeId == null ||
+  //       selectedServiceTypeId == null ||
+  //       descriptionController.text.isEmpty) {
+  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  //         content: Text('Please fill all fields and select an image')));
+  //     return;
+  //   }
+  //   setState(() {
+  //     _isLoading = true; // Start loading
+  //   });
+  //   try {
+  //     String imageUrl = await _uploadImageToFirebaseStorage();
+  //     await FirebaseFirestore.instance.collection('service').add({
+  //       'ServiceName': nameController.text.trim(),
+  //       'Category': selectedCategoryId,
+  //       'Subcategory': selectedSubcategoryId,
+  //       'Province': selectedProvinceId,
+  //       'City': selectedCityId,
+  //       'Area': areaController.text.trim(),
+  //       'Price': priceController.text.trim(),
+  //       'Discount': discountController.text.trim(),
+  //       'WageType': selectedWageTypeId,
+  //       'ServiceType': selectedServiceTypeId,
+  //       'Description': descriptionController.text.trim(),
+  //       'ImageUrl': imageUrl,
+  //       'TimeSlot': timeController.text.trim(),
+  //       'providerId': FirebaseAuth.instance.currentUser!.uid,
+  //     });
+  //     Navigator.pop(context);
+  //     ScaffoldMessenger.of(context)
+  //         .showSnackBar(SnackBar(content: Text('Service added successfully')));
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context)
+  //         .showSnackBar(SnackBar(content: Text('Failed to add service: $e')));
+  //   } finally {
+  //     setState(() {
+  //       _isLoading = false; // Stop loading regardless of outcome
+  //     });
+  //   }
+  // }
   Future<void> _addData() async {
-    if (FirebaseAuth.instance.currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content:
-          Text('You are not logged in. Please log in and try again.')));
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('You are not logged in. Please log in and try again.'))
+      );
       return;
     }
 
+    // Ensure all fields are filled and an image is selected
     if (profilePic == null ||
         nameController.text.isEmpty ||
         selectedCategoryId == null ||
@@ -135,15 +194,21 @@ class _ServicesAdditionState extends State<ServicesAddition> {
         selectedWageTypeId == null ||
         selectedServiceTypeId == null ||
         descriptionController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Please fill all fields and select an image')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please fill all fields and select an image'))
+      );
       return;
     }
+
     setState(() {
       _isLoading = true; // Start loading
     });
+
     try {
+      // Upload the service image to Firebase Storage and get the URL
       String imageUrl = await _uploadImageToFirebaseStorage();
+
+      // Add the service data to Firestore with the provider's UID
       await FirebaseFirestore.instance.collection('service').add({
         'ServiceName': nameController.text.trim(),
         'Category': selectedCategoryId,
@@ -158,17 +223,20 @@ class _ServicesAdditionState extends State<ServicesAddition> {
         'Description': descriptionController.text.trim(),
         'ImageUrl': imageUrl,
         'TimeSlot': timeController.text.trim(),
-        'providerId': FirebaseAuth.instance.currentUser!.uid,
+        'providerId': currentUser.uid, // Reference to the provider's UID
       });
+
       Navigator.pop(context);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Service added successfully')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Service added successfully'))
+      );
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Failed to add service: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add service: $e'))
+      );
     } finally {
       setState(() {
-        _isLoading = false; // Stop loading regardless of outcome
+        _isLoading = false; // Stop loading regardless of the outcome
       });
     }
   }
