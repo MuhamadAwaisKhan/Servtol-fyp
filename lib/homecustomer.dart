@@ -23,7 +23,6 @@ class _HomeCustomerState extends State<HomeCustomer> {
   void initState() {
     super.initState();
     fetchImages();
-
   }
 
   void fetchImages() async {
@@ -48,42 +47,40 @@ class _HomeCustomerState extends State<HomeCustomer> {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => customernotification())),
+            onPressed: () =>
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => customernotification())),
           ),
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => searchcustomer())),
+            onPressed: () =>
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => searchcustomer())),
           ),
         ],
       ),
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (_cloudImages.isNotEmpty)
               servicesCarousel(),
             const SizedBox(height: 20),
-            Center(
-              child: AnimatedSmoothIndicator(
-                activeIndex: _current,
-                count: _cloudImages.length,
-                effect: ExpandingDotsEffect(dotWidth: 10,
-                    dotHeight: 10,
-                    dotColor: Colors.grey,
-                    activeDotColor: Colors.blueAccent),
-                onDotClicked: (index) =>
-                    _carouselController.animateToPage(index),
-              ),
+            AnimatedSmoothIndicator(
+              activeIndex: _current,
+              count: _cloudImages.length,
+              effect: ExpandingDotsEffect(dotWidth: 10,
+                  dotHeight: 10,
+                  dotColor: Colors.grey,
+                  activeDotColor: Colors.blueAccent),
+              onDotClicked: (index) => _carouselController.animateToPage(index),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: buildCategoriesHeader(),
             ),
             buildHorizontalCategoryList(),
-            servicesList(), // Implementing service list widget
+            servicesList(),
           ],
         ),
       ),
@@ -130,8 +127,9 @@ class _HomeCustomerState extends State<HomeCustomer> {
         const Text('Categories',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         GestureDetector(
-          onTap: () => Navigator.push(context, MaterialPageRoute(
-              builder: (context) => CategoriesCustomer())),
+          onTap: () =>
+              Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => CategoriesCustomer())),
           child: const Text(
               'View All', style: TextStyle(color: Colors.blue, fontSize: 16)),
         ),
@@ -165,8 +163,9 @@ class _HomeCustomerState extends State<HomeCustomer> {
         children: categories.map((category) =>
             buildCategoryItem(
               category['icon'], category['label'], category['color'],
-                  () => Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => CategoriesCustomer())),
+                  () =>
+                  Navigator.push(context, MaterialPageRoute(
+                      builder: (context) => CategoriesCustomer())),
             )).toList(),
       ),
     );
@@ -190,33 +189,6 @@ class _HomeCustomerState extends State<HomeCustomer> {
       ),
     );
   }
-
-  // Widget buildServiceCard(DocumentSnapshot serviceDoc, DocumentSnapshot? providerSnapshot) {
-  //   // Check if the snapshot has data and is not null
-  //   Map<String, dynamic>? providerData = providerSnapshot?.data() as Map<String, dynamic>?;
-  //
-  //   return Card(
-  //     child: Column(
-  //       children: [
-  //         Expanded(
-  //           child: Image.network(
-  //             serviceDoc['imageUrl'] ?? 'default_image_url',
-  //             fit: BoxFit.cover,
-  //           ),
-  //         ),
-  //         ListTile(
-  //           leading: CircleAvatar(
-  //             // Check if providerData is null or if the ProfilePic field is not available
-  //             backgroundImage: NetworkImage(providerData?['ProfilePic'] ?? 'default_profile_pic_url'),
-  //           ),
-  //           title: Text(serviceDoc['ServiceName'] ?? 'No service name'),
-  //           // Check if providerData is null or if the FirstName field is not available
-  //           subtitle: Text(providerData?['FirstName'] ?? 'No provider name'),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget servicesList() {
     return Column(
@@ -257,14 +229,15 @@ class _HomeCustomerState extends State<HomeCustomer> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('service').snapshots(),
+            stream: FirebaseFirestore.instance.collection('service')
+                .snapshots(),
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              }
-              if (!snapshot.hasData) {
-                return Text("No Data Available");
-              }
+              // if (snapshot.connectionState == ConnectionState.waiting) {
+              //   return Center(child: CircularProgressIndicator());
+              // }
+              // if (!snapshot.hasData) {
+              //   return Text("No Data Available");
+              // }
               return GridView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
@@ -278,12 +251,15 @@ class _HomeCustomerState extends State<HomeCustomer> {
                 itemBuilder: (context, index) {
                   DocumentSnapshot serviceDoc = snapshot.data!.docs[index];
                   return FutureBuilder<DocumentSnapshot>(
-                      future: FirebaseFirestore.instance.collection('provider').doc(serviceDoc['providerId']).get(),
+                      future: FirebaseFirestore.instance.collection('provider')
+                          .doc(serviceDoc['providerId'])
+                          .get(),
                       builder: (context, providerSnapshot) {
                         if (!providerSnapshot.hasData) {
                           return Center(child: CircularProgressIndicator());
                         }
-                        return buildServiceCard(serviceDoc, providerSnapshot.data!);
+                        return buildServiceCard(
+                            serviceDoc, providerSnapshot.data!);
                       }
                   );
                 },
@@ -294,88 +270,82 @@ class _HomeCustomerState extends State<HomeCustomer> {
       ],
     );
   }
-
   Widget buildServiceCard(DocumentSnapshot serviceDoc, DocumentSnapshot providerDoc) {
-    // Using the utility function to handle potentially missing fields.
+    // Assuming fields are correctly retrieved.
     String imageUrl = getDocumentField(serviceDoc, 'ImageUrl', 'default_image_url');
     String serviceName = getDocumentField(serviceDoc, 'ServiceName', 'No service name');
-    String providerPic = getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url'); // Ensure 'ProfilePic' is the correct field key in Firestore
+    String subcategory = getDocumentField(serviceDoc, 'Subcategory', 'General');
+    String servicePrice = getDocumentField(serviceDoc, 'Price', 'Call for price');
+    String providerPic = getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url');
     String providerName = getDocumentField(providerDoc, 'FirstName', 'No provider name');
 
     return Card(
-      elevation: 5,
+      elevation: 8,
+      shadowColor: Colors.deepPurple[200],
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-              width: double.infinity,
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(imageUrl),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              serviceName,
-              style: TextStyle(fontWeight: FontWeight.bold),
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  serviceName,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.deepPurple[800]),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  subcategory,
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+              ],
             ),
           ),
-          ListTile(
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(providerPic), // Display provider's profile picture
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CircleAvatar(
+                  backgroundImage: NetworkImage(providerPic),
+                  radius: 15,
+                ),
+                Text(
+                  providerName,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Text(
+                  "\$" + servicePrice,
+                  style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ],
             ),
-            title: Text(serviceName, style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(providerName),
           ),
         ],
       ),
     );
   }
 
-
-  Future<DocumentSnapshot> fetchProviderData(String email) async {
-    var doc = await FirebaseFirestore.instance.collection('provider').doc(email).get();
-    print("Fetching provider data for: $email, found: ${doc.exists}");
-    return doc;
-  }
-
-
   dynamic getDocumentField(DocumentSnapshot doc, String fieldName, [dynamic defaultValue = '']) {
     var data = doc.data() as Map<String, dynamic>?;
     return data != null && data.containsKey(fieldName) ? data[fieldName] : defaultValue;
   }
-  // Widget buildServiceCard(DocumentSnapshot serviceDoc, DocumentSnapshot providerDoc) {
-  //   // Using the utility function to handle potentially missing fields.
-  //   String imageUrl = getDocumentField(serviceDoc, 'ImageUrl', 'default_image_url');
-  //   String serviceName = getDocumentField(serviceDoc, 'ServiceName', 'No service name');
-  //   String providerPic = getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url');
-  //   String providerName = getDocumentField(providerDoc, 'FirstName', 'No provider name');
-  //
-  //   return Card(
-  //     child: Column(
-  //       children: [
-  //         Expanded(
-  //           child: Image.network(
-  //             imageUrl,
-  //             fit: BoxFit.cover,
-  //           ),
-  //         ),
-  //         ListTile(
-  //           leading: CircleAvatar(
-  //             backgroundImage: NetworkImage(providerPic),
-  //           ),
-  //           title: Text(serviceName),
-  //           subtitle: Text(providerName),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+
 
 
 }

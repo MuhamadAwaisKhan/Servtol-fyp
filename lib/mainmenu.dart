@@ -104,7 +104,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               MaterialPageRoute(builder: (context) => SubcategoryScreen()));
 
         },
-        "Sub-category",
+        "Subcategory",
         40,
         150,
         // Icons.contacts_sharp,

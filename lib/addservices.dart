@@ -8,6 +8,14 @@ import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart'; // Assuming this is your utility class for UI elements
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+// Custom class to handle dropdown items
+class DropdownItem {
+  final String id;
+  final String name;
+
+  DropdownItem({required this.id, required this.name});
+}
+
 class ServicesAddition extends StatefulWidget {
   const ServicesAddition({Key? key}) : super(key: key);
 
@@ -29,12 +37,18 @@ class _ServicesAdditionState extends State<ServicesAddition> {
       selectedCityId,
       selectedServiceTypeId,
       selectedWageTypeId;
-  List<DropdownMenuItem<String>> categoryItems = [];
-  List<DropdownMenuItem<String>> subcategoryItems = [];
-  List<DropdownMenuItem<String>> provinceItems = [];
-  List<DropdownMenuItem<String>> cityItems = [];
-  List<DropdownMenuItem<String>> serviceTypeItems = [];
-  List<DropdownMenuItem<String>> wageTypeItems = [];
+  String? selectedCategoryName,
+      selectedSubcategoryName,
+      selectedProvinceName,
+      selectedCityName,
+      selectedServiceTypeName,
+      selectedWageTypeName;
+  List<DropdownItem> categoryItems = [];
+  List<DropdownItem> subcategoryItems = [];
+  List<DropdownItem> provinceItems = [];
+  List<DropdownItem> cityItems = [];
+  List<DropdownItem> serviceTypeItems = [];
+  List<DropdownItem> wageTypeItems = [];
   bool _isLoading = false;
 
   @override
@@ -50,15 +64,14 @@ class _ServicesAdditionState extends State<ServicesAddition> {
     fetchFirestoreData('wageTypes', wageTypeItems, null);
   }
 
-  void fetchFirestoreData(String collection,
-      List<DropdownMenuItem<String>> itemList, Function? postFetch) {
+  void fetchFirestoreData(
+      String collection, List<DropdownItem> itemList, Function? postFetch) {
     FirebaseFirestore.instance
         .collection(collection)
         .snapshots()
         .listen((snapshot) {
-      List<DropdownMenuItem<String>> items = snapshot.docs.map((doc) {
-        return DropdownMenuItem(
-            value: doc.id, child: Text(doc['Name'] ?? 'N/A'));
+      List<DropdownItem> items = snapshot.docs.map((doc) {
+        return DropdownItem(id: doc.id, name: doc['Name'] ?? 'N/A');
       }).toList();
       setState(() {
         itemList.clear();
@@ -69,26 +82,27 @@ class _ServicesAdditionState extends State<ServicesAddition> {
   }
 
   void updateCategory() {
-    if (selectedCategoryId != null)
+    if (selectedCategoryId != null) {
       fetchRelatedData(
           'Subcategory', 'categoryId', selectedCategoryId!, subcategoryItems);
+    }
   }
 
   void updateProvince() {
-    if (selectedProvinceId != null)
+    if (selectedProvinceId != null) {
       fetchRelatedData('City', 'provinceId', selectedProvinceId!, cityItems);
+    }
   }
 
   void fetchRelatedData(String collection, String field, String value,
-      List<DropdownMenuItem<String>> itemList) {
+      List<DropdownItem> itemList) {
     FirebaseFirestore.instance
         .collection(collection)
         .where(field, isEqualTo: value)
         .snapshots()
         .listen((snapshot) {
-      List<DropdownMenuItem<String>> items = snapshot.docs.map((doc) {
-        return DropdownMenuItem(
-            value: doc.id, child: Text(doc['Name'] ?? 'N/A'));
+      List<DropdownItem> items = snapshot.docs.map((doc) {
+        return DropdownItem(id: doc.id, name: doc['Name'] ?? 'N/A');
       }).toList();
       setState(() {
         itemList.clear();
@@ -99,10 +113,7 @@ class _ServicesAdditionState extends State<ServicesAddition> {
 
   Future<String> _uploadImageToFirebaseStorage() async {
     try {
-      String fileName = DateTime
-          .now()
-          .millisecondsSinceEpoch
-          .toString();
+      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
       Reference reference = FirebaseStorage.instance
           .ref()
           .child('images/Servicepics/$fileName.jpg');
@@ -115,73 +126,15 @@ class _ServicesAdditionState extends State<ServicesAddition> {
     }
   }
 
-  // Future<void> _addData() async {
-  //   if (FirebaseAuth.instance.currentUser == null) {
-  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //         content:
-  //         Text('You are not logged in. Please log in and try again.')));
-  //     return;
-  //   }
-  //
-  //   if (profilePic == null ||
-  //       nameController.text.isEmpty ||
-  //       selectedCategoryId == null ||
-  //       selectedSubcategoryId == null ||
-  //       selectedProvinceId == null ||
-  //       selectedCityId == null ||
-  //       areaController.text.isEmpty ||
-  //       priceController.text.isEmpty ||
-  //       discountController.text.isEmpty ||
-  //       selectedWageTypeId == null ||
-  //       selectedServiceTypeId == null ||
-  //       descriptionController.text.isEmpty) {
-  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //         content: Text('Please fill all fields and select an image')));
-  //     return;
-  //   }
-  //   setState(() {
-  //     _isLoading = true; // Start loading
-  //   });
-  //   try {
-  //     String imageUrl = await _uploadImageToFirebaseStorage();
-  //     await FirebaseFirestore.instance.collection('service').add({
-  //       'ServiceName': nameController.text.trim(),
-  //       'Category': selectedCategoryId,
-  //       'Subcategory': selectedSubcategoryId,
-  //       'Province': selectedProvinceId,
-  //       'City': selectedCityId,
-  //       'Area': areaController.text.trim(),
-  //       'Price': priceController.text.trim(),
-  //       'Discount': discountController.text.trim(),
-  //       'WageType': selectedWageTypeId,
-  //       'ServiceType': selectedServiceTypeId,
-  //       'Description': descriptionController.text.trim(),
-  //       'ImageUrl': imageUrl,
-  //       'TimeSlot': timeController.text.trim(),
-  //       'providerId': FirebaseAuth.instance.currentUser!.uid,
-  //     });
-  //     Navigator.pop(context);
-  //     ScaffoldMessenger.of(context)
-  //         .showSnackBar(SnackBar(content: Text('Service added successfully')));
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context)
-  //         .showSnackBar(SnackBar(content: Text('Failed to add service: $e')));
-  //   } finally {
-  //     setState(() {
-  //       _isLoading = false; // Stop loading regardless of outcome
-  //     });
-  //   }
-  // }
   Future<void> _addData() async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You are not logged in. Please log in and try again.'))
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text('You are not logged in. Please log in and try again.')));
       return;
     }
 
-    // Ensure all fields are filled and an image is selected
     if (profilePic == null ||
         nameController.text.isEmpty ||
         selectedCategoryId == null ||
@@ -194,9 +147,8 @@ class _ServicesAdditionState extends State<ServicesAddition> {
         selectedWageTypeId == null ||
         selectedServiceTypeId == null ||
         descriptionController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please fill all fields and select an image'))
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Please fill all fields and select an image')));
       return;
     }
 
@@ -205,35 +157,30 @@ class _ServicesAdditionState extends State<ServicesAddition> {
     });
 
     try {
-      // Upload the service image to Firebase Storage and get the URL
       String imageUrl = await _uploadImageToFirebaseStorage();
-
-      // Add the service data to Firestore with the provider's UID
       await FirebaseFirestore.instance.collection('service').add({
         'ServiceName': nameController.text.trim(),
-        'Category': selectedCategoryId,
-        'Subcategory': selectedSubcategoryId,
-        'Province': selectedProvinceId,
-        'City': selectedCityId,
+        'Category': selectedCategoryName,
+        'Subcategory': selectedSubcategoryName,
+        'Province': selectedProvinceName,
+        'City': selectedCityName,
         'Area': areaController.text.trim(),
         'Price': priceController.text.trim(),
         'Discount': discountController.text.trim(),
-        'WageType': selectedWageTypeId,
-        'ServiceType': selectedServiceTypeId,
+        'WageType': selectedWageTypeName,
+        'ServiceType': selectedServiceTypeName,
         'Description': descriptionController.text.trim(),
         'ImageUrl': imageUrl,
         'TimeSlot': timeController.text.trim(),
-        'providerId': currentUser.uid, // Reference to the provider's UID
+        'providerId': currentUser.uid,
       });
 
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Service added successfully'))
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Service added successfully')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add service: $e'))
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to add service: $e')));
     } finally {
       setState(() {
         _isLoading = false; // Stop loading regardless of the outcome
@@ -268,107 +215,37 @@ class _ServicesAdditionState extends State<ServicesAddition> {
                 children: [
                   GestureDetector(
                     onTap: () async {
-                      XFile? selectedImage = await ImagePicker().pickImage(
-                          source: ImageSource.gallery);
+                      XFile? selectedImage = await ImagePicker()
+                          .pickImage(source: ImageSource.gallery);
                       if (selectedImage != null) {
                         File convertedFile = File(selectedImage.path);
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                                content: Text("Image Selected!"));
-                          },
-                        );
                         setState(() {
                           profilePic = convertedFile;
                         });
-                      } else {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                                content: Text("No Image Selected!"));
-                          },
-                        );
                       }
                     },
                     child: CircleAvatar(
                       radius: 64,
                       backgroundColor: Colors.grey[300],
-                      backgroundImage: profilePic != null ? FileImage(
-                          profilePic!) : null,
-                      child: profilePic == null ? Icon(
-                          FontAwesomeIcons.camera, size: 50) : null,
+                      backgroundImage:
+                          profilePic != null ? FileImage(profilePic!) : null,
+                      child: profilePic == null
+                          ? Icon(FontAwesomeIcons.camera, size: 50)
+                          : null,
                     ),
                   ),
                   SizedBox(height: 20),
-                  uihelper.CustomTextField(
-                      nameController, "Service Name", Icons.home_repair_service,
-                      false),
-                  uihelper.customDropdownButtonFormField(
-                    value: selectedCategoryId,
-                    items: categoryItems,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedCategoryId = value;
-                        selectedSubcategoryId =
-                        null; // Reset subcategory on category change
-                        fetchRelatedData('Subcategory', 'categoryId', value!,
-                            subcategoryItems);
-                      });
-                    },
-                    labelText: "Select Category",
-                  ),
-                  uihelper.customDropdownButtonFormField(
-                    value: selectedSubcategoryId,
-                    items: subcategoryItems,
-                    onChanged: (value) =>
-                        setState(() => selectedSubcategoryId = value),
-                    labelText: "Select Subcategory",
-                  ),
-                  uihelper.customDropdownButtonFormField(
-                    value: selectedProvinceId,
-                    items: provinceItems,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedProvinceId = value;
-                        selectedCityId = null; // Reset city on province change
-                        fetchRelatedData(
-                            'City', 'provinceId', value!, cityItems);
-                      });
-                    },
-                    labelText: "Select Province",
-                  ),
-                  uihelper.customDropdownButtonFormField(
-                    value: selectedCityId,
-                    items: cityItems,
-                    onChanged: (value) =>
-                        setState(() => selectedCityId = value),
-                    labelText: "Select City",
-                  ),
-                  uihelper.customDropdownButtonFormField(
-                    value: selectedServiceTypeId,
-                    items: serviceTypeItems,
-                    onChanged: (value) =>
-                        setState(() => selectedServiceTypeId = value),
-                    labelText: "Select Service Type",
-                  ),
-                  uihelper.customDropdownButtonFormField(
-                    value: selectedWageTypeId,
-                    items: wageTypeItems,
-                    onChanged: (value) =>
-                        setState(() => selectedWageTypeId = value),
-                    labelText: "Select Wage Type",
-                  ),
+                  uihelper.CustomTextField(nameController, "Service Name",
+                      Icons.home_repair_service, false),
+                  DropdownFields(), // Implement DropdownFields as shown earlier
                   uihelper.CustomTextField(
                       areaController, "Area", Icons.map, false),
                   uihelper.CustomNumberField(
                       priceController, "Price", Icons.money, false),
                   uihelper.CustomNumberField(
                       discountController, "Discount %", Icons.percent, false),
-                  uihelper.CustomTimeDuration(
-                      timeController, "Time Slot", Icons.timer,
-                      "Day:Hour:Min==00:00:00"),
+                  uihelper.CustomTimeDuration(timeController, "Time Slot",
+                      Icons.timer, "Day:Hour:Min==00:00:00"),
                   uihelper.customDescriptionField(
                       descriptionController, "Description", Icons.description),
                   SizedBox(height: 20),
@@ -391,6 +268,145 @@ class _ServicesAdditionState extends State<ServicesAddition> {
             ),
         ],
       ),
+    );
+  }
+
+  Widget DropdownFields() {
+    return Column(
+      children: [
+        // Category Dropdown
+        uihelper.customDropdownButtonFormField(
+          value: selectedCategoryId,
+          items: categoryItems.map((DropdownItem item) {
+            return DropdownMenuItem<String>(
+              value: item.id,
+              child: Text(item.name),
+            );
+          }).toList(),
+          onChanged: (String? value) {
+            if (value != null) {
+              var selectedItem =
+                  categoryItems.firstWhere((item) => item.id == value);
+              setState(() {
+                selectedCategoryId = value;
+                selectedCategoryName = selectedItem.name;
+                selectedSubcategoryId =
+                    null; // Reset subcategory on category change
+                fetchRelatedData(
+                    'Subcategory', 'categoryId', value, subcategoryItems);
+              });
+            }
+          },
+          labelText: "Select Category",
+        ),
+        // Subcategory Dropdown
+        uihelper.customDropdownButtonFormField(
+          value: selectedSubcategoryId,
+          items: subcategoryItems.map((DropdownItem item) {
+            return DropdownMenuItem<String>(
+              value: item.id,
+              child: Text(item.name),
+            );
+          }).toList(),
+          onChanged: (String? value) {
+            if (value != null) {
+              var selectedItem =
+                  subcategoryItems.firstWhere((item) => item.id == value);
+              setState(() {
+                selectedSubcategoryId = value;
+                selectedSubcategoryName = selectedItem.name;
+              });
+            }
+          },
+          labelText: "Select Subcategory",
+        ),
+        // Province Dropdown
+        uihelper.customDropdownButtonFormField(
+          value: selectedProvinceId,
+          items: provinceItems.map((DropdownItem item) {
+            return DropdownMenuItem<String>(
+              value: item.id,
+              child: Text(item.name),
+            );
+          }).toList(),
+          onChanged: (String? value) {
+            if (value != null) {
+              var selectedItem =
+                  provinceItems.firstWhere((item) => item.id == value);
+              setState(() {
+                selectedProvinceId = value;
+                selectedProvinceName = selectedItem.name;
+                selectedCityId = null; // Reset city on province change
+                fetchRelatedData('City', 'provinceId', value, cityItems);
+              });
+            }
+          },
+          labelText: "Select Province",
+        ),
+        // City Dropdown
+        uihelper.customDropdownButtonFormField(
+          value: selectedCityId,
+          items: cityItems.map((DropdownItem item) {
+            return DropdownMenuItem<String>(
+              value: item.id,
+              child: Text(item.name),
+            );
+          }).toList(),
+          onChanged: (String? value) {
+            if (value != null) {
+              var selectedItem =
+                  cityItems.firstWhere((item) => item.id == value);
+              setState(() {
+                selectedCityId = value;
+                selectedCityName = selectedItem.name;
+              });
+            }
+          },
+          labelText: "Select City",
+        ),
+        // Service Type Dropdown
+        uihelper.customDropdownButtonFormField(
+          value: selectedServiceTypeId,
+          items: serviceTypeItems.map((DropdownItem item) {
+            return DropdownMenuItem<String>(
+              value: item.id,
+              child: Text(item.name),
+            );
+          }).toList(),
+          onChanged: (String? value) {
+            if (value != null) {
+              var selectedItem =
+                  serviceTypeItems.firstWhere((item) => item.id == value);
+              setState(() {
+                selectedServiceTypeId = value;
+                selectedServiceTypeName = selectedItem.name;
+              });
+            }
+          },
+          labelText: "Select Service Type",
+        ),
+        // Wage Type Dropdown
+        uihelper.customDropdownButtonFormField(
+          value: selectedWageTypeId,
+          items: wageTypeItems.map((DropdownItem item) {
+            return DropdownMenuItem<String>(
+              value: item.id,
+              child: Text(item.name),
+            );
+          }).toList(),
+          onChanged: (String? value) {
+            if (value != null) {
+              var selectedItem =
+                  wageTypeItems.firstWhere((item) => item.id == value);
+              setState(() {
+                selectedWageTypeId = value;
+                selectedWageTypeName = selectedItem.name;
+              });
+            }
+          },
+          labelText: "Select Wage Type",
+        ),
+      ],
     );
   }
 }

@@ -1,10 +1,10 @@
-import 'dart:ffi';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:servtol/util/uihelper.dart';
+import 'package:servtol/util/uihelper.dart'; // Assuming this is your utility class for UI elements
 
 class ServiceDetailScreen extends StatefulWidget {
   final DocumentSnapshot service;
@@ -22,10 +22,6 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   TextEditingController timeController = TextEditingController();
   TextEditingController discountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-  // String _errorMessage = '';
-
-
-  bool _isLoading = false;
   File? profilePic;
   final ImagePicker imagePicker = ImagePicker();
 
@@ -41,6 +37,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
       cityItems = [],
       serviceTypeItems = [],
       wageTypeItems = [];
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -56,6 +54,16 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     timeController.text = widget.service.get('TimeSlot') ?? '';
     discountController.text = widget.service.get('Discount') ?? '';
     descriptionController.text = widget.service.get('Description') ?? '';
+    selectedCategoryId = widget.service.get('CategoryId');
+    selectedSubcategoryId = widget.service.get('SubcategoryId');
+    selectedProvinceId = widget.service.get('ProvinceId');
+    selectedCityId = widget.service.get('CityId');
+    selectedServiceTypeId = widget.service.get('ServiceTypeId');
+    selectedWageTypeId = widget.service.get('WageTypeId');
+    // Fetch related data based on initialized values
+    fetchRelatedData(
+        'Subcategory', 'categoryId', selectedCategoryId!, subcategoryItems);
+    fetchRelatedData('City', 'provinceId', selectedProvinceId!, cityItems);
   }
 
   void fetchDropdownData() {
@@ -102,39 +110,14 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     });
   }
 
-  // Future<void> _updateData() async {
-  //   if (_isLoading) return;
-  //
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-  //
-  //   try {
-  //     String imageUrl = profilePic != null ? await _uploadImageToFirebaseStorage() : widget.service.get('ImageUrl');
-  //     await FirebaseFirestore.instance.collection('service').doc(widget.service.id).update({
-  //       'ServiceName': nameController.text.trim(),
-  //       'Area': areaController.text.trim(),
-  //       'Price': priceController.text.trim(),
-  //       'TimeSlot': timeController.text.trim(),
-  //       'Discount': discountController.text.trim(),
-  //       'Description': descriptionController.text.trim(),
-  //       'ImageUrl': imageUrl,
-  //       'CategoryId': selectedCategoryId,
-  //       'SubcategoryId': selectedSubcategoryId,
-  //       'ProvinceId': selectedProvinceId,
-  //       'CityId': selectedCityId,
-  //       'ServiceTypeId': selectedServiceTypeId,
-  //       'WageTypeId': selectedWageTypeId,
-  //     });
-  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Service updated successfully')));
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update service: $e')));
-  //   } finally {
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //   }
-  // }
+  Future<String> _uploadImageToFirebaseStorage() async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference reference =
+        FirebaseStorage.instance.ref().child('images/Servicepics/$fileName');
+    UploadTask uploadTask = reference.putFile(profilePic!);
+    TaskSnapshot storageTaskSnapshot = await uploadTask;
+    return await storageTaskSnapshot.ref.getDownloadURL();
+  }
 
   Future<void> _deleteData(String documentId) async {
     if (_isLoading) return;
@@ -161,16 +144,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     }
   }
 
-  Future<String> _uploadImageToFirebaseStorage() async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference reference =
-        FirebaseStorage.instance.ref().child('images/Servicepics/$fileName');
-    UploadTask uploadTask = reference.putFile(profilePic!);
-    TaskSnapshot storageTaskSnapshot = await uploadTask;
-    return await storageTaskSnapshot.ref.getDownloadURL();
-  }
-
-  bool _validateFields() {
+  bool validateFields() {
     if (profilePic == null ||
         nameController.text.isEmpty ||
         selectedCategoryId == null ||
@@ -183,15 +157,35 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
         selectedWageTypeId == null ||
         selectedServiceTypeId == null ||
         descriptionController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Please fill all fields and select an image')));
+      _errorMessage = "Please fill all fields and select an image.";
+      // setState(() {}); // Trigger a rebuild to show the error message
       return false;
     }
+    _errorMessage = null; // Clear error message if everything is valid
     return true;
   }
 
+  //   List<String?> fields = [
+  //     nameController.text,
+  //     areaController.text,
+  //     priceController.text,
+  //     timeController.text,
+  //     discountController.text,
+  //     descriptionController.text,
+  //     selectedCategoryId,
+  //     selectedSubcategoryId,
+  //     selectedProvinceId,
+  //     selectedCityId,
+  //     selectedServiceTypeId,
+  //     selectedWageTypeId,
+  //   ];
+  //   return fields.every((field) => field != null && field.isNotEmpty);
+  // }
+
   Future<void> _updateData() async {
-    if (_isLoading) return;
+    if (_isLoading) {
+      return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -231,49 +225,6 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
       });
     }
   }
-
-  // Future<void> _updateData() async {
-  //   print("Updating data");
-  //   if (_isLoading) {
-  //     print("Update skipped, already loading");
-  //     return;
-  //   }
-  //
-  //   setState(() {
-  //     _isLoading = true;
-  //     print("Loading state set to true");
-  //   });
-  //
-  //   try {
-  //     String imageUrl = profilePic != null ? await _uploadImageToFirebaseStorage() : widget.service.get('ImageUrl');
-  //     print("Image URL: $imageUrl");
-  //     await FirebaseFirestore.instance.collection('service').doc(widget.service.id).update({
-  //       'ServiceName': nameController.text.trim(),
-  //       'Area': areaController.text.trim(),
-  //       'Price': priceController.text.trim(),
-  //       'TimeSlot': timeController.text.trim(),
-  //       'Discount': discountController.text.trim(),
-  //       'Description': descriptionController.text.trim(),
-  //       'ImageUrl': imageUrl,
-  //       'CategoryId': selectedCategoryId,
-  //       'SubcategoryId': selectedSubcategoryId,
-  //       'ProvinceId': selectedProvinceId,
-  //       'CityId': selectedCityId,
-  //       'ServiceTypeId': selectedServiceTypeId,
-  //       'WageTypeId': selectedWageTypeId,
-  //     });
-  //     print("Update successful");
-  //   } catch (e) {
-  //     print("Failed to update service: $e");
-  //   } finally {
-  //     setState(() {
-  //       _isLoading = false;
-  //       print("Loading state set to false");
-  //     });
-  //   }
-  // }
-
-// Inside the "Save" button onPressed:
 
   Widget _buildDropdown(String label, String? value,
       List<DropdownMenuItem<String>> items, Function(String?) onChanged) {
@@ -322,9 +273,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   }
 
   void _showEditDialog() {
-    bool _isLoading = false; // Local state for loading indicator
-    String? _errorMessage; // Nullable local state for error messages
-
+    bool _isLoading = false;
+    // String? _errorMessage;
     showDialog(
       context: context,
       barrierDismissible: false, // Prevent dialog from closing on tap outside
@@ -332,142 +282,248 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
-              title: Text("Edit Service Details"),
+              title: Text("Edit Service Details",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: Colors.indigoAccent,
+                      fontWeight: FontWeight.bold)),
               content: SingleChildScrollView(
-                child: ListBody(
+                child: Column(
                   children: <Widget>[
-                    if (_isLoading)
-                      Center(child: CircularProgressIndicator()),
+                    if (_isLoading) Center(child: CircularProgressIndicator()),
+                    // if (_errorMessage != null)
+                    //   Padding(
+                    //     padding: EdgeInsets.all(8.0),
+                    //     child: Text(_errorMessage!,
+                    //         style: TextStyle(
+                    //             color: Colors.red,
+                    //             fontSize:
+                    //                 14)), // Use '!' to assert non-null based on preceding if-check
+                    //   ),
                     if (_errorMessage != null)
                       Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(_errorMessage!, style: TextStyle(color: Colors.red, fontSize: 14)), // Use '!' to assert non-null based on preceding if-check
+                        padding: EdgeInsets.only(bottom: 10),
+                        child: Text(_errorMessage!,
+                            style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: Colors.red,
+                                fontSize: 10)),
                       ),
+
                     GestureDetector(
                       onTap: () async {
-                        XFile? selectedImage = await imagePicker.pickImage(source: ImageSource.gallery);
+                        XFile? selectedImage = await imagePicker.pickImage(
+                            source: ImageSource.gallery);
                         if (selectedImage != null) {
                           setState(() {
                             profilePic = File(selectedImage.path);
+                             _errorMessage = null;
                           });
                         }
                       },
                       child: CircleAvatar(
                         radius: 64,
                         backgroundColor: Colors.grey,
-                        backgroundImage: profilePic != null ? FileImage(profilePic!) : null,
-                        child: profilePic == null ? Icon(Icons.camera_alt, size: 50) : null,
+                        backgroundImage:
+                            profilePic != null ? FileImage(profilePic!) : null,
+                        child: profilePic == null
+                            ? Icon(FontAwesomeIcons.camera, size: 50)
+                            : null,
                       ),
                     ),
                     SizedBox(height: 10),
                     TextField(
                       controller: nameController,
-                      decoration: InputDecoration(labelText: 'Service Name'),
+                      decoration: InputDecoration(
+                        labelText: 'Service Name',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                     SizedBox(height: 10),
-                    _buildDropdown(
-                        "Category", selectedCategoryId, categoryItems,
-                        (String? newValue) {
-                      setState(() {
-                        selectedCategoryId = newValue;
-                        selectedSubcategoryId = null;
-                        fetchRelatedData('Subcategory', 'categoryId', newValue!,
-                            subcategoryItems);
-                      });
-                    }),
+                    // Category Dropdown
+                    DropdownButtonFormField<String>(
+                      value: selectedCategoryId,
+                      items: categoryItems,
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedCategoryId = newValue;
+                          selectedSubcategoryId = null; // Reset subcategory
+                          fetchRelatedData('Subcategory', 'categoryId',
+                              newValue!, subcategoryItems);
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Category',
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0)),
+                      ),
+                    ),
                     SizedBox(height: 10),
-                    _buildDropdown(
-                        "Subcategory", selectedSubcategoryId, subcategoryItems,
-                        (String? newValue) {
-                      setState(() {
-                        selectedSubcategoryId = newValue;
-                      });
-                    }),
+                    // Subcategory Dropdown
+                    DropdownButtonFormField<String>(
+                      value: selectedSubcategoryId,
+                      items: subcategoryItems,
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedSubcategoryId = newValue;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Subcategory',
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0)),
+                      ),
+                    ),
                     SizedBox(height: 10),
-                    _buildDropdown(
-                        "Province", selectedProvinceId, provinceItems,
-                        (String? newValue) {
-                      setState(() {
-                        selectedProvinceId = newValue;
-                        selectedCityId = null;
-                        fetchRelatedData(
-                            'City', 'provinceId', newValue!, cityItems);
-                      });
-                    }),
+                    // Province Dropdown
+                    DropdownButtonFormField<String>(
+                      value: selectedProvinceId,
+                      items: provinceItems,
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedProvinceId = newValue;
+                          selectedCityId = null; // Reset city
+                          fetchRelatedData(
+                              'City', 'provinceId', newValue!, cityItems);
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Province',
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0)),
+                      ),
+                    ),
                     SizedBox(height: 10),
-                    _buildDropdown("City", selectedCityId, cityItems,
-                        (String? newValue) {
-                      setState(() {
-                        selectedCityId = newValue;
-                      });
-                    }),
+                    // City Dropdown
+                    DropdownButtonFormField<String>(
+                      value: selectedCityId,
+                      items: cityItems,
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedCityId = newValue;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'City',
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0)),
+                      ),
+                    ),
                     SizedBox(height: 10),
-                    _buildDropdown(
-                        "Service Type", selectedServiceTypeId, serviceTypeItems,
-                        (String? newValue) {
-                      setState(() {
-                        selectedServiceTypeId = newValue;
-                      });
-                    }),
+                    // Service Type Dropdown
+                    DropdownButtonFormField<String>(
+                      value: selectedServiceTypeId,
+                      items: serviceTypeItems,
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedServiceTypeId = newValue;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Service Type',
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0)),
+                      ),
+                    ),
                     SizedBox(height: 10),
-                    _buildDropdown(
-                        "Wage Type", selectedWageTypeId, wageTypeItems,
-                        (String? newValue) {
-                      setState(() {
-                        selectedWageTypeId = newValue;
-                      });
-                    }),
+                    // Wage Type Dropdown
+                    DropdownButtonFormField<String>(
+                      value: selectedWageTypeId,
+                      items: wageTypeItems,
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedWageTypeId = newValue;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Wage Type',
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0)),
+                      ),
+                    ),
+                    SizedBox(height: 10),
                     TextField(
                       controller: areaController,
-                      decoration: InputDecoration(labelText: 'Area'),
+                      decoration: InputDecoration(
+                        labelText: 'Area',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
+                    SizedBox(height: 10),
                     TextField(
                       controller: priceController,
-                      decoration: InputDecoration(labelText: 'Price'),
+                      decoration: InputDecoration(
+                        labelText: 'Price',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
+                    SizedBox(height: 10),
                     TextField(
                       controller: timeController,
-                      decoration: InputDecoration(labelText: 'Time Slot'),
+                      decoration: InputDecoration(
+                        labelText: 'Time Slot',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
+                    SizedBox(height: 10),
                     TextField(
                       controller: discountController,
-                      decoration: InputDecoration(labelText: 'Discount %'),
+                      decoration: InputDecoration(
+                        labelText: 'Discount %',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
+                    SizedBox(height: 10),
                     TextField(
                       controller: descriptionController,
-                      decoration: InputDecoration(labelText: 'Description'),
+                      decoration: InputDecoration(
+                        labelText: 'Description',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ],
                 ),
               ),
               actions: <Widget>[
-                if (!_isLoading) // Hide actions when loading
+                if (!_isLoading)
                   TextButton(
                     child: Text('Cancel', style: TextStyle(color: Colors.red)),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
-                if (!_isLoading) // Hide actions when loading
+                if (!_isLoading)
                   TextButton(
                     child: Text('Save', style: TextStyle(color: Colors.green)),
                     onPressed: () {
-                      if (_validateFields()) {
-                        setState(() => _isLoading = true);
-                        _updateData().then((_) {
-                          Navigator.of(context).pop(); // Close dialog after update
-                        }).catchError((error) {
-                          setState(() {
-                            _isLoading = false;
-                            _errorMessage = 'Failed to update service: $error';
-                            // Reset the error message after 2 to 3 seconds
-                            Future.delayed(Duration(seconds: 3), () {
-                              setState(() {
-                                _errorMessage = null;
-                              });
-                            });
-                          });
+            setState(() {  // Update the local state of the dialog to trigger re-render
+            if (!validateFields()) {
+            // The error message is updated inside validateFields()
+            } else {
+            _updateData().then((_) => Navigator.of(context).pop()); // Close the dialog on successful update
+            }
+            Future.delayed(Duration(seconds: 3), () {
+            setState(() {
+            _errorMessage = null;
+
+            });  // Reset the error message after 2 to 3 seconds
+
+
+
                         });
                       }
-                    },
+            );  },
                   ),
               ],
             );
@@ -476,6 +532,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
       },
     );
   }
+
   void _showDeleteConfirmation() {
     showDialog(
       context: context,
@@ -509,73 +566,103 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text("Service Details",
-              style: TextStyle(fontFamily: 'Poppins', color: Colors.white)),
-          backgroundColor: Colors.teal,
-          centerTitle: true,
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Service Details",
+            style: TextStyle(fontFamily: 'Poppins', color: Colors.white)),
         backgroundColor: Colors.teal,
-        body: SingleChildScrollView(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              widget.service['ImageUrl'] != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.network(
-                        widget.service['ImageUrl'],
-                        width: double.infinity,
-                        height: 200,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : Icon(Icons.image_not_supported, size: 200),
-              SizedBox(height: 20),
-              Column(
-                children: [
-                  uihelper.detailCard("Service Name",
-                      widget.service['ServiceName'] ?? 'Not provided'),
-                  uihelper.detailCard(
-                      "Category", widget.service['Category'] ?? 'Not provided'),
-                  uihelper.detailCard(
-                      "Price", widget.service['Price'] ?? 'Not provided'),
-                  uihelper.detailCard("Service Type",
-                      widget.service['ServiceType'] ?? 'Not provided'),
-                  uihelper.detailCard(
-                      "Discount", "${widget.service['Discount'] ?? '0'}%"),
-                  uihelper.detailCard("Subcategory",
-                      widget.service['Subcategory'] ?? 'Not provided'),
-                  uihelper.detailCard("Wage Type",
-                      widget.service['WageType'] ?? 'Not provided'),
-                  uihelper.detailCard("Time Slot",
-                      widget.service['TimeSlot'] ?? 'Not provided'),
-                  uihelper.detailCard(
-                      "Province", widget.service['Province'] ?? 'Not provided'),
-                  uihelper.detailCard(
-                      "City", widget.service['City'] ?? 'Not provided'),
-                  uihelper.detailCard(
-                      "Area", widget.service['Area'] ?? 'Not provided'),
-                  uihelper.detailCard("Description",
-                      widget.service['Description'] ?? 'Not provided',
-                      lastItem: true),
-                ],
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  uihelper.actionButton('Delete', Colors.red,
-                      Icons.dangerous_outlined, _showDeleteConfirmation),
-                  uihelper.actionButton(
-                      'Edit', Colors.blue, Icons.edit, _showEditConfirmation),
-                ],
-              )
-            ],
-          ),
+        centerTitle: true,
+      ),
+      backgroundColor: Colors.teal,
+
+      // actions: [
+      //   IconButton(
+      //     icon: Icon(Icons.edit),
+      //     onPressed: _showEditDialog, // Open edit dialog on edit button press
+      //   ),
+      //   IconButton(
+      //     icon: Icon(Icons.delete),
+      //     onPressed: () {
+      //       showDialog(
+      //         context: context,
+      //         builder: (BuildContext context) {
+      //           return AlertDialog(
+      //             title: Text("Confirm Delete"),
+      //             content: Text("Are you sure you want to delete this service?"),
+      //             actions: [
+      //               TextButton(
+      //                 child: Text("Cancel"),
+      //                 onPressed: () => Navigator.of(context).pop(),
+      //               ),
+      //               TextButton(
+      //                 child: Text("Delete"),
+      //                 onPressed: () async {
+      //                   Navigator.of(context).pop();
+      //                   await FirebaseFirestore.instance.collection('service').doc(widget.service.id).delete();
+      //                   Navigator.of(context).pop();
+      //                 },
+      //               ),
+      //             ],
+      //           );
+      //         },
+      //       );
+      //     },
+      //   ),
+      // ],
+      // ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            widget.service.get('ImageUrl') != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.network(
+                      widget.service.get('ImageUrl'),
+                      width: double.infinity,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Icon(Icons.image_not_supported, size: 200),
+            SizedBox(height: 20),
+            uihelper.detailCard("Service Name",
+                widget.service.get('ServiceName') ?? 'Not provided'),
+            uihelper.detailCard(
+                "Category", widget.service.get('Category') ?? 'Not provided'),
+            uihelper.detailCard(
+                "Price", widget.service.get('Price') ?? 'Not provided'),
+            uihelper.detailCard("Service Type",
+                widget.service.get('ServiceType') ?? 'Not provided'),
+            uihelper.detailCard(
+                "Discount", "${widget.service.get('Discount') ?? '0'}%"),
+            uihelper.detailCard("Subcategory",
+                widget.service.get('Subcategory') ?? 'Not provided'),
+            uihelper.detailCard(
+                "Wage Type", widget.service.get('WageType') ?? 'Not provided'),
+            uihelper.detailCard(
+                "Time Slot", widget.service.get('TimeSlot') ?? 'Not provided'),
+            uihelper.detailCard(
+                "Province", widget.service.get('Province') ?? 'Not provided'),
+            uihelper.detailCard(
+                "City", widget.service.get('City') ?? 'Not provided'),
+            uihelper.detailCard(
+                "Area", widget.service.get('Area') ?? 'Not provided'),
+            uihelper.detailCard("Description",
+                widget.service.get('Description') ?? 'Not provided',
+                lastItem: true),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                uihelper.actionButton('Delete', Colors.red,
+                    Icons.dangerous_outlined, _showDeleteConfirmation),
+                uihelper.actionButton(
+                    'Edit', Colors.blue, Icons.edit, _showEditConfirmation),
+              ],
+            ),
+          ],
         ),
       ),
     );
