@@ -1,16 +1,28 @@
 # Servtol
 
-A new Flutter project.
+Servtol is a Flutter-based mobile application aimed at simplifying the management of service details for service providers. This app allows users to add, edit, and delete service entries with ease, enhancing the overall efficiency of service management.
+
+## Features
+
+- **Manage Services**: Users can add, update, and delete services using a simple, intuitive interface.
+- **Image Upload**: Supports uploading and displaying images for each service to provide a visual reference.
+- **Detailed Service Views**: Each service entry is accompanied by a detailed view, allowing for easy access to comprehensive information.
+- **Responsive Design**: Fully responsive design that works seamlessly across both Android and iOS devices.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-A few resources to get you started if this is your first Flutter project:
+### Prerequisites
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+What you need to install the software:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Flutter (latest version)
+- Android Studio or Visual Studio Code with Flutter plugins installed
+- An active internet connection for dependency resolution
+
+### Installation
+              
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/MuhamadAwaisKhan/Servtol-fyp.git
