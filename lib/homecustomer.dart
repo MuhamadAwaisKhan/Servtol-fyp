@@ -235,9 +235,9 @@ class _HomeCustomerState extends State<HomeCustomer> {
               // if (snapshot.connectionState == ConnectionState.waiting) {
               //   return Center(child: CircularProgressIndicator());
               // }
-              // if (!snapshot.hasData) {
-              //   return Text("No Data Available");
-              // }
+              if (!snapshot.hasData) {
+                return Text("No Data Available");
+              }
               return GridView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),

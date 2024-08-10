@@ -48,22 +48,35 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   }
 
   void initializeControllers() {
-    nameController.text = widget.service.get('ServiceName') ?? '';
-    areaController.text = widget.service.get('Area') ?? '';
-    priceController.text = widget.service.get('Price') ?? '';
-    timeController.text = widget.service.get('TimeSlot') ?? '';
-    discountController.text = widget.service.get('Discount') ?? '';
-    descriptionController.text = widget.service.get('Description') ?? '';
-    selectedCategoryId = widget.service.get('CategoryId');
-    selectedSubcategoryId = widget.service.get('SubcategoryId');
-    selectedProvinceId = widget.service.get('ProvinceId');
-    selectedCityId = widget.service.get('CityId');
-    selectedServiceTypeId = widget.service.get('ServiceTypeId');
-    selectedWageTypeId = widget.service.get('WageTypeId');
-    // Fetch related data based on initialized values
-    fetchRelatedData(
-        'Subcategory', 'categoryId', selectedCategoryId!, subcategoryItems);
-    fetchRelatedData('City', 'provinceId', selectedProvinceId!, cityItems);
+    Map<String, dynamic>? serviceData = widget.service.data() as Map<String, dynamic>?;
+
+    // Use a local function to simplify null checking and default values
+    String safeGet(String field, {String defaultValue = ''}) {
+      return serviceData != null && serviceData.containsKey(field) ? serviceData[field] ?? defaultValue : defaultValue;
+    }
+
+    nameController.text = safeGet('ServiceName');
+    areaController.text = safeGet('Area');
+    priceController.text = safeGet('Price');
+    timeController.text = safeGet('TimeSlot');
+    discountController.text = safeGet('Discount');
+    descriptionController.text = safeGet('Description');
+
+    // Initialize ID fields; consider using null if the field is missing
+    selectedCategoryId = serviceData != null && serviceData.containsKey('CategoryId') ? serviceData['CategoryId'] : null;
+    selectedSubcategoryId = serviceData != null && serviceData.containsKey('SubcategoryId') ? serviceData['SubcategoryId'] : null;
+    selectedProvinceId = serviceData != null && serviceData.containsKey('ProvinceId') ? serviceData['ProvinceId'] : null;
+    selectedCityId = serviceData != null && serviceData.containsKey('CityId') ? serviceData['CityId'] : null;
+    selectedServiceTypeId = serviceData != null && serviceData.containsKey('ServiceTypeId') ? serviceData['ServiceTypeId'] : null;
+    selectedWageTypeId = serviceData != null && serviceData.containsKey('WageTypeId') ? serviceData['WageTypeId'] : null;
+
+    // Fetch related data if IDs are available
+    if (selectedCategoryId != null) {
+      fetchRelatedData('Subcategory', 'categoryId', selectedCategoryId!, subcategoryItems);
+    }
+    if (selectedProvinceId != null) {
+      fetchRelatedData('City', 'provinceId', selectedProvinceId!, cityItems);
+    }
   }
 
   void fetchDropdownData() {
@@ -291,16 +304,9 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
               content: SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
-                    if (_isLoading) Center(child: CircularProgressIndicator()),
-                    // if (_errorMessage != null)
-                    //   Padding(
-                    //     padding: EdgeInsets.all(8.0),
-                    //     child: Text(_errorMessage!,
-                    //         style: TextStyle(
-                    //             color: Colors.red,
-                    //             fontSize:
-                    //                 14)), // Use '!' to assert non-null based on preceding if-check
-                    //   ),
+                    // if (_isLoading)
+                    //   Center(child: CircularProgressIndicator()),
+                    //
                     if (_errorMessage != null)
                       Padding(
                         padding: EdgeInsets.only(bottom: 10),
@@ -569,7 +575,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Service Details",
-            style: TextStyle(fontFamily: 'Poppins', color: Colors.white)),
+            style: TextStyle(fontFamily: 'Poppins',fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: Colors.teal,
         centerTitle: true,
       ),

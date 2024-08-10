@@ -129,12 +129,13 @@ class _ServicesAdditionState extends State<ServicesAddition> {
   Future<void> _addData() async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content:
-              Text('You are not logged in. Please log in and try again.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('You are not logged in. Please log in and try again.'))
+      );
       return;
     }
 
+    // Validation for required fields
     if (profilePic == null ||
         nameController.text.isEmpty ||
         selectedCategoryId == null ||
@@ -147,8 +148,9 @@ class _ServicesAdditionState extends State<ServicesAddition> {
         selectedWageTypeId == null ||
         selectedServiceTypeId == null ||
         descriptionController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Please fill all fields and select an image')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please fill all fields and select an image.'))
+      );
       return;
     }
 
@@ -176,11 +178,13 @@ class _ServicesAdditionState extends State<ServicesAddition> {
       });
 
       Navigator.pop(context);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Service added successfully')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Service added successfully'))
+      );
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Failed to add service: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add service: ${e.toString()}'))
+      );
     } finally {
       setState(() {
         _isLoading = false; // Stop loading regardless of the outcome
