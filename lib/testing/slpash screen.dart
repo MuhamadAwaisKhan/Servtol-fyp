@@ -10,7 +10,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   int _currentIndex = 0;
-  final CarouselController _controller = CarouselController();
+   CarouselSliderController _controller = CarouselSliderController();
 
   List<Widget> _buildScreens() {
     return [

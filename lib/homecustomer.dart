@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:servtol/Servicecustomerdetail.dart';
 import 'package:servtol/categoriescustomer.dart';
 import 'package:servtol/searchcustomer.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -16,7 +17,7 @@ class HomeCustomer extends StatefulWidget {
 
 class _HomeCustomerState extends State<HomeCustomer> {
   int _current = 0;
-  CarouselController _carouselController = CarouselController();
+  CarouselSliderController _carouselController = CarouselSliderController();
   List<Map<String, dynamic>> _cloudImages = [];
 
   @override
@@ -229,12 +230,8 @@ class _HomeCustomerState extends State<HomeCustomer> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('service')
-                .snapshots(),
+            stream: FirebaseFirestore.instance.collection('service').snapshots(),
             builder: (context, snapshot) {
-              // if (snapshot.connectionState == ConnectionState.waiting) {
-              //   return Center(child: CircularProgressIndicator());
-              // }
               if (!snapshot.hasData) {
                 return Text("No Data Available");
               }
@@ -259,7 +256,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                           return Center(child: CircularProgressIndicator());
                         }
                         return buildServiceCard(
-                            serviceDoc, providerSnapshot.data!);
+                            context, serviceDoc, providerSnapshot.data!);
                       }
                   );
                 },
@@ -270,7 +267,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
       ],
     );
   }
-  Widget buildServiceCard(DocumentSnapshot serviceDoc, DocumentSnapshot providerDoc) {
+  Widget buildServiceCard(BuildContext context, DocumentSnapshot serviceDoc, DocumentSnapshot providerDoc) {
     // Assuming fields are correctly retrieved.
     String imageUrl = getDocumentField(serviceDoc, 'ImageUrl', 'default_image_url');
     String serviceName = getDocumentField(serviceDoc, 'ServiceName', 'No service name');
@@ -279,64 +276,74 @@ class _HomeCustomerState extends State<HomeCustomer> {
     String providerPic = getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url');
     String providerName = getDocumentField(providerDoc, 'FirstName', 'No provider name');
 
-    return Card(
-      elevation: 8,
-      shadowColor: Colors.deepPurple[200],
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(imageUrl),
-                  fit: BoxFit.cover,
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Servicecustomerdetail(service:serviceDoc),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 8,
+        shadowColor: Colors.deepPurple[200],
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(imageUrl),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  serviceName,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.deepPurple[800]),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  subcategory,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    serviceName,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.deepPurple[800]),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    subcategory,
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(providerPic),
-                  radius: 15,
-                ),
-                Text(
-                  providerName,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                Text(
-                  "\$" + servicePrice,
-                  style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CircleAvatar(
+                    backgroundImage: NetworkImage(providerPic),
+                    radius: 15,
+                  ),
+                  Text(
+                    providerName,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  Text(
+                    "\$" + servicePrice,
+                    style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

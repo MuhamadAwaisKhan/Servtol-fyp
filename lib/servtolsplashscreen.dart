@@ -15,7 +15,7 @@ class ServToolSplashScreen extends StatefulWidget {
 
 class _ServToolSplashScreenState extends State<ServToolSplashScreen> {
   int _currentIndex = 0;
-  final CarouselController _controller = CarouselController();
+  CarouselSliderController _controller = CarouselSliderController();
 
   List<Widget> _buildScreens() {
     return [
