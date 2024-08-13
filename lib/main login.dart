@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:servtol/favouriteservice.dart';
 import 'package:servtol/logincustomer.dart';
 import 'package:servtol/loginprovider.dart';
 import 'package:servtol/mainmenu.dart';
@@ -119,6 +120,26 @@ class _mainloginState extends State<mainlogin> {
                   // });
                 },
                 "Admin",
+                40,
+                130,
+                // Icons.contacts_sharp,
+                // Colors.grey, // Specify the default color of the icon
+                // isFirstButtonClicked, // Pass the clicked state to the button
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              uihelper.CustomButton(
+                    () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => FavoritesScreen()));
+                  // setState(() {
+                  //   isSecondButtonClicked = false; // Reset second button state
+                  //   isFirstButtonClicked =
+                  //   !isFirstButtonClicked; // Toggle first button state
+                  // });
+                },
+                "Favourite",
                 40,
                 130,
                 // Icons.contacts_sharp,

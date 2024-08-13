@@ -91,18 +91,32 @@ class _HomeCustomerState extends State<HomeCustomer> {
   Widget servicesCarousel() {
     return CarouselSlider(
       items: _cloudImages.map((item) =>
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width,
-              margin: const EdgeInsets.symmetric(horizontal: 5.0),
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(item['url']),
-                  fit: BoxFit.cover,
+          GestureDetector(
+            onTap: () {
+              DocumentSnapshot serviceSnapshot;
+              FirebaseFirestore.instance.collection('service').doc(item['id']).get().then((doc) {
+                if (doc.exists) {
+                  serviceSnapshot = doc;
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Servicecustomerdetail(service: serviceSnapshot),
+                      ));
+                } else {
+                  print("Document does not exist.");
+                }
+              });
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(item['url']),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
@@ -120,7 +134,6 @@ class _HomeCustomerState extends State<HomeCustomer> {
       carouselController: _carouselController,
     );
   }
-
   Widget buildCategoriesHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
