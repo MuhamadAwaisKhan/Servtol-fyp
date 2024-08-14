@@ -251,7 +251,10 @@ class _ServicesAdditionState extends State<ServicesAddition> {
                   uihelper.CustomTimeDuration(timeController, "Time Slot",
                       Icons.timer, "Day:Hour:Min==00:00:00"),
                   uihelper.customDescriptionField(
-                      descriptionController, "Description", Icons.description),
+                      descriptionController, "Description",
+                      // Icons.description
+
+                  ),
                   SizedBox(height: 20),
                   uihelper.CustomButton(() {
                     if (!_isLoading) {

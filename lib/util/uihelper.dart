@@ -6,10 +6,8 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class uihelper {
-  static customPhoneField(TextEditingController controller,
-      String text,
-      IconData iconData,
-      Function(PhoneNumber) mobileCallBack) {
+  static customPhoneField(TextEditingController controller, String text,
+      IconData iconData, Function(PhoneNumber) mobileCallBack) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 11),
       child: InternationalPhoneNumberInput(
@@ -19,7 +17,6 @@ class uihelper {
           mobileCallBack.call(number);
           print(number.phoneNumber);
         },
-
         initialValue: PhoneNumber(isoCode: 'PK'),
         inputDecoration: InputDecoration(
           labelText: text,
@@ -30,16 +27,16 @@ class uihelper {
           ),
           suffixIcon: Icon(iconData),
         ),
-
       ),
     );
   }
 
-
-  static CustomNumberField(TextEditingController controller,
-      String text,
-      IconData iconData,
-      bool tohide,) {
+  static CustomNumberField(
+    TextEditingController controller,
+    String text,
+    IconData iconData,
+    bool tohide,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
       child: TextField(
@@ -62,11 +59,13 @@ class uihelper {
     );
   }
 
-  static CustomTextfieldpassword(BuildContext context,
-      TextEditingController controller,
-      String text,
-      bool passwordVisible,
-      Function(bool) toggleVisibility,) {
+  static CustomTextfieldpassword(
+    BuildContext context,
+    TextEditingController controller,
+    String text,
+    bool passwordVisible,
+    Function(bool) toggleVisibility,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
       child: TextField(
@@ -81,9 +80,7 @@ class uihelper {
             },
             child: Icon(
               passwordVisible ? Icons.visibility : Icons.visibility_off,
-              color: Theme
-                  .of(context)
-                  .primaryColorDark,
+              color: Theme.of(context).primaryColorDark,
             ),
           ),
           border: OutlineInputBorder(
@@ -94,8 +91,8 @@ class uihelper {
     );
   }
 
-  static CustomButton(VoidCallback voidCallback, String text, double h,
-      double w) {
+  static CustomButton(
+      VoidCallback voidCallback, String text, double h, double w) {
     return SizedBox(
       height: h,
       width: w,
@@ -116,10 +113,13 @@ class uihelper {
     );
   }
 
-  static CustomTextButton(VoidCallback voidCallback, String text,
-      IconData iconData, Color iconColor,
-      // bool isClicked,
-      ) {
+  static CustomTextButton(
+    VoidCallback voidCallback,
+    String text,
+    IconData iconData,
+    Color iconColor,
+    // bool isClicked,
+  ) {
     return SizedBox(
       height: 70,
       width: 150,
@@ -136,7 +136,8 @@ class uihelper {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(iconData,
+            Icon(
+              iconData,
               color: Colors.white,
             ),
             SizedBox(width: 8),
@@ -170,10 +171,12 @@ class uihelper {
     );
   }
 
-  static CustomTimeDuration(TextEditingController controller,
-      String text,
-      IconData iconData,
-      String hinttext,) {
+  static CustomTimeDuration(
+    TextEditingController controller,
+    String text,
+    IconData iconData,
+    String hinttext,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
       child: TextField(
@@ -188,29 +191,6 @@ class uihelper {
             borderRadius: BorderRadius.circular(25),
           ),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.black),
-            borderRadius: BorderRadius.circular(25),
-          ),
-        ),
-
-      ),
-    );
-  }
-
- static customDescriptionField(
-      TextEditingController controller, String labelText, IconData iconData) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: labelText,
-          labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 17),
-          suffixIcon: Icon(iconData),
-          border:  OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-          enabledBorder:  OutlineInputBorder(
             borderSide: BorderSide(color: Colors.black),
             borderRadius: BorderRadius.circular(25),
           ),
@@ -240,7 +220,8 @@ class uihelper {
                 // Tooltip to show full title on long press if truncated
                 child: Text(
                   title,
-                  style: TextStyle(fontFamily: 'Poppins',
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontWeight: FontWeight.bold,
                       color: Colors.lightBlue),
                   overflow: TextOverflow
@@ -256,8 +237,8 @@ class uihelper {
                     fontFamily: 'Poppins', fontSize: 16, color: Colors.black54),
                 textAlign: TextAlign.right,
                 maxLines: 2, // Allows text wrapping if very long
-                overflow: TextOverflow
-                    .ellipsis, // Adds ellipsis if text overflows
+                overflow:
+                    TextOverflow.ellipsis, // Adds ellipsis if text overflows
               ),
             ),
           ],
@@ -266,9 +247,8 @@ class uihelper {
     );
   }
 
-
-  static Widget actionButton(String label, Color color, IconData icon,
-      VoidCallback onPressed) {
+  static Widget actionButton(
+      String label, Color color, IconData icon, VoidCallback onPressed) {
     return ElevatedButton.icon(
       icon: Icon(icon, color: Colors.white),
       // Icon color is white to contrast with button color
@@ -277,17 +257,19 @@ class uihelper {
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-        padding: EdgeInsets.symmetric(vertical: 10,
+        padding: EdgeInsets.symmetric(
+            vertical: 10,
             horizontal: 20), // Adjust padding for better visual balance
       ),
     );
   }
 
-  static FormBuilderTextField(// TextEditingController controller,
-      String text,
-      IconData iconData,
-      // bool tohide,
-      ) {
+  static FormBuilderTextField(
+    // TextEditingController controller,
+    String text,
+    IconData iconData,
+    // bool tohide,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 15),
       child: TextField(
@@ -313,24 +295,27 @@ class uihelper {
     InputDecoration? decoration,
   }) {
     return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25), // Specify the padding you want around the dropdown
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
+      // Specify the padding you want around the dropdown
       child: DropdownButtonFormField<String>(
         value: value,
         items: items,
         onChanged: onChanged,
-        decoration: decoration ?? InputDecoration(
-          labelText: labelText,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.black),
-            borderRadius: BorderRadius.circular(25),
-          ),
-          filled: true,
-          fillColor: AppColors.background,
-        ),
-        style: TextStyle(color: Colors.black, fontFamily: 'Poppins', fontSize: 17),
+        decoration: decoration ??
+            InputDecoration(
+              labelText: labelText,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.black),
+                borderRadius: BorderRadius.circular(25),
+              ),
+              filled: true,
+              fillColor: AppColors.background,
+            ),
+        style:
+            TextStyle(color: Colors.black, fontFamily: 'Poppins', fontSize: 17),
         icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
         iconSize: 24,
         elevation: 16,
@@ -339,10 +324,12 @@ class uihelper {
     );
   }
 
-  static CustomTextField(TextEditingController controller,
-      String text,
-      IconData iconData,
-      bool tohide,) {
+  static CustomTextField(
+    TextEditingController controller,
+    String text,
+    IconData iconData,
+    bool tohide,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
       child: TextField(
@@ -365,6 +352,95 @@ class uihelper {
     );
   }
 
+  static customDescriptionField(
+    TextEditingController controller,
+    String labelText,
+    // IconData iconData
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: labelText,
+
+          labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 17),
+          // suffixIcon: Icon(iconData),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+          enabledBorder: OutlineInputBorder(
+            // borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          // enabledBorder: UnderlineInputBorder(
+          //   borderSide: BorderSide(color: Colors.grey),
+          //   borderRadius: BorderRadius.circular(25),
+          // ),
+          errorBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+                color: Colors.orange,
+                width:
+                    2.0), // Optional: Styling for when the TextField has an error
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          contentPadding: EdgeInsets.only(bottom: 12,left: 115),
+          // focusedBorder: UnderlineInputBorder(
+          //   borderSide: BorderSide(color: Colors.red, width: 2.0),
+          //   borderRadius: BorderRadius.circular(25),
+          // ),
+          fillColor: Colors.transparent,
+          filled: true,
+        ),
+        // style: TextStyle(color: Colors.white),
+        maxLines: 3,
+      ),
+    );
+  }
+  static customDescriptionField1(
+      TextEditingController controller,
+      String labelText,
+      // IconData iconData
+      ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: labelText,
+
+          labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 17),
+          // suffixIcon: Icon(iconData),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+          enabledBorder: OutlineInputBorder(
+             borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          //  enabledBorder: UnderlineInputBorder(
+          // borderSide: BorderSide(color: Colors.blue, width: 2.0),
+          //
+          //   borderRadius: BorderRadius.circular(25),
+          // ),
+          errorBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+                color: Colors.orange,
+                width:
+                2.0), // Optional: Styling for when the TextField has an error
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          contentPadding: EdgeInsets.only(bottom: 12,left: 115),
+          // focusedBorder: UnderlineInputBorder(
+          //   borderSide: BorderSide(color: Colors.red, width: 2.0),
+          //   borderRadius: BorderRadius.circular(25),
+          // ),
+          fillColor: Colors.transparent,
+          filled: true,
+        ),
+        // style: TextStyle(color: Colors.white),
+        maxLines: 3,
+      ),
+    );
+  }
 }
-
-
