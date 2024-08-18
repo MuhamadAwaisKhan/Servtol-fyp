@@ -27,7 +27,7 @@ class _ServicesAdditionState extends State<ServicesAddition> {
   TextEditingController nameController = TextEditingController();
   TextEditingController areaController = TextEditingController();
   TextEditingController priceController = TextEditingController();
-  TextEditingController timeController = TextEditingController();
+  TextEditingController durationController = TextEditingController();
   TextEditingController discountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   File? profilePic;
@@ -173,7 +173,7 @@ class _ServicesAdditionState extends State<ServicesAddition> {
         'ServiceType': selectedServiceTypeName,
         'Description': descriptionController.text.trim(),
         'ImageUrl': imageUrl,
-        'TimeSlot': timeController.text.trim(),
+        'Duration': durationController.text.trim(),
         'providerId': currentUser.uid,
       });
 
@@ -248,8 +248,8 @@ class _ServicesAdditionState extends State<ServicesAddition> {
                       priceController, "Price", Icons.money, false),
                   uihelper.CustomNumberField(
                       discountController, "Discount %", Icons.percent, false),
-                  uihelper.CustomTimeDuration(timeController, "Time Slot",
-                      Icons.timer, "Day:Hour:Min==00:00:00"),
+                  uihelper.CustomTextField(durationController, "Time Slot",
+                      Icons.data_usage_rounded,false ),
                   uihelper.customDescriptionField(
                       descriptionController, "Description",
                       // Icons.description

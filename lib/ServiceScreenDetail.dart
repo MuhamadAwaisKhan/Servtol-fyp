@@ -19,7 +19,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController areaController = TextEditingController();
   TextEditingController priceController = TextEditingController();
-  TextEditingController timeController = TextEditingController();
+  TextEditingController durationController = TextEditingController();
   TextEditingController discountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   File? profilePic;
@@ -58,7 +58,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     nameController.text = safeGet('ServiceName');
     areaController.text = safeGet('Area');
     priceController.text = safeGet('Price');
-    timeController.text = safeGet('TimeSlot');
+    durationController.text = safeGet('Duration');
     discountController.text = safeGet('Discount');
     descriptionController.text = safeGet('Description');
 
@@ -215,7 +215,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
         'ServiceName': nameController.text.trim(),
         'Area': areaController.text.trim(),
         'Price': priceController.text.trim(),
-        'TimeSlot': timeController.text.trim(),
+        'Duration': durationController.text.trim(),
         'Discount': discountController.text.trim(),
         'Description': descriptionController.text.trim(),
         'ImageUrl': imageUrl,
@@ -478,9 +478,9 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                     ),
                     SizedBox(height: 10),
                     TextField(
-                      controller: timeController,
+                      controller: durationController,
                       decoration: InputDecoration(
-                        labelText: 'Time Slot',
+                        labelText: 'Duration',
                         border: OutlineInputBorder(),
                       ),
                     ),

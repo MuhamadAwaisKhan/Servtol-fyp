@@ -652,7 +652,7 @@ class _editserviceState extends State<editservice> {
               ),
             ),
             uihelper.customDescriptionField(
-                descriptioncontroller, " Description", Icons.description),
+                descriptioncontroller, " Description"),
             SizedBox(
               height: 15,
             ),

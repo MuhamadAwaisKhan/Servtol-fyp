@@ -237,7 +237,7 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                 stream: FirebaseFirestore.instance
                     .collection('reviews')
                     .where('serviceId', isEqualTo: widget.service.id)
-                    .orderBy('timestamp', descending: true)
+                    .orderBy('Duration', descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) return CircularProgressIndicator();
@@ -291,7 +291,7 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
       'Province',
       'Discount',
       'WageType',
-      'TimeSlot'
+      'Duration'
     ];
     return attributes
         .map((attribute) => Chip(
