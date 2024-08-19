@@ -101,11 +101,11 @@ class _TaxScreenState extends State<TaxScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showTaxDialog(),
-        child: Icon(Icons.add),
-        backgroundColor: Colors.purple,
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () => showTaxDialog(),
+      //   child: Icon(Icons.add),
+      //   backgroundColor: Colors.purple,
+      // ),
     );
   }
 }

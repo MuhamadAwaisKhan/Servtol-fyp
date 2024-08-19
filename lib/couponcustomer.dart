@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:servtol/util/AppColors.dart';
 
 class ApplyCouponScreen extends StatefulWidget {
   final double originalTotal;
@@ -11,56 +12,118 @@ class ApplyCouponScreen extends StatefulWidget {
 }
 
 class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
-  final TextEditingController _couponController = TextEditingController();
+  List<DocumentSnapshot> coupons = [];
   String _message = '';
   double _discountedTotal = 0;
 
-  Future<void> applyCoupon() async {
-    var coupons = await FirebaseFirestore.instance
-        .collection('coupons')
-        .where('name', isEqualTo: _couponController.text)
-        .get();
+  @override
+  void initState() {
+    super.initState();
+    fetchCoupons();
+  }
 
-    if (coupons.docs.isNotEmpty) {
-      double discount = double.parse(coupons.docs.first['discount']);
+  Future<void> fetchCoupons() async {
+    try {
+      var snapshot = await FirebaseFirestore.instance.collection('coupons').get();
       setState(() {
-        _discountedTotal = widget.originalTotal - (widget.originalTotal * discount / 100);
-        _message = 'Coupon applied! Discount: $discount%';
+        coupons = snapshot.docs;
       });
-    } else {
+    } catch (e) {
       setState(() {
-        _message = 'Invalid coupon!';
+        _message = "Error fetching coupons: $e";
       });
     }
+  }
+
+  void applyCoupon(double discount) {
+    double newTotal = widget.originalTotal - (widget.originalTotal * discount / 100);
+    setState(() {
+      _discountedTotal = newTotal;
+      _message = 'Coupon applied! Discount: $discount%';
+    });
+    Navigator.pop(context, _discountedTotal); // Return the discounted total to the previous screen
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Apply Coupon"),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _couponController,
-              decoration: InputDecoration(
-                labelText: 'Enter Coupon Code',
-                border: OutlineInputBorder(),
+        title: Text("Apply Coupon",style: TextStyle(fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+        backgroundColor: AppColors.background,
+      ), backgroundColor: AppColors.background,
+      body: coupons.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+        itemCount: coupons.length,
+        itemBuilder: (context, index) {
+          var coupon = coupons[index];
+          double discount = double.parse(coupon['discount'].toString());
+          return Card(
+            color: Colors.deepPurple[900],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: EdgeInsets.all(8),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Text(
+                    '\$$discount DISCOUNT',
+                    style: TextStyle(
+                      color: Colors.yellow,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    coupon['code'],
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                  Text(
+                    'Use this code to get \$$discount off',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Expiry Date : ${coupon['expiryDate']}',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    child: Text('Apply'),
+                    onPressed: () => applyCoupon(discount),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white, backgroundColor: Colors.green,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          ElevatedButton(
-            onPressed: applyCoupon,
-            child: Text('Apply Coupon'),
-          ),
-          Text(_message),
-          if (_discountedTotal > 0)
-            Text('Original Total: \$${widget.originalTotal.toStringAsFixed(2)}\nDiscounted Total: \$${_discountedTotal.toStringAsFixed(2)}'),
-        ],
+          );
+        },
       ),
+      bottomNavigationBar: _discountedTotal > 0
+          ? Text(
+        'Original Total: \$${widget.originalTotal.toStringAsFixed(2)}\nDiscounted Total: \$${_discountedTotal.toStringAsFixed(2)}',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Colors.green,
+          fontSize: 16,
+        ),
+      )
+          : SizedBox(),
     );
   }
 }

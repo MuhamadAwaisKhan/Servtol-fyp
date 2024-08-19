@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:servtol/util/AppColors.dart';
+import 'package:servtol/util/uihelper.dart';
+import 'dart:core';
 
 class AdminCouponScreen extends StatefulWidget {
   @override
@@ -7,58 +11,171 @@ class AdminCouponScreen extends StatefulWidget {
 }
 
 class _AdminCouponScreenState extends State<AdminCouponScreen> {
-  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _codeController = TextEditingController();
   final TextEditingController _discountController = TextEditingController();
-  final TextEditingController _validityController = TextEditingController();
+  final TextEditingController _expiryDateController = TextEditingController();
+
+  DateTime? selectedDate;
+
+  Future<void> _editCoupon(BuildContext context, DocumentSnapshot doc) async {
+    TextEditingController _editCodeController =
+        TextEditingController(text: doc['code']);
+    TextEditingController _editDiscountController =
+        TextEditingController(text: doc['discount']);
+    DateTime? _editSelectedDate = DateTime.tryParse(doc['expiryDate']);
+
+    // Show the dialog
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit Coupon'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                uihelper.CustomTextField(
+                    _editCodeController, "Code", Icons.code, false),
+                uihelper.CustomNumberField(
+                    _editDiscountController, "Discount", Icons.percent, false),
+                Container(
+                  margin: EdgeInsets.only(top: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.deepPurple),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: TextButton(
+                    onPressed: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: _editSelectedDate ?? DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (picked != null && picked != _editSelectedDate) {
+                        setState(() {
+                          _editSelectedDate = picked;
+                        });
+                      }
+                    },
+                    child: Text(
+                      _editSelectedDate == null
+                          ? 'Select Date'
+                          : '${_editSelectedDate!.day.toString().padLeft(2, '0')}/${_editSelectedDate!.month.toString().padLeft(2, '0')}/${_editSelectedDate!.year}',
+                      style: TextStyle(color: Colors.deepPurple),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Update'),
+              onPressed: () async {
+                if (_editSelectedDate == null) {
+                  print('No date selected.');
+                  return;
+                }
+                String formattedDate =
+                    "${_editSelectedDate!.year.toString()}-${_editSelectedDate!.month.toString().padLeft(2, '0')}-${_editSelectedDate!.day.toString().padLeft(2, '0')}";
+                await doc.reference.update({
+                  'code': _editCodeController.text,
+                  'discount': _editDiscountController.text,
+                  'expiryDate': formattedDate,
+                });
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
 
   Future<void> addCoupon() async {
-    await FirebaseFirestore.instance.collection('coupons').add({
-      'name': _nameController.text,
-      'discount': _discountController.text,
-      'validity': _validityController.text,
-    });
-    _nameController.clear();
-    _discountController.clear();
-    _validityController.clear();
+    // Check for null and other conditions as needed
+    if (_codeController.text.isEmpty ||
+        _discountController.text.isEmpty ||
+        selectedDate == null) {
+      print('Please fill in all fields and select a date.');
+      return;
+    }
+
+    // Formatting the date to 'YYYY-MM-DD' format for storage
+    String formattedDate =
+        "${selectedDate!.year.toString()}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}";
+
+    try {
+      await FirebaseFirestore.instance.collection('coupons').add({
+        'code': _codeController.text,
+        'discount': _discountController.text,
+        'expiryDate': formattedDate, // Use the formatted date
+      });
+
+      // Clear the controllers and reset selectedDate after successful Firestore operation
+      setState(() {
+        _codeController.clear();
+        _discountController.clear();
+        selectedDate = null; // Resetting the date
+      });
+
+      print('Coupon added successfully!');
+    } catch (e) {
+      print('Error adding coupon: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Manage Coupons"),
+        title: Text(
+          "Manage Coupons",
+          style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
+        ),
+        backgroundColor: AppColors.background,
       ),
+      backgroundColor: AppColors.background,
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: 'Coupon Name',
-                border: OutlineInputBorder(),
-              ),
+          uihelper.CustomTextField(
+              _codeController, "Code", Icons.discount, false),
+          uihelper.CustomNumberField(
+              _discountController, "Discount", Icons.numbers_sharp, false),
+          Container(
+            width: 360,
+            height: 60,
+            margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.deepPurple),
+              borderRadius: BorderRadius.circular(25),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _discountController,
-              decoration: InputDecoration(
-                labelText: 'Discount (%)',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _validityController,
-              decoration: InputDecoration(
-                labelText: 'Validity Date (DD/MM/YYYY)',
-                border: OutlineInputBorder(),
-              ),
+            child: TextButton(
+              onPressed: () => _selectDate(context),
+              child: Text(selectedDate == null
+                  ? 'Expiry Date (DD/MM/YYYY)'
+                  : '${selectedDate!.day.toString().padLeft(2, '0')}/${selectedDate!.month.toString().padLeft(2, '0')}/${selectedDate!.year}'),
             ),
           ),
           ElevatedButton(
@@ -67,7 +184,8 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('coupons').snapshots(),
+              stream:
+                  FirebaseFirestore.instance.collection('coupons').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
@@ -75,14 +193,24 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
                   return ListView(
                     children: snapshot.data!.docs.map((doc) {
                       return ListTile(
-                        title: Text(doc['name']),
-                        subtitle: Text('Discount: ${doc['discount']}% Valid until: ${doc['validity']}'),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () => doc.reference.delete(),
+                        title: Text(doc['code']),
+                        subtitle: Text(
+                            'Discount: ${doc['discount']}% Valid until: ${doc['expiryDate']}'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.edit),
+                              onPressed: () => _editCoupon(context, doc),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () => doc.reference.delete(),
+                            ),
+                          ],
                         ),
                       );
-                    }).toList(),
+                    }).toList(), // Convert Iterable to List
                   );
                 } else {
                   return Center(child: CircularProgressIndicator());
