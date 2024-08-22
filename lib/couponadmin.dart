@@ -71,13 +71,19 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.pink),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Update'),
+              child: Text(
+                'Update',
+                style: TextStyle(color: Colors.blue),
+              ),
               onPressed: () async {
                 if (_editSelectedDate == null) {
                   print('No date selected.');
@@ -114,10 +120,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
   }
 
   Future<void> addCoupon() async {
-    // Check for null and other conditions as needed
-    if (_codeController.text.isEmpty ||
-        _discountController.text.isEmpty ||
-        selectedDate == null) {
+    if (_codeController.text.isEmpty || _discountController.text.isEmpty || selectedDate == null) {
       print('Please fill in all fields and select a date.');
       return;
     }
@@ -127,20 +130,24 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
         "${selectedDate!.year.toString()}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}";
 
     try {
-      await FirebaseFirestore.instance.collection('coupons').add({
+      // Create the document and get the reference
+      DocumentReference ref = await FirebaseFirestore.instance.collection('coupons').add({
         'code': _codeController.text,
         'discount': _discountController.text,
-        'expiryDate': formattedDate, // Use the formatted date
+        'expiryDate': formattedDate,
       });
+
+      // Optionally update the document with its own ID if needed
+      await ref.update({'couponId': ref.id});
 
       // Clear the controllers and reset selectedDate after successful Firestore operation
       setState(() {
         _codeController.clear();
         _discountController.clear();
-        selectedDate = null; // Resetting the date
+        selectedDate = null;
       });
 
-      print('Coupon added successfully!');
+      print('Coupon added successfully with ID: ${ref.id}');
     } catch (e) {
       print('Error adding coupon: $e');
     }
@@ -168,7 +175,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
             height: 60,
             margin: EdgeInsets.all(8),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.deepPurple),
+              border: Border.all(color: Colors.black),
               borderRadius: BorderRadius.circular(25),
             ),
             child: TextButton(
@@ -178,39 +185,48 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
                   : '${selectedDate!.day.toString().padLeft(2, '0')}/${selectedDate!.month.toString().padLeft(2, '0')}/${selectedDate!.year}'),
             ),
           ),
-          ElevatedButton(
-            onPressed: addCoupon,
-            child: Text('Add Coupon'),
-          ),
+          SizedBox(height:10,),
+          uihelper.CustomButton((){
+            addCoupon();
+          }, 'Add Coupon', 40, 150),
+          SizedBox(height:10,),
+
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream:
-                  FirebaseFirestore.instance.collection('coupons').snapshots(),
+              stream: FirebaseFirestore.instance.collection('coupons').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else if (snapshot.hasData) {
-                  return ListView(
-                    children: snapshot.data!.docs.map((doc) {
-                      return ListTile(
-                        title: Text(doc['code']),
-                        subtitle: Text(
-                            'Discount: ${doc['discount']}% Valid until: ${doc['expiryDate']}'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.edit),
-                              onPressed: () => _editCoupon(context, doc),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () => doc.reference.delete(),
-                            ),
-                          ],
+                  // Using ListView.builder for building list items
+                  return ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      DocumentSnapshot doc = snapshot.data!.docs[index];
+                      return Card(
+                        margin: EdgeInsets.all(8),
+                        child: ListTile(
+                          title: Text(doc['code'], style: TextStyle(fontFamily: 'Poppins')),
+                          subtitle: Text(
+                            'Discount: ${doc['discount']}% Valid until: ${doc['expiryDate']}',
+                            style: TextStyle(fontFamily: 'Poppins', fontSize: 14),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit, color: Colors.indigo),
+                                onPressed: () => _editCoupon(context, doc),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => doc.reference.delete(),
+                              ),
+                            ],
+                          ),
                         ),
                       );
-                    }).toList(), // Convert Iterable to List
+                    },
                   );
                 } else {
                   return Center(child: CircularProgressIndicator());
@@ -218,6 +234,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
               },
             ),
           ),
+
         ],
       ),
     );

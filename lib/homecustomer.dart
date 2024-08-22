@@ -64,26 +64,28 @@ class _HomeCustomerState extends State<HomeCustomer> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            if (_cloudImages.isNotEmpty)
-              servicesCarousel(),
-            const SizedBox(height: 20),
-            AnimatedSmoothIndicator(
-              activeIndex: _current,
-              count: _cloudImages.length,
-              effect: ExpandingDotsEffect(dotWidth: 10,
-                  dotHeight: 10,
-                  dotColor: Colors.grey,
-                  activeDotColor: Colors.blueAccent),
-              onDotClicked: (index) => _carouselController.animateToPage(index),
-            ),
+            if (_cloudImages.isNotEmpty) ...[
+          servicesCarousel(),
+      const SizedBox(height: 20),
+      AnimatedSmoothIndicator(
+        activeIndex: _current,
+        count: _cloudImages.length,
+        effect: ExpandingDotsEffect(
+            dotWidth: 10,
+            dotHeight: 10,
+            dotColor: Colors.grey,
+            activeDotColor: Colors.blueAccent),
+        onDotClicked: (index) => _carouselController.animateToPage(index),
+      ),
+            ],
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: buildCategoriesHeader(),
             ),
             buildHorizontalCategoryList(),
             servicesList(),
-          ],
-        ),
+
+    ])
       ),
     );
   }

@@ -25,7 +25,7 @@ class _customermainscreenState extends State<customermainscreen> {
   int myindex = 0;
   final List<Widget> widgetlist = const[
      HomeCustomer(),
-    bookingcustomer(),
+    BookingCustomer(),
     CategoriesCustomer(),
     chatcustomer(),
     profilecustomer(),

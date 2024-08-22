@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,11 +17,206 @@ class BookServiceScreen extends StatefulWidget {
 
 class _BookServiceScreenState extends State<BookServiceScreen> {
   int quantity = 1;
-
+  TextEditingController addressController = TextEditingController();
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   TextEditingController descriptionController = TextEditingController();
   bool isLoading = false;
+  bool isRemoteService = false;
+  String? couponId; // To store the selected coupon ID
+
+  double taxRate = 0.05; // Default tax rate of 5%
+  double discountedTotal = 0;
+  bool isCouponApplied = false;
+  double discountPercent = 0.0; // Discount percentage
+
+  double get price {
+    var data = widget.service.data() as Map<String, dynamic>;
+    return double.tryParse(data['Price'].toString()) ?? 26.00;
+  }
+
+  double get subtotal => price * quantity;
+
+  double get tax => subtotal * taxRate;
+
+  double get totalWithoutDiscount => subtotal + tax;
+
+  double get total =>
+      totalWithoutDiscount - (totalWithoutDiscount * discountPercent / 100);
+
+  @override
+  void initState() {
+    super.initState();
+    fetchTaxRate();
+    determineServiceType();
+  }
+
+  @override
+  void dispose() {
+    addressController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
+
+  void fetchTaxRate() async {
+    try {
+      var querySnapshot = await FirebaseFirestore.instance
+          .collection('taxes')
+          .where('name', isEqualTo: 'PriceTax')
+          .limit(1)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        var fetchedTaxRate = double.tryParse(
+                querySnapshot.docs.first.data()['rate'].toString()) ??
+            0.05;
+        setState(() {
+          taxRate = fetchedTaxRate;
+        });
+      }
+    } catch (e) {
+      print('Error fetching tax rate: $e');
+    }
+  }
+
+  void determineServiceType() {
+    Map<String, dynamic> serviceData =
+        widget.service.data() as Map<String, dynamic>;
+    String serviceType = serviceData['ServiceType'] ?? 'In-Person';
+    setState(() {
+      isRemoteService = serviceType == 'Remote';
+    });
+  }
+
+  void applyCoupon() async {
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ApplyCouponScreen(
+          originalTotal: total, // Total before discount
+        ),
+      ),
+    );
+
+    if (result != null && result.containsKey('discountedTotal') && result.containsKey('couponId')) {
+      setState(() {
+        discountedTotal = result['discountedTotal'];
+        couponId = result['couponId'];
+        isCouponApplied = true; // Ensure this flag is true only if the coupon is successfully applied
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to apply coupon or coupon was not selected.'))
+      );
+    }
+  }
+
+
+
+  Future<void> saveBooking() async {
+    if (!mounted) return;
+
+    if (!isCouponApplied || couponId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please apply a coupon first.'), backgroundColor: Colors.red,)
+      );
+      return;
+    }
+
+    if (selectedDate == null ||
+        selectedTime == null ||
+        descriptionController.text.isEmpty ||
+        (!isRemoteService && addressController.text.isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please fill all required fields'), backgroundColor: Colors.red,)
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    String formattedDate =
+        "${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}";
+
+    try {
+      var user = FirebaseAuth.instance.currentUser;
+      var currentUserId = user?.uid ?? 'no-user-id';
+
+      DocumentReference counterRef = FirebaseFirestore.instance.collection('counters').doc('bookingIds');
+
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        DocumentSnapshot counterSnapshot = await transaction.get(counterRef);
+
+        // Properly cast the data
+        Map<String, dynamic> counterData = counterSnapshot.data() as Map<String, dynamic>? ?? {};
+
+        int lastId = counterData['current'] as int? ?? 0;  // Now this should work without error
+        int newId = lastId + 1;
+        String formattedBookingId = newId.toString().padLeft(2, '0');
+
+        // Update the counter document
+        transaction.set(counterRef, {'current': newId}, SetOptions(merge: true));
+
+        Map<String, dynamic> bookingData = {
+          'serviceId': widget.service.id,
+          'customerId': currentUserId,
+          'providerId': widget.service['providerId'],
+          'date': formattedDate,
+          'time': selectedTime?.format(context),
+          'quantity': quantity,
+          'description': descriptionController.text,
+          'total': total,
+          'status': 'pending',
+          'bookingId': formattedBookingId,
+          'couponId': couponId,
+          'address': isRemoteService ? 'Remote' : addressController.text,
+        };
+
+        // Set the new booking data
+        transaction.set(
+            FirebaseFirestore.instance.collection('bookings').doc(formattedBookingId),
+            bookingData
+        );
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Booking saved successfully.'),
+        backgroundColor: Colors.green,
+      ));
+      Navigator.of(context).pop();
+    } catch (e, stackTrace) {
+      print("Error saving booking: $e");
+      print("Stack trace: $stackTrace");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to book service: $e'),
+        backgroundColor: Colors.red,
+      ));
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  void incrementQuantity() {
+    setState(() {
+      quantity++;
+      recalculateTotal();
+    });
+  }
+
+  void decrementQuantity() {
+    setState(() {
+      quantity = max(1, quantity - 1);
+      recalculateTotal();
+    });
+  }
+
+  void recalculateTotal() {
+    discountedTotal = (subtotal + tax) * (1 - discountPercent);
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -50,177 +244,30 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
     }
   }
 
-  double taxRate = 0.05; // Default tax rate of 5%
-
-  double get price {
-    var data = widget.service.data() as Map<String, dynamic>;
-    return double.tryParse(data['Price'].toString()) ?? 26.00;
-  }
-
-  double get subtotal => price * quantity;
-
-  double get tax => subtotal * taxRate;
-
-  // double get total => subtotal + tax;
-  double discountedTotal = 0;
-  bool isCouponApplied = false;
-  double get totalWithoutDiscount => subtotal + tax;
-  double discountPercent = 0.0; // Discount percentage
-
-  double get total => totalWithoutDiscount - (totalWithoutDiscount * discountPercent / 100);
-
-
-  void applyCoupon(double newDiscountPercent) {
-    setState(() {
-      discountPercent = newDiscountPercent;
-      discountedTotal = totalWithoutDiscount - (totalWithoutDiscount * discountPercent / 100);
-      print("Applied discount: $discountPercent resulting in total: $discountedTotal");
-    });
-  }
-
-
-
-
-  @override
-  void initState() {
-    super.initState();
-    fetchTaxRate(); // Fetch the tax rate when the widget initializes
-  }
-
-
-  Future<void> fetchTaxRate() async {
-    try {
-      var querySnapshot = await FirebaseFirestore.instance
-          .collection('taxes')
-          .where('name', isEqualTo: 'PriceTax')
-          .limit(1)
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        var fetchedTaxRate = double.tryParse(querySnapshot.docs.first.data()['rate'].toString()) ?? 0.05;
-        print("Successfully fetched tax rate: $fetchedTaxRate");  // Log to see if fetching works
-        setState(() {
-          taxRate = fetchedTaxRate;
-        });
-      } else {
-        print("No documents found with 'PriceTax' name.");
-      }
-    } catch (e) {
-      print('Error fetching tax rate: $e');
-    }
-  }
-
-
-  void incrementQuantity() {
-    setState(() {
-      quantity++;
-      recalculateTotal();
-    });
-  }
-
-  void decrementQuantity() {
-    setState(() {
-      quantity = max(1, quantity - 1);
-      recalculateTotal();
-    });
-  }
-
-  void recalculateTotal() {
-    discountedTotal = (subtotal + tax) * (1 - discountPercent);
-  }
-
-
-
-  Future<void> saveBooking() async {
-    if (selectedDate == null || selectedTime == null || descriptionController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Please fill all fields'),
-        backgroundColor: Colors.red,
-      ));
-      return;
-    }
-
-    setState(() {
-      isLoading = true;
-    });
-
-    String formattedDate = "${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}";
-
-    try {
-      var user = FirebaseAuth.instance.currentUser;
-      var currentUserId = user?.uid ?? 'no-user-id'; // Fallback to 'no-user-id' if not logged in
-
-      var serviceData = widget.service.data() as Map<String, dynamic>;
-      var customerId = serviceData.containsKey('customerId')
-          ? serviceData['customerId']
-          : currentUserId;
-
-      // Start a transaction to ensure the booking ID is unique and sequential
-      await FirebaseFirestore.instance.runTransaction((transaction) async {
-        DocumentReference counterRef = FirebaseFirestore.instance.collection('counters').doc('bookingIds');
-        DocumentSnapshot counterSnapshot = await transaction.get(counterRef);
-
-        int lastId = 0; // Default to 0 if anything goes wrong
-        if (counterSnapshot.exists) {
-          var data = counterSnapshot.data(); // Get the data, which is potentially null
-          if (data is Map<String, dynamic>) { // Check if data is correctly typed as a Map
-            lastId = data['current'] as int? ?? 0; // Safely cast and handle null
-          }
-        }
-
-        int newId = lastId + 1; // Increment the booking ID
-        String formattedBookingId = newId.toString().padLeft(2, '0'); // Format newId with leading zeros
-
-        // Update the counter in Firestore
-        transaction.set(counterRef, {'current': newId});
-
-        // Now set the booking data with the new booking ID
-        DocumentReference bookingRef = FirebaseFirestore.instance.collection('bookings').doc(formattedBookingId);
-        transaction.set(bookingRef, {
-          'serviceId': widget.service.id,
-          'customerId': customerId,
-          'providerId': widget.service['providerId'],
-          'date': formattedDate,
-          'time': selectedTime?.format(context),
-          'quantity': quantity,
-          'description': descriptionController.text,
-          'total': total,
-          'bookingId': formattedBookingId,
-        });
-      });
-
-      print("Booking saved successfully.");
-      Navigator.of(context).pop();
-    } catch (e) {
-      print("Error saving booking: $e");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to book service: $e'),
-        backgroundColor: Colors.red,
-      ));
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-
   @override
   Widget build(BuildContext context) {
     var serviceData = widget.service.data() as Map<String, dynamic>;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Book Service",style: TextStyle(fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+        title: Text(
+          "Book Service",
+          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+        ),
         backgroundColor: AppColors.background,
-      ),backgroundColor: AppColors.background,
+      ),
+      backgroundColor: AppColors.background,
       body: SingleChildScrollView(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text('Services',
-              style: TextStyle(color: Colors.black, fontSize: 20,fontFamily: 'Poppins',)),
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontFamily: 'Poppins',
+              )),
         ),
         // Padding(
         //   padding: const EdgeInsets.all(16.0),
@@ -284,19 +331,39 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text('Description ',
-              style: TextStyle(color: Colors.black,fontFamily: 'Poppins', fontSize: 20)),
+              style: TextStyle(
+                  color: Colors.black, fontFamily: 'Poppins', fontSize: 20)),
         ),
 
         uihelper.customDescriptionField1(
             descriptionController, "Enter Description"),
+
+        if (!isRemoteService)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text('Address ',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontFamily: 'Poppins',
+                        fontSize: 20)),
+              ),
+              uihelper.customDescriptionField1(
+                  addressController, "Enter Address"),
+              SizedBox(height: 20),
+            ],
+          ),
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text('Booking Date & Slot ',
-              style: TextStyle(color: Colors.black,fontFamily: 'Poppins', fontSize: 20)),
+              style: TextStyle(
+                  color: Colors.black, fontFamily: 'Poppins', fontSize: 20)),
         ),
-                if (isLoading) Center(child: LinearProgressIndicator()),
+        if (isLoading) Center(child: LinearProgressIndicator()),
 
-                Container(
+        Container(
           width: 200,
           height: 60,
           margin: EdgeInsets.all(8),
@@ -340,7 +407,8 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                 'Apply Coupon',
                 style: TextStyle(
                   color: Colors.greenAccent,
-                  fontSize: 16,fontFamily: 'Poppins',
+                  fontSize: 16,
+                  fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -348,22 +416,24 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                 icon: Icon(Icons.local_offer, color: Colors.white),
                 label: Text('Apply', style: TextStyle(color: Colors.white)),
                 onPressed: () async {
-                  // This is where the navigation and result handling will happen.
-                  final result = await Navigator.push<double>(
+                  final result = await Navigator.push<Map<String, dynamic>>(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ApplyCouponScreen(
-                        originalTotal: total,  // Make sure 'total' is defined in your state
+                        originalTotal: total,
                       ),
                     ),
                   );
 
                   if (result != null) {
                     setState(() {
-                      discountedTotal = result;
-                      isCouponApplied = true;  // Set to true only if a discount was applied
+                      discountedTotal = result['discountedTotal'];
+                      couponId = result['couponId'];
+                      isCouponApplied = true;  // Assuming you maintain such a flag
                     });
                   }
+
+
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -384,8 +454,10 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Price Details',
-                    style:
-                        TextStyle(fontSize: 18,fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold)),
                 Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -394,10 +466,13 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                     RichText(
                       text: TextSpan(
                         style: TextStyle(
-                          color: Colors.black, // Make sure to set a color for TextSpan
+                          color: Colors
+                              .black, // Make sure to set a color for TextSpan
                         ),
                         children: [
-                          TextSpan(text: '\$${price.toStringAsFixed(0)} x $quantity = '),
+                          TextSpan(
+                              text:
+                                  '\$${price.toStringAsFixed(0)} x $quantity = '),
                           TextSpan(
                             text: '\$${(price * quantity).toStringAsFixed(2)}',
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -436,27 +511,26 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                 // ),
 
                 if (isCouponApplied)
-                if (isCouponApplied)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Discount', style: TextStyle(color: Colors.red)),
-                      Text(
-                          '-\$${(total - discountedTotal).toStringAsFixed(2)}',
-                          style: TextStyle(color: Colors.red)
-                      ),
-                    ],
-                  ),
+                  if (isCouponApplied)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Discount', style: TextStyle(color: Colors.red)),
+                        Text(
+                            '-\$${(total - discountedTotal).toStringAsFixed(2)}',
+                            style: TextStyle(color: Colors.red)),
+                      ],
+                    ),
                 Divider(),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Total', style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text('Total',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(
                         '\$${(isCouponApplied ? discountedTotal : total).toStringAsFixed(2)}',
-                        style: TextStyle(fontWeight: FontWeight.bold)
-                    ),
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ),
               ],
