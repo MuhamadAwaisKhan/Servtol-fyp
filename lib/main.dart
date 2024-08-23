@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:servtol/main%20login.dart';
+import 'package:servtol/startscreen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -35,7 +36,7 @@ void main() async {
       // ExerciseList(),
     // myapptesting(),
     //   startingscreen(),
-      mainlogin(),
+       mainlogin(),
     //   BookServiceScreen(service: widget.service),
   ));
 }

@@ -1,0 +1,335 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:servtol/util/AppColors.dart';
+
+class BookingCustomerDetail extends StatefulWidget {
+  final DocumentSnapshot bookings;
+
+  const BookingCustomerDetail({Key? key, required this.bookings})
+      : super(key: key);
+
+  @override
+  State<BookingCustomerDetail> createState() => _BookingCustomerDetailState();
+}
+
+class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<Map<String, dynamic>?> fetchDocument(
+      String collection, String documentId) async {
+    try {
+      var snapshot =
+          await _firestore.collection(collection).doc(documentId).get();
+      if (snapshot.exists && snapshot.data() != null) {
+        return snapshot.data();
+      } else {
+        print("Document not found in $collection with ID $documentId");
+        return null;
+      }
+    } catch (e) {
+      print("Failed to fetch document from $collection: $e");
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchBookingDetails() async {
+    Map<String, dynamic> bookingData =
+        widget.bookings.data() as Map<String, dynamic>;
+
+    Map<String, dynamic> result = {
+      'provider': {},
+      'coupon': {},
+      'service': {},
+    };
+
+    if (bookingData['providerId'] != null) {
+      result['provider'] =
+          await fetchDocument('provider', bookingData['providerId']);
+    }
+    if (bookingData['couponId'] != null) {
+      result['coupon'] =
+          await fetchDocument('coupons', bookingData['couponId']);
+    }
+    if (bookingData['serviceId'] != null) {
+      result['service'] =
+          await fetchDocument('service', bookingData['serviceId']);
+    }
+
+    return result;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${widget.bookings['status']?.toUpperCase() ?? 'PENDING'}',
+            style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: widget.bookings['status'] == 'rejected'
+                    ? Colors.red
+                    : Colors.green)),
+        backgroundColor: AppColors.background,
+        actions: [
+          TextButton(
+            onPressed: () {},
+            child: Text(
+              "Check Status",
+              style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.heading,
+                  fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+      backgroundColor: AppColors.background,
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: fetchBookingDetails(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError || snapshot.data == null) {
+            return Center(child: Text('Error fetching booking details'));
+          }
+          var data = snapshot.data!;
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Booking ID ',
+                        style: TextStyle(
+                          fontSize: 18,
+                        )),
+                    Text('# ${widget.bookings.id}',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Divider(),
+                SizedBox(height: 10),
+                Text('${data['service']?['ServiceName'] ?? 'No Service'}',
+                    style: TextStyle(fontSize: 16)),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // Aligns children across the main axis with space in between
+                  children: [
+                    // Column for Date and Time
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      // Aligns the column's children to the start, matching your existing text alignment
+                      children: [
+                        Row(
+                          children: [
+                            Text('Date:',
+                                style: TextStyle(
+                                    color: Colors.grey, fontSize: 14)),
+                            Text(
+                                ' ${widget.bookings['date'] as String? ?? 'No Date'}',
+                                style: TextStyle(fontSize: 16)),
+                          ],
+                        ),
+                        SizedBox(height: 5),
+                        Row(
+                          children: [
+                            Text('Time:',
+                                style: TextStyle(
+                                    color: Colors.grey, fontSize: 14)),
+                            Text(
+                                '${widget.bookings['time'] as String? ?? 'No time'}',
+                                style: TextStyle(fontSize: 16)),
+                          ],
+                        ),
+                      ],
+                    ),
+                    // Image in a ClipRect
+                    ClipRect(
+                      child: SizedBox(
+                        height: 70, // Specifies the height of the image
+                        width: 70, // Specifies the width of the image
+                        child: Image.network(
+                          data['service']['ImageUrl'] ??
+                              'https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=',
+                          fit: BoxFit.cover,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) =>
+                              Text('Failed to load image'),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 10),
+                Divider(),
+                SizedBox(height: 10),
+                Text('Booking Description:',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                SizedBox(height: 5),
+                Text(
+                    '${widget.bookings['description'] as String? ?? 'No time'}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    )),
+                SizedBox(height: 10),
+                Text('About Provider',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                SizedBox(height: 5),
+            Card(
+              elevation: 4.0, // Adds shadow under the card
+              margin: EdgeInsets.all(8.0), // Adds margin around the card
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0), // Rounded corners
+              ),
+              child: ListTile(
+                leading: CircleAvatar(
+                  radius: 25,
+                  backgroundImage: NetworkImage(
+                    data['provider']['ProfilePic'] ?? 'https://via.placeholder.com/150', // Ensure this URL points to a valid placeholder
+                  ),
+                ),
+                title: Row(
+                  children: [
+                    Text(
+                        '${data['provider']['FirstName'] ?? 'Unknown'} ${data['provider']['LastName'] ?? ''}',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis, // Prevents text from overflowing
+                      ),
+
+                    IconButton(
+                      onPressed: () {
+                        // Define what happens when the info button is pressed
+                      },
+                      icon: Icon(Icons.info),
+                      tooltip: 'More Info', // Tooltip text on long press
+                    )
+                  ],
+                ),
+                subtitle: Text(
+                  "${data['provider']['Bio'] ?? 'No additional information'}",
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
+                onTap: () {
+                  // Define what happens when you tap this ListTile
+                },
+              ),
+            ),
+                SizedBox(height: 10),
+                Text('Price Detail',
+                    style:
+                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                SizedBox(height: 5),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.deepPurpleAccent)),
+                    padding: EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Price'),
+                            RichText(
+                              text: TextSpan(
+                                style: TextStyle(
+                                  color: Colors
+                                      .black, // Make sure to set a color for TextSpan
+                                ),
+                                children: [
+                                  TextSpan(
+                                      text:
+                                      '\$${price.toStringAsFixed(0)} x $quantity = '),
+                                  TextSpan(
+                                    text: '\$${(price * quantity).toStringAsFixed(2)}',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Subtotal'),
+                            Text('\$${subtotal.toStringAsFixed(2)}'),
+                          ],
+                        ),
+                        Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Tax (${(taxRate).toStringAsFixed(1)}%)'),
+                            Text('\$${tax.toStringAsFixed(2)}'),
+                          ],
+                        ),
+
+
+
+                        Divider(),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Total Amount',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text(
+
+                                ,style: TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Text(
+
+                // SizedBox(height: 10),
+                // Text(
+                //     'Total Price: \$${widget.bookings['total']?.toStringAsFixed(2) ?? '0.00'}',
+                //     style: TextStyle(fontSize: 16)),
+                // SizedBox(height: 10),
+                // Text(
+                //     'Discount: ${data['coupon']['discount']?.toString() ?? '0'}%',
+                //     style: TextStyle(fontSize: 16)),
+                // // Add more fields as necessary
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
