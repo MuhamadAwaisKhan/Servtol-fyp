@@ -18,7 +18,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
     try {
       var snapshot = await _firestore.collection(collection).doc(documentId).get();
       if (snapshot.exists && snapshot.data() != null) {
-        print("$collection Data: ${snapshot.data()}");
+        // print("$collection Data: ${snapshot.data()}");
         return snapshot.data();
       } else {
         print("Document not found in $collection with ID $documentId");
@@ -48,7 +48,8 @@ class _BookingCustomerState extends State<BookingCustomer> {
       result['time'] = bookingData['time'];
       result['total'] = bookingData['total']; // Example for total amount
       result['address'] = bookingData['address'];
-      result['discount'] = bookingData['discount']; // Example for discount
+      result['discount'] = bookingData['discount'];
+      result['quantity'] = bookingData['quantity'];
 
       return result;
     } catch (e) {
@@ -108,7 +109,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
 
   Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document) {
 
-    print("Data being passed to bookingCard: $data");
+    // print("Data being passed to bookingCard: $data");
 
     // Extracting nested data safely
     String serviceType = (data['service']?['ServiceType'] as String? ?? '').toLowerCase();
@@ -120,7 +121,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
     return InkWell(
       onTap: () {
         // Perform your action on tap!
-        print("Card tapped: ${data['bookingId']}");
+        // print("Card tapped: ${data['bookingId']}");
         // Navigate to a detail screen or perform another action
         Navigator.push(
           context,
