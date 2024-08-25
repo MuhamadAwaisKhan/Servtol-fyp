@@ -37,7 +37,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
 
   double get subtotal => price * quantity;
 
-  double get tax => subtotal * taxRate;
+  double get tax => (subtotal * taxRate) / 100;
 
   double get totalWithoutDiscount => subtotal + tax;
 
@@ -62,7 +62,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
     try {
       var querySnapshot = await FirebaseFirestore.instance
           .collection('taxes')
-          .where('name', isEqualTo: 'PriceTax')
+          .where('name', isEqualTo: 'ServiceTax')
           .limit(1)
           .get();
       if (querySnapshot.docs.isNotEmpty) {
@@ -97,28 +97,29 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
       ),
     );
 
-    if (result != null && result.containsKey('discountedTotal') && result.containsKey('couponId')) {
+    if (result != null &&
+        result.containsKey('discountedTotal') &&
+        result.containsKey('couponId')) {
       setState(() {
         discountedTotal = result['discountedTotal'];
         couponId = result['couponId'];
-        isCouponApplied = true; // Ensure this flag is true only if the coupon is successfully applied
+        isCouponApplied =
+            true; // Ensure this flag is true only if the coupon is successfully applied
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to apply coupon or coupon was not selected.'))
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Failed to apply coupon or coupon was not selected.')));
     }
   }
-
-
 
   Future<void> saveBooking() async {
     if (!mounted) return;
 
     if (!isCouponApplied || couponId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please apply a coupon first.'), backgroundColor: Colors.red,)
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Please apply a coupon first.'),
+        backgroundColor: Colors.red,
+      ));
       return;
     }
 
@@ -126,9 +127,10 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
         selectedTime == null ||
         descriptionController.text.isEmpty ||
         (!isRemoteService && addressController.text.isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please fill all required fields'), backgroundColor: Colors.red,)
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Please fill all required fields'),
+        backgroundColor: Colors.red,
+      ));
       return;
     }
 
@@ -143,20 +145,24 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
       var user = FirebaseAuth.instance.currentUser;
       var currentUserId = user?.uid ?? 'no-user-id';
 
-      DocumentReference counterRef = FirebaseFirestore.instance.collection('counters').doc('bookingIds');
+      DocumentReference counterRef =
+          FirebaseFirestore.instance.collection('counters').doc('bookingIds');
 
       await FirebaseFirestore.instance.runTransaction((transaction) async {
         DocumentSnapshot counterSnapshot = await transaction.get(counterRef);
 
         // Properly cast the data
-        Map<String, dynamic> counterData = counterSnapshot.data() as Map<String, dynamic>? ?? {};
+        Map<String, dynamic> counterData =
+            counterSnapshot.data() as Map<String, dynamic>? ?? {};
 
-        int lastId = counterData['current'] as int? ?? 0;  // Now this should work without error
+        int lastId = counterData['current'] as int? ??
+            0; // Now this should work without error
         int newId = lastId + 1;
         String formattedBookingId = newId.toString().padLeft(2, '0');
 
         // Update the counter document
-        transaction.set(counterRef, {'current': newId}, SetOptions(merge: true));
+        transaction.set(
+            counterRef, {'current': newId}, SetOptions(merge: true));
 
         Map<String, dynamic> bookingData = {
           'serviceId': widget.service.id,
@@ -175,9 +181,10 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
 
         // Set the new booking data
         transaction.set(
-            FirebaseFirestore.instance.collection('bookings').doc(formattedBookingId),
-            bookingData
-        );
+            FirebaseFirestore.instance
+                .collection('bookings')
+                .doc(formattedBookingId),
+            bookingData);
       });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Booking saved successfully.'),
@@ -429,11 +436,10 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                     setState(() {
                       discountedTotal = result['discountedTotal'];
                       couponId = result['couponId'];
-                      isCouponApplied = true;  // Assuming you maintain such a flag
+                      isCouponApplied =
+                          true; // Assuming you maintain such a flag
                     });
                   }
-
-
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -495,8 +501,10 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Tax (${(taxRate).toStringAsFixed(1)}%)'),
-                    Text('\$${tax.toStringAsFixed(2)}'),
+                    Text('Tax (${(taxRate).toStringAsFixed(1)}%)',
+                        style: TextStyle(color: Colors.redAccent)),
+                    Text('\$${tax.toStringAsFixed(2)}',
+                        style: TextStyle(color: Colors.redAccent)),
                   ],
                 ),
                 Divider(),
@@ -515,10 +523,10 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Discount', style: TextStyle(color: Colors.red)),
+                        Text('Discount', style: TextStyle(color: Colors.green)),
                         Text(
                             '-\$${(total - discountedTotal).toStringAsFixed(2)}',
-                            style: TextStyle(color: Colors.red)),
+                            style: TextStyle(color: Colors.green)),
                       ],
                     ),
                 Divider(),

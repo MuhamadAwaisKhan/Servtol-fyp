@@ -339,15 +339,29 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Total Amount',
+                                  Text('Tax',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
-                                  Text(
-                                      ' \$${widget.bookings['total']?.toStringAsFixed(2) ?? '0.00'}',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
+                                  // Text(
+                                       // '-\$${(double.parse(data['taxes']['Price'] ?? '0') * double.parse(widget.bookings['quantity'].toString()) * (double.parse(data['coupon']['discount'] ?? '0') / 100)).toStringAsFixed(2)}',
+                                  //     style: TextStyle(
+                                  //         fontWeight: FontWeight.bold)),
                                 ],
                               ),
+                        Divider(),
+                        Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Total Amount',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold)),
+                              Text(
+                                  ' \$${widget.bookings['total']?.toStringAsFixed(2) ?? '0.00'}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold)),
+                            ],
+                        ),
                             ]),
                         // Text(
 
