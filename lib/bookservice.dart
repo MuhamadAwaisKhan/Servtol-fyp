@@ -23,31 +23,41 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
   TextEditingController descriptionController = TextEditingController();
   bool isLoading = false;
   bool isRemoteService = false;
-  String? couponId; // To store the selected coupon ID
+  String? couponId;
 
-  double taxRate = 0.05; // Default tax rate of 5%
+  double taxRate = 0.05; // 5% default tax rate
+  double bookingFee = 0.0; // Default booking fee
   double discountedTotal = 0;
-  bool isCouponApplied = false;
   double discountPercent = 0.0; // Discount percentage
 
+  // Calculate price from service data
   double get price {
     var data = widget.service.data() as Map<String, dynamic>;
     return double.tryParse(data['Price'].toString()) ?? 26.00;
   }
 
+  // Calculate subtotal
   double get subtotal => price * quantity;
 
-  double get tax => (subtotal * taxRate) / 100;
+// Calculate tax on the subtotal including the booking fee
+// Calculate tax on the subtotal including the booking fee
+  double get tax => (subtotal + bookingFee) * taxRate / 100;
 
+// Calculate total without discount
   double get totalWithoutDiscount => subtotal + tax;
 
-  double get total =>
-      totalWithoutDiscount - (totalWithoutDiscount * discountPercent / 100);
+// Calculate total with discount
+  double get total => totalWithoutDiscount * (1 - discountPercent / 100);
+
+  bool isCouponApplied = false;
+  String? taxRateId;
+  String? bookingFeeId;
 
   @override
   void initState() {
     super.initState();
     fetchTaxRate();
+    fetchBookingFee();
     determineServiceType();
   }
 
@@ -61,20 +71,48 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
   void fetchTaxRate() async {
     try {
       var querySnapshot = await FirebaseFirestore.instance
-          .collection('taxes')
+          .collection('taxRates')
           .where('name', isEqualTo: 'ServiceTax')
           .limit(1)
           .get();
+
       if (querySnapshot.docs.isNotEmpty) {
-        var fetchedTaxRate = double.tryParse(
-                querySnapshot.docs.first.data()['rate'].toString()) ??
-            0.05;
+        var doc = querySnapshot.docs.first;
         setState(() {
-          taxRate = fetchedTaxRate;
+          taxRate = double.tryParse(doc['rate'].toString()) ?? 0.05;
+          taxRateId = doc.id;
         });
+        print('Fetched Tax Rate: ${taxRate}');
+        print('Tax Rate Document ID: $taxRateId');
+      } else {
+        print('No documents found for ServiceTax.');
       }
     } catch (e) {
       print('Error fetching tax rate: $e');
+    }
+  }
+
+  void fetchBookingFee() async {
+    try {
+      var querySnapshot = await FirebaseFirestore.instance
+          .collection('bookingFees')
+          .where('name', isEqualTo: 'BookingFee')
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        var doc = querySnapshot.docs.first;
+        setState(() {
+          bookingFee = double.tryParse(doc['rate'].toString()) ?? 0.0;
+          bookingFeeId = doc.id;
+        });
+        print('Fetched Booking Fee: \$${bookingFee}');
+        print('Booking Fee Document ID: $bookingFeeId');
+      } else {
+        print('No documents found for Bookingfee.');
+      }
+    } catch (e) {
+      print('Error fetching booking fee: $e');
     }
   }
 
@@ -144,25 +182,21 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
     try {
       var user = FirebaseAuth.instance.currentUser;
       var currentUserId = user?.uid ?? 'no-user-id';
-
       DocumentReference counterRef =
           FirebaseFirestore.instance.collection('counters').doc('bookingIds');
 
       await FirebaseFirestore.instance.runTransaction((transaction) async {
         DocumentSnapshot counterSnapshot = await transaction.get(counterRef);
-
-        // Properly cast the data
-        Map<String, dynamic> counterData =
-            counterSnapshot.data() as Map<String, dynamic>? ?? {};
-
-        int lastId = counterData['current'] as int? ??
-            0; // Now this should work without error
+        int lastId = (counterSnapshot.data() as Map<String, dynamic>? ??
+                {})['current'] as int? ??
+            0;
         int newId = lastId + 1;
         String formattedBookingId = newId.toString().padLeft(2, '0');
-
-        // Update the counter document
         transaction.set(
             counterRef, {'current': newId}, SetOptions(merge: true));
+
+        // Use discountedTotal if the coupon is applied, otherwise use the normal total
+        double finalTotal = isCouponApplied ? discountedTotal : total;
 
         Map<String, dynamic> bookingData = {
           'serviceId': widget.service.id,
@@ -172,38 +206,35 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           'time': selectedTime?.format(context),
           'quantity': quantity,
           'description': descriptionController.text,
-          'total': total,
-          'status': 'pending',
+          'total': finalTotal, // Save the discounted or normal total here
+          'status': 'Pending',
           'bookingId': formattedBookingId,
           'couponId': couponId,
           'address': isRemoteService ? 'Remote' : addressController.text,
+          'tax': tax,
+          'taxRateId': taxRateId,
+          'bookingFeeId': bookingFeeId,
         };
 
-        // Set the new booking data
         transaction.set(
             FirebaseFirestore.instance
                 .collection('bookings')
                 .doc(formattedBookingId),
             bookingData);
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Booking saved successfully.'),
-        backgroundColor: Colors.green,
-      ));
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Booking saved successfully.')));
       Navigator.of(context).pop();
     } catch (e, stackTrace) {
       print("Error saving booking: $e");
       print("Stack trace: $stackTrace");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to book service: $e'),
-        backgroundColor: Colors.red,
-      ));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to book service: $e')));
     } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -478,7 +509,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                         children: [
                           TextSpan(
                               text:
-                                  '\$${price.toStringAsFixed(0)} x $quantity = '),
+                                  '\$${price.toStringAsFixed(2)} x $quantity = '),
                           TextSpan(
                             text: '\$${(price * quantity).toStringAsFixed(2)}',
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -501,10 +532,55 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Tax (${(taxRate).toStringAsFixed(1)}%)',
-                        style: TextStyle(color: Colors.redAccent)),
-                    Text('\$${tax.toStringAsFixed(2)}',
-                        style: TextStyle(color: Colors.redAccent)),
+                    Text('Tax', style: TextStyle(color: Colors.redAccent)),
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Container(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ListTile(
+                                        leading: Icon(Icons.attach_money,
+                                            color: Colors.green),
+                                        title: Text('Booking Fee'),
+                                        subtitle: Text(
+                                            '\$${bookingFee.toStringAsFixed(2)}'),
+                                      ),
+                                      ListTile(
+                                        leading: Icon(Icons.percent,
+                                            color: Colors.blue),
+                                        title: Text('Service Tax'),
+                                        subtitle: Text(
+                                            '${(taxRate).toStringAsFixed(2)}%'),
+                                      ),
+                                      SizedBox(height: 10),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(
+                                              context); // Close the modal
+                                        },
+                                        child: Text('Close'),
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.redAccent),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          icon: Icon(Icons.info_outline_rounded),
+                        ),
+                        Text('\$${tax.toStringAsFixed(2)}',
+                            style: TextStyle(color: Colors.redAccent)),
+                      ],
+                    ),
                   ],
                 ),
                 Divider(),

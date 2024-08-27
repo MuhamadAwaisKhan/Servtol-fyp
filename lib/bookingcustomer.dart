@@ -14,9 +14,11 @@ class _BookingCustomerState extends State<BookingCustomer> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Generalized method to fetch documents from Firestore
-  Future<Map<String, dynamic>?> fetchDocument(String collection, String documentId) async {
+  Future<Map<String, dynamic>?> fetchDocument(
+      String collection, String documentId) async {
     try {
-      var snapshot = await _firestore.collection(collection).doc(documentId).get();
+      var snapshot =
+          await _firestore.collection(collection).doc(documentId).get();
       if (snapshot.exists && snapshot.data() != null) {
         // print("$collection Data: ${snapshot.data()}");
         return snapshot.data();
@@ -30,13 +32,16 @@ class _BookingCustomerState extends State<BookingCustomer> {
     }
   }
 
-  Future<Map<String, dynamic>> fetchBookingDetails(Map<String, dynamic> bookingData) async {
+  Future<Map<String, dynamic>> fetchBookingDetails(
+      Map<String, dynamic> bookingData) async {
     try {
       Map<String, dynamic> result = {};
 
-      var providerData = await fetchDocument('provider', bookingData['providerId']);
+      var providerData =
+          await fetchDocument('provider', bookingData['providerId']);
       var couponData = await fetchDocument('coupons', bookingData['couponId']);
-      var serviceData = await fetchDocument('service', bookingData['serviceId']);
+      var serviceData =
+          await fetchDocument('service', bookingData['serviceId']);
 
       // Make sure to include booking-specific details
       result['provider'] = providerData ?? {};
@@ -87,7 +92,8 @@ class _BookingCustomerState extends State<BookingCustomer> {
             return ListView(
               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                 return FutureBuilder<Map<String, dynamic>>(
-                  future: fetchBookingDetails(document.data() as Map<String, dynamic>),
+                  future: fetchBookingDetails(
+                      document.data() as Map<String, dynamic>),
                   builder: (context, detailSnapshot) {
                     if (detailSnapshot.connectionState ==
                         ConnectionState.waiting) {
@@ -97,24 +103,25 @@ class _BookingCustomerState extends State<BookingCustomer> {
                         detailSnapshot.data == null) {
                       return Text('Error: Failed to fetch booking details');
                     }
-                    return bookingCard(detailSnapshot.data!, document);  // Pass document snapshot here
+                    return bookingCard(detailSnapshot.data!,
+                        document); // Pass document snapshot here
                   },
                 );
               }).toList(),
             );
           },
-        )
-    );
+        ));
   }
 
   Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document) {
-
     // print("Data being passed to bookingCard: $data");
 
     // Extracting nested data safely
-    String serviceType = (data['service']?['ServiceType'] as String? ?? '').toLowerCase();
+    String serviceType =
+        (data['service']?['ServiceType'] as String? ?? '').toLowerCase();
     bool isRemoteService = serviceType == 'remote';
-    String serviceName = data['service']?['ServiceName'] as String? ?? 'No Service';
+    String serviceName =
+        data['service']?['ServiceName'] as String? ?? 'No Service';
     String servicePrice = data['service']?['Price'].toString() ?? '0.00';
     String discount = data['coupon']?['discount'].toString() ?? '0';
 
@@ -126,88 +133,208 @@ class _BookingCustomerState extends State<BookingCustomer> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => BookingCustomerDetail(bookings: document),  // Correctly pass DocumentSnapshot
+            builder: (context) => BookingCustomerDetail(
+                bookings: document), // Correctly pass DocumentSnapshot
           ),
         );
-
-
       },
       child: Card(
         margin: EdgeInsets.all(8),
-        color: Colors.black87,
+        color: Colors.indigoAccent,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: (data['status'] as String? ?? '').toLowerCase() == 'rejected'
-                          ? Colors.red
-                          : Colors.green,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      data['status'] as String? ?? 'Pending',
-                      style: TextStyle(color: Colors.white),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color:
+                              (data['status'] as String? ?? '').toLowerCase() ==
+                                      'rejected'
+                                  ? Colors.red
+                                  : Colors.green,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          data['status'] as String? ?? 'Pending',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   Text(
                     '#${data['bookingId'] as String? ?? 'Unknown'}',
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
               SizedBox(height: 8),
               Text(
                 serviceName,
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
-              Text(
-                "\$$servicePrice ($discount% Off)",
-                style: TextStyle(color: Colors.white, fontSize: 16),
+              Row(
+                children: [
+                  Text(
+                    "\$$servicePrice ",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ), Text(
+                    "($discount% Off)",
+                    style: TextStyle(
+                      color: Colors.brown,
+                      fontSize: 16,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text('Date', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                  Text('Date',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                      )),
                   Text(
                     data['date'] as String? ?? 'No Date',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  Text('At', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                  Text('At',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                      )),
                   Text(
                     data['time'] as String? ?? 'No time',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
-              SizedBox(height: 10),
-              Text('Provider', style: TextStyle(color: Colors.grey, fontSize: 14)),
-              Text(
-                "${data['provider']?['FirstName'] as String? ?? 'No First Name'} ${data['provider']?['LastName'] as String? ?? ''}",
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              SizedBox(height: 10),
-              Text('Payment Status', style: TextStyle(color: Colors.grey, fontSize: 14)),
-              Text(
-                data['paymentStatus'] as String? ?? 'Pending',
-                style: TextStyle(color: Colors.amber[800], fontSize: 16),
-              ),
-              if (!isRemoteService) ...[
-                SizedBox(height: 10),
-                Text('Your Address', style: TextStyle(color: Colors.grey, fontSize: 14)),
-                Text(
-                  data['address'] as String? ?? 'No Address',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: AppColors.heading12,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.deepPurpleAccent)),
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Provider',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.bold,
+                                )),
+                            Text(
+                              "${data['provider']?['FirstName'] as String? ?? 'No First Name'} ${data['provider']?['LastName'] as String? ?? ''}",
+                              style: TextStyle(
+                                color: Colors.cyan,
+                                fontSize: 16,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Payment Status',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.bold,
+                                )),
+                            Text(
+                              data['paymentStatus'] as String? ?? 'Pending',
+                              style: TextStyle(
+                                color: Colors.amber[800],
+                                fontSize: 16,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (!isRemoteService) ...[
+                          Divider(),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Your Address',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.bold,
+                                  )),
+                              Text(
+                                data['address'] as String? ?? 'No Address',
+                                style: TextStyle(
+                                  color: Colors.cyan,
+                                  fontSize: 16,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ]),
                 ),
-              ],
+              )
             ],
           ),
         ),

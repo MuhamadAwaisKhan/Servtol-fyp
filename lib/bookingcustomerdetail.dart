@@ -15,6 +15,61 @@ class BookingCustomerDetail extends StatefulWidget {
 class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // Declare these variables in the state class
+  double taxRate = 0.05; // Default value
+  double bookingFee = 0.0; // Default value
+
+  @override
+  void initState() {
+    super.initState();
+    fetchTaxRate();
+    fetchBookingFee();
+  }
+
+  void fetchTaxRate() async {
+    try {
+      var querySnapshot = await FirebaseFirestore.instance
+          .collection('taxRates')
+          .where('name', isEqualTo: 'ServiceTax')
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        var doc = querySnapshot.docs.first;
+        setState(() {
+          taxRate = double.tryParse(doc['rate'].toString()) ?? 0.05;
+        });
+        print('Fetched Tax Rate: ${taxRate}');
+      } else {
+        print('No documents found for ServiceTax.');
+      }
+    } catch (e) {
+      print('Error fetching tax rate: $e');
+    }
+  }
+
+  void fetchBookingFee() async {
+    try {
+      var querySnapshot = await FirebaseFirestore.instance
+          .collection('bookingFees')
+          .where('name', isEqualTo: 'BookingFee')
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        var doc = querySnapshot.docs.first;
+        setState(() {
+          bookingFee = double.tryParse(doc['rate'].toString()) ?? 0.0;
+        });
+        print('Fetched Booking Fee: \$${bookingFee}');
+      } else {
+        print('No documents found for BookingFee.');
+      }
+    } catch (e) {
+      print('Error fetching booking fee: $e');
+    }
+  }
+
   Future<Map<String, dynamic>?> fetchDocument(
       String collection, String documentId) async {
     try {
@@ -107,6 +162,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                         Text('Booking ID ',
                             style: TextStyle(
                               fontSize: 18,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold,
                             )),
                         Text('# ${widget.bookings.id}',
                             style: TextStyle(
@@ -117,7 +174,11 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                     Divider(),
                     SizedBox(height: 10),
                     Text('${data['service']?['ServiceName'] ?? 'No Service'}',
-                        style: TextStyle(fontSize: 16)),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.bold,
+                        )),
                     SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,10 +193,17 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                               children: [
                                 Text('Date:',
                                     style: TextStyle(
-                                        color: Colors.grey, fontSize: 14)),
+                                      color: Colors.grey,
+                                      fontSize: 14,
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.bold,
+                                    )),
                                 Text(
                                     ' ${widget.bookings['date'] as String? ?? 'No Date'}',
-                                    style: TextStyle(fontSize: 16)),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontFamily: 'Poppins',
+                                    )),
                               ],
                             ),
                             SizedBox(height: 5),
@@ -143,10 +211,17 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                               children: [
                                 Text('Time:',
                                     style: TextStyle(
-                                        color: Colors.grey, fontSize: 14)),
+                                      color: Colors.grey,
+                                      fontSize: 14,
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.bold,
+                                    )),
                                 Text(
                                     '${widget.bookings['time'] as String? ?? 'No time'}',
-                                    style: TextStyle(fontSize: 16)),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontFamily: 'Poppins',
+                                    )),
                               ],
                             ),
                           ],
@@ -188,12 +263,16 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                     SizedBox(height: 10),
                     Text('Booking Description:',
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
+                          fontSize: 16,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.bold,
+                        )),
                     SizedBox(height: 5),
                     Text(
                         '${widget.bookings['description'] as String? ?? 'No time'}',
                         style: TextStyle(
                           fontSize: 14,
+                          fontFamily: 'Poppins',
                           color: Colors.grey,
                         )),
                     SizedBox(height: 10),
@@ -270,8 +349,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                     RichText(
                                       text: TextSpan(
                                         style: TextStyle(
-                                          color: Colors
-                                              .black, // Default text color for all TextSpans if not overridden
+                                          color: Colors.black,
+                                          fontFamily: 'Poppins',
                                         ),
                                         children: [
                                           TextSpan(
@@ -282,7 +361,9 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                             text:
                                                 '\$${((double.tryParse(data['service']?['Price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2) * (widget.bookings['quantity'] as int? ?? 0))}',
                                             style: TextStyle(
-                                                fontWeight: FontWeight.bold),
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -311,12 +392,16 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                           // Discount percentage in green
                                           style: TextStyle(
                                             color: Colors.green,
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         TextSpan(
                                           text: ')',
                                           style: TextStyle(
                                             color: Colors.green,
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.bold,
                                           ), // Closing parenthesis in black
                                         ),
                                       ],
@@ -327,10 +412,11 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                   Text(
                                     '-\$${(double.parse(data['service']['Price'] ?? '0') * double.parse(widget.bookings['quantity'].toString()) * (double.parse(data['coupon']['discount'] ?? '0') / 100)).toStringAsFixed(2)}',
                                     style: TextStyle(
-                                        color: Colors.green,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight
-                                            .bold), // This makes the price bold and green
+                                      color: Colors.green,
+                                      fontSize: 16,
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.bold,
+                                    ), // This makes the price bold and green
                                   ),
                                 ],
                               ),
@@ -341,27 +427,89 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                 children: [
                                   Text('Tax',
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  // Text(
-                                       // '-\$${(double.parse(data['taxes']['Price'] ?? '0') * double.parse(widget.bookings['quantity'].toString()) * (double.parse(data['coupon']['discount'] ?? '0') / 100)).toStringAsFixed(2)}',
-                                  //     style: TextStyle(
-                                  //         fontWeight: FontWeight.bold)),
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                      )),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return Container(
+                                                padding: EdgeInsets.all(16.0),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    ListTile(
+                                                      leading: Icon(
+                                                          Icons.attach_money,
+                                                          color: Colors.green),
+                                                      title:
+                                                          Text('Booking Fee'),
+                                                      subtitle: Text(
+                                                          '\$${bookingFee.toStringAsFixed(2)}'),
+                                                    ),
+                                                    ListTile(
+                                                      leading: Icon(
+                                                          Icons.percent,
+                                                          color: Colors.blue),
+                                                      title:
+                                                          Text('Service Tax'),
+                                                      subtitle: Text(
+                                                          '${(taxRate).toStringAsFixed(2)}%'),
+                                                    ),
+                                                    SizedBox(height: 10),
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(
+                                                            context); // Close the modal
+                                                      },
+                                                      child: Text('Close'),
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .redAccent),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                        icon: Icon(Icons.info_outline_rounded),
+                                      ),
+                                      Text(
+                                          ' \$${widget.bookings['tax']?.toStringAsFixed(2) ?? '0.00'}',
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.bold,
+                                          )),
+                                    ],
+                                  ),
                                 ],
                               ),
-                        Divider(),
-                        Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Total Amount',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold)),
-                              Text(
-                                  ' \$${widget.bookings['total']?.toStringAsFixed(2) ?? '0.00'}',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold)),
-                            ],
-                        ),
+                              Divider(),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Total Amount',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                      )),
+                                  Text(
+                                      ' \$${widget.bookings['total']?.toStringAsFixed(2) ?? '0.00'}',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                      )),
+                                ],
+                              ),
                             ]),
                         // Text(
 
