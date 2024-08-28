@@ -567,7 +567,9 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                                         },
                                         child: Text('Close'),
                                         style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.redAccent),
+                                            backgroundColor: Colors.indigoAccent,
+                                            foregroundColor: Colors.white
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -595,7 +597,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                 // ),
 
                 if (isCouponApplied)
-                  if (isCouponApplied)
+                  if (isCouponApplied)...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -605,7 +607,9 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                             style: TextStyle(color: Colors.green)),
                       ],
                     ),
-                Divider(),
+                    Divider(),
+                  ],
+
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

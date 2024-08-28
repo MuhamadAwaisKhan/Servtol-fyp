@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:servtol/bookingcustomerdetail.dart';
 import 'package:servtol/util/AppColors.dart';
 
@@ -12,6 +13,52 @@ class BookingCustomer extends StatefulWidget {
 
 class _BookingCustomerState extends State<BookingCustomer> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  Future<void> _updateDateTime(BuildContext context, String bookingId) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now().subtract(Duration(days: 365)),
+      lastDate: DateTime.now().add(Duration(days: 365)),
+    );
+    if (pickedDate != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+      if (pickedTime != null) {
+        // Confirm the update via an AlertDialog
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text("Confirm Update"),
+            content: Text("Do you want to update the booking to:\nDate: ${pickedDate.toString().substring(0, 10)}\nTime: ${pickedTime.format(context)}?"),
+            actions: <Widget>[
+              TextButton(
+                child: Text("Cancel"),
+                onPressed: () {
+                  Navigator.of(ctx).pop(); // Close the dialog
+                },
+              ),
+              TextButton(
+                child: Text("Update"),
+                onPressed: () async {
+                  // Perform the update on Firestore
+                  await _firestore.collection('bookings').doc(bookingId).update({
+                    'date': pickedDate.toString().substring(0, 10), // Store date as a string
+                    'time': pickedTime.format(context), // Store time as a string
+                  });
+                  Navigator.of(ctx).pop(); // Close the dialog
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Booking updated successfully!')),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
 
   // Generalized method to fetch documents from Firestore
   Future<Map<String, dynamic>?> fetchDocument(
@@ -174,14 +221,23 @@ class _BookingCustomerState extends State<BookingCustomer> {
                       ),
                     ],
                   ),
-                  Text(
-                    '#${data['bookingId'] as String? ?? 'Unknown'}',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row( mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(onPressed: (){
+                        _updateDateTime(context, data['bookingId']);
+                      }, icon: Icon( FontAwesomeIcons.penToSquare,
+                        size: 16,
+                        color: Colors.white,)),
+                      Text(
+                        '#${data['bookingId'] as String? ?? 'Unknown'}',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -221,7 +277,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
                 children: [
                   Text('Date',
                       style: TextStyle(
-                        color: Colors.grey,
+                        color: Colors.black,
                         fontSize: 14,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,
@@ -237,7 +293,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
                   ),
                   Text('At',
                       style: TextStyle(
-                        color: Colors.grey,
+                        color: Colors.black,
                         fontSize: 14,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,
