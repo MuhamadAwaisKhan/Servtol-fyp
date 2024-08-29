@@ -24,8 +24,24 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
     super.initState();
     fetchTaxRate();
     fetchBookingFee();
+
   }
 
+  void updateBookingStatus() async {
+    try {
+      await _firestore.collection('bookings').doc(widget.bookings.id).update({'status': 'Cancelled'});
+   // Correctly pop the screen first.
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Booking has been cancelled'))
+      );
+
+    } catch (e) {
+      print('Error updating booking status: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to cancel booking')),
+      );
+    }
+  }
   void fetchTaxRate() async {
     try {
       var querySnapshot = await FirebaseFirestore.instance
@@ -39,7 +55,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         setState(() {
           taxRate = double.tryParse(doc['rate'].toString()) ?? 0.05;
         });
-        print('Fetched Tax Rate: ${taxRate}');
+        // print('Fetched Tax Rate: ${taxRate}');
       } else {
         print('No documents found for ServiceTax.');
       }
@@ -61,7 +77,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         setState(() {
           bookingFee = double.tryParse(doc['rate'].toString()) ?? 0.0;
         });
-        print('Fetched Booking Fee: \$${bookingFee}');
+        // print('Fetched Booking Fee: \$${bookingFee}');
       } else {
         print('No documents found for BookingFee.');
       }
@@ -117,14 +133,24 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.bookings['status']?.toUpperCase() ?? 'PENDING'}',
+        title: Container(
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: (widget.bookings['status'] as String? ?? 'pending').toLowerCase() == 'rejected'
+                ? Colors.red
+                : Colors.redAccent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            widget.bookings['status'] as String? ?? 'Pending',
             style: TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: widget.bookings['status'] == 'rejected'
-                    ? Colors.red
-                    : Colors.green)),
+              color: Colors.white,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+
         backgroundColor: AppColors.background,
         actions: [
           TextButton(
@@ -521,9 +547,26 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
 
                         // // Add more fields as necessary
                       ),
+                    ),
+                    SizedBox(height: 20),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          updateBookingStatus();
+                          Navigator.pop(context);  // This will close the screen after cancellation
+                        },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.red, // Button color
+                        ),
+                        child: Text('Cancel Booking'),
+                      ),
                     )
-                  ]));
+                  ])
+          );
+
         },
+
       ),
     );
   }

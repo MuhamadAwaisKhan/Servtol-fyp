@@ -157,7 +157,8 @@ class _BookingCustomerState extends State<BookingCustomer> {
               }).toList(),
             );
           },
-        ));
+        ),
+    );
   }
 
   Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document) {
@@ -200,14 +201,9 @@ class _BookingCustomerState extends State<BookingCustomer> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color:
-                              (data['status'] as String? ?? '').toLowerCase() ==
-                                      'rejected'
-                                  ? Colors.red
-                                  : Colors.green,
+                          color: (data['status'] as String? ?? '').toLowerCase() == 'rejected' ? Colors.red : Colors.redAccent,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -221,13 +217,14 @@ class _BookingCustomerState extends State<BookingCustomer> {
                       ),
                     ],
                   ),
-                  Row( mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  Row(
                     children: [
-                      IconButton(onPressed: (){
-                        _updateDateTime(context, data['bookingId']);
-                      }, icon: Icon( FontAwesomeIcons.penToSquare,
-                        size: 16,
-                        color: Colors.white,)),
+                      (data['status'] as String? ?? '').toLowerCase() == 'pending' ? IconButton(
+                        onPressed: () {
+                          _updateDateTime(context, data['bookingId']);
+                        },
+                        icon: Icon(FontAwesomeIcons.penToSquare, size: 16, color: Colors.white),
+                      ) : Container(),  // Show nothing if not pending
                       Text(
                         '#${data['bookingId'] as String? ?? 'Unknown'}',
                         style: TextStyle(

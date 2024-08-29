@@ -224,13 +224,16 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
       });
 
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Booking saved successfully.')));
+          .showSnackBar(SnackBar(content: Text('Booking saved successfully.'),
+      backgroundColor: Colors.green,));
       Navigator.of(context).pop();
     } catch (e, stackTrace) {
       print("Error saving booking: $e");
       print("Stack trace: $stackTrace");
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Failed to book service: $e')));
+          .showSnackBar(SnackBar(content: Text('Failed to book service: $e'),
+        backgroundColor: Colors.red,
+      ));
     } finally {
       setState(() {
         isLoading = false;
