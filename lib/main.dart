@@ -4,6 +4,7 @@ import 'package:servtol/main%20login.dart';
 import 'package:servtol/startscreen.dart';
 import 'firebase_options.dart';
 
+
 void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +37,7 @@ void main() async {
       // ExerciseList(),
     // myapptesting(),
     //   startingscreen(),
+    // tester(),
        mainlogin(),
     //   BookServiceScreen(service: widget.service),
   ));
