@@ -9,34 +9,34 @@ class TaxScreen extends StatefulWidget {
 class _TaxScreenState extends State<TaxScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  void showActionSheet(BuildContext context) {
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext bc) {
-          return SafeArea(
-            child: Wrap(
-              children: <Widget>[
-                ListTile(
-                    leading: Icon(Icons.monetization_on),
-                    title: Text('Add Tax Rate'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      showEntryDialog(context: context, isTax: true);
-                    }),
-                ListTile(
-                  leading: Icon(Icons.card_giftcard),
-                  title: Text('Add Booking Fee'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    showEntryDialog(context: context, isTax: false);
-                  },
-                ),
-              ],
-            ),
-          );
-        }
-    );
-  }
+  // void showActionSheet(BuildContext context) {
+  //   showModalBottomSheet(
+  //       context: context,
+  //       builder: (BuildContext bc) {
+  //         return SafeArea(
+  //           child: Wrap(
+  //             children: <Widget>[
+  //               ListTile(
+  //                   leading: Icon(Icons.monetization_on),
+  //                   title: Text('Add Tax Rate'),
+  //                   onTap: () {
+  //                     Navigator.pop(context);
+  //                     showEntryDialog(context: context, isTax: true);
+  //                   }),
+  //               ListTile(
+  //                 leading: Icon(Icons.card_giftcard),
+  //                 title: Text('Add Booking Fee'),
+  //                 onTap: () {
+  //                   Navigator.pop(context);
+  //                   showEntryDialog(context: context, isTax: false);
+  //                 },
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       }
+  //   );
+  // }
 
   void showEntryDialog({BuildContext? context, Map<String, dynamic>? entryData, String? documentId, required bool isTax}) {
     TextEditingController nameController = TextEditingController(text: entryData?['name'] ?? '');
@@ -50,10 +50,10 @@ class _TaxScreenState extends State<TaxScreen> {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(labelText: 'Name'),
-                ),
+                // TextField(
+                //   controller: nameController,
+                //   decoration: InputDecoration(labelText: 'Name'),
+                // ),
                 TextField(
                   controller: rateController,
                   decoration: InputDecoration(labelText: isTax ? 'Tax Rate (%)' : 'Booking Fee (\$)'),
@@ -140,12 +140,12 @@ class _TaxScreenState extends State<TaxScreen> {
                                   isTax: isTax,
                                 ),
                               ),
-                              IconButton(
-                                icon: Icon(Icons.delete),
-                                onPressed: () {
-                                  _firestore.collection(collectionPath).doc(document.id).delete();
-                                },
-                              ),
+                              // IconButton(
+                              //   icon: Icon(Icons.delete),
+                              //   onPressed: () {
+                              //     _firestore.collection(collectionPath).doc(document.id).delete();
+                              //   },
+                              // ),
                             ],
                           ),
                         ),
@@ -173,11 +173,11 @@ class _TaxScreenState extends State<TaxScreen> {
           buildList('Booking Fees', 'bookingFees', false),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showActionSheet(context),
-        child: Icon(Icons.add),
-        backgroundColor: Colors.purple,
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () => showActionSheet(context),
+      //   child: Icon(Icons.add),
+      //   backgroundColor: Colors.purple,
+      // ),
     );
   }
 }

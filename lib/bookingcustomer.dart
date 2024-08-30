@@ -239,35 +239,79 @@ class _BookingCustomerState extends State<BookingCustomer> {
                 ],
               ),
               SizedBox(height: 8),
-              Text(
-                serviceName,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "\$$servicePrice ",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
+
+                  ClipOval(
+
+                    child: SizedBox(
+                      height: 70, // Specifies the height of the image
+                      width: 70, // Specifies the width of the image
+                      child: Image.network(
+                        data['service']['ImageUrl'] ??
+                            'https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=',
+                        fit: BoxFit.cover,
+                        loadingBuilder: (BuildContext context,
+                            Widget child,
+                            ImageChunkEvent? loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes !=
+                                  null
+                                  ? loadingProgress
+                                  .cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) =>
+                            Text('Failed to load image'),
+                      ),
                     ),
-                  ), Text(
-                    "($discount% Off)",
-                    style: TextStyle(
-                      color: Colors.brown,
-                      fontSize: 16,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 115.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          serviceName,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Text(
+                              "\$$servicePrice ",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ), Text(
+                              "($discount% Off)",
+                              style: TextStyle(
+                                color: Colors.brown,
+                                fontSize: 16,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
+
               SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,

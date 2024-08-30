@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:servtol/main%20login.dart';
 import 'package:servtol/startscreen.dart';
+import 'package:servtol/tester%20file.dart';
 import 'firebase_options.dart';
 
 
@@ -21,7 +22,7 @@ void main() async {
   }
 
 
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
 
     // theme: AppTheme.lightTheme,
@@ -37,7 +38,7 @@ void main() async {
       // ExerciseList(),
     // myapptesting(),
     //   startingscreen(),
-    // tester(),
+    //     tester(),
        mainlogin(),
     //   BookServiceScreen(service: widget.service),
   ));
