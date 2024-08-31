@@ -175,6 +175,7 @@ class _ServicesAdditionState extends State<ServicesAddition> {
         'ImageUrl': imageUrl,
         'Duration': durationController.text.trim(),
         'providerId': currentUser.uid,
+        'serviceNameLower': nameController.text.trim().toLowerCase(), // Correct lowercase version for searching
       });
 
       Navigator.pop(context);

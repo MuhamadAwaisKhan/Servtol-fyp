@@ -214,6 +214,10 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           'tax': tax,
           'taxRateId': taxRateId,
           'bookingFeeId': bookingFeeId,
+          'ServiceName': widget.service['ServiceName'], // Original service name
+          'serviceNameLower': (widget.service['ServiceName'] ?? '').toString().toLowerCase(), // Lowercase version for searching
+
+
         };
 
         transaction.set(

@@ -1,67 +1,61 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class BookingScreenWidget extends StatefulWidget {
-  BookingScreenWidget({Key? key, required this.backPress}) : super(key: key);
   final Function backPress;
+
+  const BookingScreenWidget({Key? key, required this.backPress}) : super(key: key);
 
   @override
   State<BookingScreenWidget> createState() => _BookingScreenWidgetState();
 }
 
 class _BookingScreenWidgetState extends State<BookingScreenWidget> {
-  FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  Future<void> _updateDateTime(BuildContext context, String bookingId) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now().subtract(Duration(days: 365)),
-      lastDate: DateTime.now().add(Duration(days: 365)),
-    );
-    if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
-      if (pickedTime != null) {
-        // Confirm the update via an AlertDialog
-        showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text("Confirm Update"),
-            content: Text("Do you want to update the booking to:\nDate: ${pickedDate.toString().substring(0, 10)}\nTime: ${pickedTime.format(context)}?"),
-            actions: <Widget>[
-              TextButton(
-                child: Text("Cancel"),
-                onPressed: () {
-                  Navigator.of(ctx).pop(); // Close the dialog
-                },
-              ),
-              TextButton(
-                child: Text("Update"),
-                onPressed: () async {
-                  // Perform the update on Firestore
-                  await _firestore.collection('bookings').doc(bookingId).update({
-                    'date': pickedDate.toString().substring(0, 10), // Store date as a string
-                    'time': pickedTime.format(context), // Store time as a string
-                  });
-                  Navigator.of(ctx).pop(); // Close the dialog
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Booking updated successfully!')),
-                  );
-                },
-              ),
-            ],
-          ),
-        );
+  TextEditingController searchController = TextEditingController();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final User? currentUser = FirebaseAuth.instance.currentUser;
+  @override
+  void initState() {
+    super.initState();
+    searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  Stream<QuerySnapshot<Object?>> _bookingStream(String searchText) {
+    print("Search Text: $searchText"); // Debugging output
+    if (searchText.isEmpty) {
+      return FirebaseFirestore.instance.collection('bookings').snapshots();
+    } else {
+      bool isNumeric = double.tryParse(searchText) != null;
+      if (isNumeric) {
+        // Searching by Booking ID
+        return FirebaseFirestore.instance
+            .collection('bookings')
+            .where('bookingId', isEqualTo: searchText)
+            .snapshots();
+      } else {
+        // Searching by Service Name (case-insensitive)
+        searchText = searchText.toLowerCase(); // Ensure search term is in lowercase
+        return FirebaseFirestore.instance
+            .collection('bookings')
+            .where('serviceNameLower', isGreaterThanOrEqualTo: searchText)
+            .where('serviceNameLower', isLessThanOrEqualTo: searchText + '\uf8ff')
+            .snapshots();
       }
     }
   }
 
-  // Generalized method to fetch documents from Firestore
-  Future<Map<String, dynamic>?> fetchDocument(
-      String collection, String documentId) async {
+
+
+  Future<Map<String, dynamic>?> fetchDocument(String collection,
+      String documentId) async {
     try {
       var snapshot =
       await _firestore.collection(collection).doc(documentId).get();
@@ -117,7 +111,7 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
+        title: const Text(
           "Bookings",
           style: TextStyle(
             fontFamily: 'Poppins',
@@ -129,39 +123,81 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
         backgroundColor: AppColors.background,
       ),
       backgroundColor: AppColors.background,
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('bookings').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          return ListView(
-            children: snapshot.data!.docs.map((DocumentSnapshot document) {
-              return FutureBuilder<Map<String, dynamic>>(
-                future: fetchBookingDetails(
-                    document.data() as Map<String, dynamic>),
-                builder: (context, detailSnapshot) {
-                  if (detailSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  if (detailSnapshot.hasError ||
-                      detailSnapshot.data == null) {
-                    return Text('Error: Failed to fetch booking details');
-                  }
-                  return bookingCard(detailSnapshot.data!,
-                      document); // Pass document snapshot here
-                },
-              );
-            }).toList(),
-          );
-        },
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: TextField(
+              controller: searchController,
+              style: const TextStyle(fontSize: 16),
+              decoration: InputDecoration(
+                labelText: 'Search Bookings',
+                labelStyle: const TextStyle(fontFamily: 'Poppins'),
+                prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                suffixIcon: searchController.text.isNotEmpty
+                    ? GestureDetector(
+                  child: const Icon(Icons.clear, color: Colors.grey),
+                  onTap: () {
+                    searchController.clear();
+                    setState(() {});
+                  },
+                )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(
+                    vertical: 0, horizontal: 20),
+              ),
+              onChanged: (value) {
+                setState(() {});
+              },
+            ),
+          ),
+          Expanded( // Wrap StreamBuilder with Expanded
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _bookingStream(searchController.text.trim()),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return
+                  const Center(child: CircularProgressIndicator());
+                }
+                return ListView(
+                  children: snapshot.data!.docs.map((
+                      DocumentSnapshot document) {
+                    return
+                    FutureBuilder<Map<String, dynamic>>(
+                      future: fetchBookingDetails(
+                          document.data() as Map<String, dynamic>),
+                      builder: (context, detailSnapshot) {
+                        if (detailSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                        if (detailSnapshot.hasError ||
+                            detailSnapshot.data == null) {
+                          return Text('Error: Failed to fetch booking details');
+                        }
+                        return bookingCard(detailSnapshot.data!,
+                            document); // Pass document snapshot here
+                      },
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+          )
+        ],
       ),
     );
   }
+}
 
   Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document) {
     // print("Data being passed to bookingCard: $data");
@@ -200,38 +236,39 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
 
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: (data['status'] as String? ?? '').toLowerCase() == 'rejected' ? Colors.red : Colors.redAccent,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          data['status'] as String? ?? 'Pending',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: (data['status'] as String? ?? '').toLowerCase() ==
+                          'rejected' ? Colors.red : Colors.redAccent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      data['status'] as String? ?? 'Pending',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
                       ),
-                      Text(
-                        '#${data['bookingId'] as String? ?? 'Unknown'}',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    ),
+                  ),
+                  Text(
+                    '#${data['bookingId'] as String? ?? 'Unknown'}',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
 
 
-                      // (data['status'] as String? ?? '').toLowerCase() == 'pending' ? IconButton(
-                      //   onPressed: () {
-                      //     _updateDateTime(context, data['bookingId']);
-                      //   },
-                      //   icon: Icon(FontAwesomeIcons.penToSquare, size: 16, color: Colors.white),
-                      // ) : Container(),  // Show nothing if not pending
+                  // (data['status'] as String? ?? '').toLowerCase() == 'pending' ? IconButton(
+                  //   onPressed: () {
+                  //     _updateDateTime(context, data['bookingId']);
+                  //   },
+                  //   icon: Icon(FontAwesomeIcons.penToSquare, size: 16, color: Colors.white),
+                  // ) : Container(),  // Show nothing if not pending
 
 
                 ],
@@ -355,12 +392,12 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text('Date & Time',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.bold,
-                                ),),
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.bold,
+                              ),),
                             Row(
                               children: [
                                 Text(
@@ -373,7 +410,7 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
                                   ),
                                 ),
                                 SizedBox(width: 5,),
-                                Text(  'At',
+                                Text('At',
                                   style: TextStyle(
                                     color: Colors.amber[800],
                                     fontSize: 14,
@@ -408,7 +445,9 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
                                   fontWeight: FontWeight.bold,
                                 )),
                             Text(
-                              "${data['customer']?['FirstName'] as String? ?? 'No First Name'} ${data['customer']?['LastName'] as String? ?? ''}",
+                              "${data['customer']?['FirstName'] as String? ??
+                                  'No First Name'} ${data['customer']?['LastName'] as String? ??
+                                  ''}",
                               style: TextStyle(
                                 color: Colors.cyan,
                                 fontSize: 16,
@@ -428,4 +467,3 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
       ),
     );
   }
-}

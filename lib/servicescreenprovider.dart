@@ -76,7 +76,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                 },
               ),
             ),
-            SizedBox(height: 15),
+            SizedBox(height: 10),
             StreamBuilder<QuerySnapshot>(
               stream: (searchController.text.isEmpty)
                   ? FirebaseFirestore.instance

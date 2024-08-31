@@ -136,7 +136,7 @@ class _HomeProviderState extends State<HomeProvider> {
 
       Padding(
         padding: const EdgeInsets.only(right: 100.0),
-        child: Text("Hello,$_userName  ",
+        child: Text("Hello  $_userName  ",
             style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 16,
@@ -391,12 +391,29 @@ class _HomeProviderState extends State<HomeProvider> {
                         child: Stack(
                           children: [
                             Positioned.fill(
-                              child: Image.network(
-                                doc['ImageUrl'] ?? 'default_image_url',
-                                fit: BoxFit.cover,
+                              child: ShaderMask(
+                                shaderCallback: (Rect bounds) {
+                                  return LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.black.withOpacity(0.5), // Top color with shadow effect
+                                      Colors.transparent, // Bottom color (no shadow)
+                                    ],
+                                    stops: [0.5, 1.0], // Control where the gradient stops
+                                  ).createShader(bounds);
+                                },
+                                blendMode: BlendMode.darken, // Blending mode for the shadow effect
+                                child: Image.network(
+                                  doc['ImageUrl'] ?? 'default_image_url',
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                            Container(
+
+
+
+                      Container(
                               padding: EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
@@ -431,16 +448,33 @@ class _HomeProviderState extends State<HomeProvider> {
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+
                                     Text(
                                       doc['ServiceName'] ?? 'No name',
-                                      style: TextStyle(
+                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                         color: Colors.white,
-                                        fontSize: 12,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.bold,
+                                        shadows: [
+                                          Shadow(
+                                            offset: Offset(-1.5, -1.5), // Bottom-left shadow
+                                            color: Colors.black,
+                                            blurRadius: 2,
+                                          ),
+                                          Shadow(
+                                            offset: Offset(1.5, 1.5), // Top-right shadow
+                                            color: Colors.black,
+                                            blurRadius: 2,
+                                          ),
+                                          Shadow(
+                                            offset: Offset(0, 0), // Outline-style shadow
+                                            color: Colors.black,
+                                            blurRadius: 8,
+                                          ),
+                                        ],
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
+
+
                                     SizedBox(height: 4),
                                     Text(
                                       "\$" +
@@ -449,7 +483,7 @@ class _HomeProviderState extends State<HomeProvider> {
                                       style: TextStyle(
                                         color: Colors.lightGreenAccent[400],
                                         // Light green accent for pricing
-                                        fontSize: 10,
+                                        fontSize: 14,
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -459,7 +493,7 @@ class _HomeProviderState extends State<HomeProvider> {
                                 ),
                               ),
                             ),
-                          ],
+                     ],
                         ),
                       ),
                     ),
