@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:servtol/customermain.dart';
 import 'package:servtol/homecustomer.dart';
+import 'package:servtol/logincustomer.dart';
 import 'package:shimmer/main.dart';
 class checkcustomer extends StatefulWidget {
   const checkcustomer({super.key});
@@ -12,13 +14,34 @@ class checkcustomer extends StatefulWidget {
 
 class _checkcustomerState extends State<checkcustomer> {
 
-  Widget build(BuildContext context) {
-    return Scaffold();
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkUser();
+    });
   }
-  checkuser() async{
-    final user=FirebaseAuth.instance.currentUser;
-    if(user != null){
-      return HomeCustomer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  void checkUser() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => customermainscreen(onBackPress: onBackPress)));
+    } else {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => logincustomer()));
     }
+  }
+
+  void onBackPress() {
+    // Define what should happen when the back button is pressed
+    Navigator.of(context).pop();
   }
 }

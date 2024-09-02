@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lottie/lottie.dart';
 import 'package:servtol/bookingcustomerdetail.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class BookingCustomer extends StatefulWidget {
-  const BookingCustomer({Key? key}) : super(key: key);
+  Function onBackPress; // Making this final and required
+
+  BookingCustomer({Key? key, required this.onBackPress}) : super(key: key);
 
   @override
   _BookingCustomerState createState() => _BookingCustomerState();
@@ -127,37 +130,45 @@ class _BookingCustomerState extends State<BookingCustomer> {
           backgroundColor: AppColors.background,
         ),
         backgroundColor: AppColors.background,
-        body: StreamBuilder<QuerySnapshot>(
-          stream: _firestore.collection('bookings').snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            }
-            return ListView(
-              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                return FutureBuilder<Map<String, dynamic>>(
-                  future: fetchBookingDetails(
-                      document.data() as Map<String, dynamic>),
-                  builder: (context, detailSnapshot) {
-                    if (detailSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                    if (detailSnapshot.hasError ||
-                        detailSnapshot.data == null) {
-                      return Text('Error: Failed to fetch booking details');
-                    }
-                    return bookingCard(detailSnapshot.data!,
-                        document); // Pass document snapshot here
-                  },
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Lottie.asset('assets/images/bookingc.json', height: 200),
+          StreamBuilder<QuerySnapshot>(
+              stream: _firestore.collection('bookings').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                return Expanded(
+                  child: ListView(
+                    children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                      return FutureBuilder<Map<String, dynamic>>(
+                        future: fetchBookingDetails(
+                            document.data() as Map<String, dynamic>),
+                        builder: (context, detailSnapshot) {
+                          if (detailSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                          if (detailSnapshot.hasError ||
+                              detailSnapshot.data == null) {
+                            return Text('Error: Failed to fetch booking details');
+                          }
+                          return bookingCard(detailSnapshot.data!,
+                              document); // Pass document snapshot here
+                        },
+                      );
+                    }).toList(),
+                  ),
                 );
-              }).toList(),
-            );
-          },
-        ),
+              },
+            ),
+        ],
+      ),
     );
   }
 

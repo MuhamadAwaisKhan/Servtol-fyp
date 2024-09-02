@@ -8,8 +8,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:servtol/loginprovider.dart'; // Ensure this is the correct import path.
 
 class ProfileScreenWidget extends StatefulWidget {
+  Function onBackPress;
+  ProfileScreenWidget({super.key,required this.onBackPress});
+
   @override
-  _ProfileScreenWidgetState createState() => _ProfileScreenWidgetState();
+  State<ProfileScreenWidget> createState() => _ProfileScreenWidgetState();
 }
 
 class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
@@ -17,6 +20,7 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
   final ImagePicker _picker = ImagePicker();
   File? _image;
   bool _isLoading = false;
+  File? _tempImage; // Temporary image storage
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +34,14 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: StreamBuilder<DocumentSnapshot>(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : buildProfileScreen(),
+    );
+  }
+
+  Widget buildProfileScreen() {
+    return StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('provider')
             .doc(_auth.currentUser?.uid)
@@ -55,17 +66,69 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
               children: [
                 GestureDetector(
                   onTap: pickImage,
-                  child: CircleAvatar(
-                    radius: 60,
-                    backgroundImage: _image != null
-                        ? FileImage(_image!) as ImageProvider<Object>?
-                        : data['ProfilePic'] != null
-                        ? NetworkImage(data['ProfilePic'] as String) as ImageProvider<Object>?
-                        : null,
-                    child: _image == null && data['ProfilePic'] == null
-                        ? Icon(Icons.add_a_photo, size: 60, color: Colors.grey[200])
-                        : null,
-                    backgroundColor: Colors.deepPurple[200],
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundImage: _image != null
+                            ? FileImage(_image!) as ImageProvider<Object>?
+                            : data['ProfilePic'] != null
+                                ? NetworkImage(data['ProfilePic'] as String)
+                                    as ImageProvider<Object>?
+                                : null,
+                        backgroundColor: Colors.deepPurple[200],
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.deepPurple,
+                            // Match the CircleAvatar background or choose another contrasting color
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: Colors.white,
+                                width: 2), // White border for visibility
+                          ),
+                          child: Icon(Icons.add,
+                              color: Colors.white,
+                              size: 24), // + icon for upload/change image
+                        ),
+                      ),
+                      if (_tempImage != null) ...[
+                        Positioned(
+                          right: 10,
+                          top: 10,
+                          child: GestureDetector(
+                            onTap: confirmUpload,
+                            child: Container(
+                              padding: EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.check, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: 10,
+                          top: 10,
+                          child: GestureDetector(
+                            onTap: cancelUpload,
+                            child: Container(
+                              padding: EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.close, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 SizedBox(height: 20),
@@ -80,23 +143,25 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                   onPressed: () => showEditProfileDialog(data, docId),
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
-                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
-                  child: Text('Edit Profile', style: TextStyle(fontSize: 18, color: Colors.white)),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
+                  child: Text('Edit Profile',
+                      style: TextStyle(fontSize: 18, color: Colors.white)),
                 ),
                 SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: logout,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
-                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
-                  child: Text('Logout', style: TextStyle(fontSize: 18, color: Colors.white)),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
+                  child: Text('Logout',
+                      style: TextStyle(fontSize: 18, color: Colors.white)),
                 ),
               ],
             ),
           );
-        },
-      ),
-    );
+        });
   }
 
   Widget detailItem(String label, String? value) {
@@ -105,19 +170,98 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.deepPurple)),
-          Text(value ?? 'Not provided', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple)),
+          Text(value ?? 'Not provided',
+              style: TextStyle(fontSize: 16, color: Colors.grey[600])),
         ],
       ),
     );
   }
 
+  Future<void> pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _tempImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  void confirmUpload() async {
+    if (_tempImage != null) {
+      setState(() {
+        _isLoading = true; // Show loading indicator during the upload
+      });
+
+      // Call the upload function with _tempImage as the argument
+      String imageUrl = await _uploadImageToFirebaseStorage(_tempImage!);
+
+      if (imageUrl.isNotEmpty) {
+        // Update Firestore with the new image URL
+        await updateProfileImageUrl(_auth.currentUser!.uid, imageUrl);
+        setState(() {
+          _image = _tempImage; // Make the upload permanent in the app state
+          _tempImage = null; // Clear the temporary image
+        });
+      } else {
+        Fluttertoast.showToast(msg: "Failed to upload image");
+      }
+
+      setState(() {
+        _isLoading = false; // Hide loading indicator once done
+      });
+    }
+  }
+
+  void cancelUpload() {
+    setState(() {
+      _tempImage = null;
+    });
+  }
+
+  Future<void> updateProfileImageUrl(String userId, String imageUrl) async {
+    await FirebaseFirestore.instance
+        .collection('provider')
+        .doc(userId)
+        .update({'ProfilePic': imageUrl}).then((value) {
+      Fluttertoast.showToast(msg: "Profile image updated successfully");
+    }).catchError((error) {
+      Fluttertoast.showToast(msg: "Failed to update image URL: $error");
+      print("Failed to update image URL: $error");
+    });
+  }
+
+  void logout() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => loginprovider()));
+    Fluttertoast.showToast(msg: "Logged out successfully");
+  }
+
+  Future<String> _uploadImageToFirebaseStorage(File imageFile) async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference reference =
+        FirebaseStorage.instance.ref().child('images/profile/$fileName.jpg');
+    UploadTask uploadTask = reference.putFile(imageFile);
+    TaskSnapshot storageTaskSnapshot = await uploadTask;
+    return await storageTaskSnapshot.ref.getDownloadURL();
+  }
+
   void showEditProfileDialog(Map<String, dynamic> data, String docId) {
-    TextEditingController firstNameController = TextEditingController(text: data['FirstName']);
-    TextEditingController lastNameController = TextEditingController(text: data['LastName']);
-    TextEditingController usernameController = TextEditingController(text: data['Username']);
-    TextEditingController mobileController = TextEditingController(text: data['Mobile']);
-    TextEditingController cnicController = TextEditingController(text: data['CNIC']);
+    TextEditingController firstNameController =
+        TextEditingController(text: data['FirstName']);
+    TextEditingController lastNameController =
+        TextEditingController(text: data['LastName']);
+    TextEditingController usernameController =
+        TextEditingController(text: data['Username']);
+    TextEditingController mobileController =
+        TextEditingController(text: data['Mobile']);
+    TextEditingController cnicController =
+        TextEditingController(text: data['CNIC']);
 
     showDialog(
       context: context,
@@ -132,31 +276,37 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                     GestureDetector(
                       onTap: () async {
                         await pickImage();
-                        setState(() {});  // Refresh the dialog to show the selected image
+                        setState(
+                            () {}); // Refresh the dialog to show the selected image
                       },
-                      child: CircleAvatar(
-                        radius: 60,
-                        backgroundImage: _image != null
-                            ? FileImage(_image!) as ImageProvider<Object>?
-                            : data['ProfilePic'] != null
-                            ? NetworkImage(data['ProfilePic'] as String) as ImageProvider<Object>?
-                            : null,
-                        child: _image == null && data['ProfilePic'] == null
-                            ? Icon(Icons.add_a_photo, size: 60, color: Colors.grey[200])
-                            : null,
-                        backgroundColor: Colors.deepPurple[200],
+                      child: ListBody(
+                        children: <Widget>[
+                          TextField(
+                              controller: firstNameController,
+                              decoration:
+                                  InputDecoration(labelText: "First Name")),
+                          SizedBox(height: 10),
+                          TextField(
+                              controller: lastNameController,
+                              decoration:
+                                  InputDecoration(labelText: "Last Name")),
+                          SizedBox(height: 10),
+                          TextField(
+                              controller: usernameController,
+                              decoration:
+                                  InputDecoration(labelText: "Username")),
+                          SizedBox(height: 10),
+                          TextField(
+                              controller: mobileController,
+                              decoration: InputDecoration(labelText: "Mobile")),
+                          SizedBox(height: 10),
+                          TextField(
+                              controller: cnicController,
+                              decoration: InputDecoration(labelText: "CNIC")),
+                          SizedBox(height: 10),
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(controller: firstNameController, decoration: InputDecoration(labelText: "First Name")),
-                    SizedBox(height: 10),
-                    TextField(controller: lastNameController, decoration: InputDecoration(labelText: "Last Name")),
-                    SizedBox(height: 10),
-                    TextField(controller: usernameController, decoration: InputDecoration(labelText: "Username")),
-                    SizedBox(height: 10),
-                    TextField(controller: mobileController, decoration: InputDecoration(labelText: "Mobile")),
-                    SizedBox(height: 10),
-                    TextField(controller: cnicController, decoration: InputDecoration(labelText: "CNIC")),
+                    )
                   ],
                 ),
               ),
@@ -168,27 +318,33 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                 TextButton(
                   child: _isLoading
                       ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(width: 10),
-                      Text('Saving...'),
-                    ],
-                  )
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(width: 10),
+                            Text('Saving...'),
+                          ],
+                        )
                       : Text('Save', style: TextStyle(color: Colors.green)),
                   onPressed: _isLoading
                       ? null
                       : () async {
-                    setState(() {
-                      _isLoading = true;
-                    });
-                    String imageUrl = await _uploadImageToFirebaseStorage();
-                    await updateProfileData(docId, firstNameController.text, lastNameController.text, usernameController.text, mobileController.text, cnicController.text, imageUrl);
-                    setState(() {
-                      _isLoading = false;
-                    });
-                    Navigator.of(context).pop();
-                  },
+                          setState(() {
+                            _isLoading = true;
+                          });
+                          // String imageUrl = await _uploadImageToFirebaseStorage();
+                          await updateProfileData(
+                              docId,
+                              firstNameController.text,
+                              lastNameController.text,
+                              usernameController.text,
+                              mobileController.text,
+                              cnicController.text);
+                          setState(() {
+                            _isLoading = false;
+                          });
+                          Navigator.of(context).pop();
+                        },
                 ),
               ],
             );
@@ -198,43 +354,27 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
     );
   }
 
-  Future<void> pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-  }
-
-  Future<String> _uploadImageToFirebaseStorage() async {
-    if (_image == null) {
-      return ''; // Return empty if no image is selected
-    }
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference reference = FirebaseStorage.instance.ref().child('images/profile/$fileName.jpg');
-    UploadTask uploadTask = reference.putFile(_image!);
-    TaskSnapshot storageTaskSnapshot = await uploadTask;
-    return await storageTaskSnapshot.ref.getDownloadURL();
-  }
-
-  Future<void> updateProfileData(String docId, String firstName, String lastName, String username, String mobile, String cnic, String imageUrl) async {
+  Future<void> updateProfileData(
+    String docId,
+    String firstName,
+    String lastName,
+    String username,
+    String mobile,
+    String cnic,
+  ) async {
     Map<String, dynamic> dataToUpdate = {
       'FirstName': firstName,
       'LastName': lastName,
       'Username': username,
       'Mobile': mobile,
       'CNIC': cnic,
-      'ProfilePic': imageUrl.isNotEmpty ? imageUrl : null,
     };
-    await FirebaseFirestore.instance.collection('provider').doc(docId).update(dataToUpdate)
+    await FirebaseFirestore.instance
+        .collection('provider')
+        .doc(docId)
+        .update(dataToUpdate)
         .then((value) => Fluttertoast.showToast(msg: "Profile Updated"))
-        .catchError((error) => Fluttertoast.showToast(msg: "Failed to update profile: $error"));
-  }
-
-  void logout() async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => loginprovider()));
-    Fluttertoast.showToast(msg: "Logged out successfully");
+        .catchError((error) =>
+            Fluttertoast.showToast(msg: "Failed to update profile: $error"));
   }
 }

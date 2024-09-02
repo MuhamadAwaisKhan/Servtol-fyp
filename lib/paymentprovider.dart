@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class PaymentScreenWidget extends StatefulWidget {
-  final Function backPress;
+  final Function onBackPress;
 
-  PaymentScreenWidget({Key? key, required this.backPress}) : super(key: key);
+  PaymentScreenWidget({Key? key, required this.onBackPress}) : super(key: key);
 
   @override
   State<PaymentScreenWidget> createState() => _PaymentScreenWidgetState();
@@ -66,41 +67,50 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
         backgroundColor: AppColors.background,
       ),
       backgroundColor: AppColors.background,
-      body: ListView.builder(
-        itemCount: payments.length,
-        itemBuilder: (context, index) {
-          return Card(
-            color: Colors.teal,
-            margin: EdgeInsets.all(8),
-            child: ListTile(
-              title: Text(
-                payments[index]['name'],
-                style: TextStyle(color: Colors.white),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Payment ID: ${payments[index]['paymentId']}',
-                    style: TextStyle(color: Colors.grey),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Lottie.asset('assets/images/payments.json', height: 200),
+
+          Expanded(
+            child: ListView.builder(
+              itemCount: payments.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  color: Colors.teal,
+                  margin: EdgeInsets.all(8),
+                  child: ListTile(
+                    title: Text(
+                      payments[index]['name'],
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Payment ID: ${payments[index]['paymentId']}',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        Text(
+                          'Status: ${payments[index]['status']}',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        Text(
+                          'Method: ${payments[index]['method']}',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        Text(
+                          'Amount: ${payments[index]['amount']}',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
-                  Text(
-                    'Status: ${payments[index]['status']}',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                  Text(
-                    'Method: ${payments[index]['method']}',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                  Text(
-                    'Amount: ${payments[index]['amount']}',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

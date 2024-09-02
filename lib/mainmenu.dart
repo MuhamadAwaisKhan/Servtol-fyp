@@ -164,7 +164,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 },
                 "Favourite",
                 40,
-                130,
+                150,
                 // Icons.contacts_sharp,
                 // Colors.grey, // Specify the default color of the icon
                 // isFirstButtonClicked, // Pass the clicked state to the button
@@ -184,7 +184,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 },
                 "Tax",
                 40,
-                130,
+                150,
                 // Icons.contacts_sharp,
                 // Colors.grey, // Specify the default color of the icon
                 // isFirstButtonClicked, // Pass the clicked state to the button
@@ -206,7 +206,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 },
                 "Coupons",
                 40,
-                130,
+                150,
                 // Icons.contacts_sharp,
                 // Colors.grey, // Specify the default color of the icon
                 // isFirstButtonClicked, // Pass the clicked state to the button
@@ -221,3 +221,4 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     );
   }
 }
+

@@ -13,76 +13,85 @@ import 'package:servtol/paymentprovider.dart';
 import 'servicescreenprovider.dart';
 
 class customermainscreen extends StatefulWidget {
-  const customermainscreen({super.key});
+  final Function onBackPress;
+
+  customermainscreen({Key? key, required this.onBackPress}) : super(key: key);
 
   @override
   State<customermainscreen> createState() => _customermainscreenState();
 }
 
 class _customermainscreenState extends State<customermainscreen> {
-
-
   int myindex = 0;
-  final List<Widget> widgetlist = const[
-     HomeCustomer(),
-    BookingCustomer(),
-    CategoriesCustomer(),
-    chatcustomer(),
-    profilecustomer(),
-
-    // Text("Home",style: TextStyle(fontSize: 20),),
-    // Text("Booking",style: TextStyle(fontSize: 20),),
-    // Text("Payment",style: TextStyle(fontSize: 20),),
-    // Text("Service",style: TextStyle(fontSize: 20),),
-    // Text("Profile",style: TextStyle(fontSize: 20),),
-  ];
-
+  late List<Widget> widgetlist ;
+  @override
+  void initState() {
+    super.initState();
+    widgetlist = [
+      HomeCustomer( onBackPress: widget.onBackPress,),
+      BookingCustomer(
+        onBackPress: widget.onBackPress,
+      ),
+      CategoriesCustomer( onBackPress: widget.onBackPress,),
+      chatcustomer(onBackPress: widget.onBackPress,),
+      profilecustomer(onBackPress: widget.onBackPress,),
+    ];
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-
-      backgroundColor: AppColors.background,
-      body: Center(child: widgetlist[myindex]),
-      bottomNavigationBar:
-      BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          // showSelectedLabels: ,
-          backgroundColor: AppColors.background,
-          // showUnselectedLabels:false ,
-          onTap: (index) {
+    return WillPopScope(
+        onWillPop: () async {
+          // Check if the current index is 0 (home tab)
+          if (myindex == 0) {
+            // If on the home tab, do nothing and do not allow the back action
+            return false;
+          } else {
+            // If not on the home tab, navigate to the home tab
             setState(() {
-              myindex = index;
+              myindex = 0;
             });
-          },
-          currentIndex: myindex,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_filled),
-              label: "Home",
-              backgroundColor: Colors.green,
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bolt_outlined),
-              label: "Booking",
-              backgroundColor: Colors.cyan,
-            ),
-            BottomNavigationBarItem(
-              icon: FaIcon(Icons.category_rounded),
-              label: "Categories",
-              backgroundColor: Colors.lightGreenAccent,
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.chat_bubble),
-              label: "Chat",
-              backgroundColor: Colors.indigo,
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "Profile",
-              backgroundColor: Colors.red,
-            ),
-
-          ]),
-    );
+            return false; // Intercept the back action
+          }
+        },
+        child: Scaffold(
+          backgroundColor: AppColors.background,
+          body: Center(child: widgetlist[myindex]),
+          bottomNavigationBar: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: AppColors.background,
+              onTap: (index) {
+                setState(() {
+                  myindex = index;
+                });
+              },
+              currentIndex: myindex,
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home_filled),
+                  label: "Home",
+                  backgroundColor: Colors.green,
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.bolt_outlined),
+                  label: "Booking",
+                  backgroundColor: Colors.cyan,
+                ),
+                BottomNavigationBarItem(
+                  icon: FaIcon(Icons.category_rounded),
+                  label: "Categories",
+                  backgroundColor: Colors.lightGreenAccent,
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.chat_bubble),
+                  label: "Chat",
+                  backgroundColor: Colors.indigo,
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person),
+                  label: "Profile",
+                  backgroundColor: Colors.red,
+                ),
+              ]),
+        ));
   }
 }

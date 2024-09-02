@@ -7,15 +7,17 @@ import 'package:servtol/searchcustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:servtol/notificationcustomer.dart';
-
 class HomeCustomer extends StatefulWidget {
-  const HomeCustomer({Key? key}) : super(key: key);
+  Function onBackPress; // Making this final and required
+
+   HomeCustomer({super.key,required this.onBackPress});
 
   @override
   State<HomeCustomer> createState() => _HomeCustomerState();
 }
 
 class _HomeCustomerState extends State<HomeCustomer> {
+
   int _current = 0;
   CarouselSliderController _carouselController = CarouselSliderController();
   List<Map<String, dynamic>> _cloudImages = [];
@@ -25,6 +27,8 @@ class _HomeCustomerState extends State<HomeCustomer> {
     super.initState();
     fetchImages();
   }
+
+
 
   void fetchImages() async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -38,55 +42,57 @@ class _HomeCustomerState extends State<HomeCustomer> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Home", style: TextStyle(fontFamily: 'Poppins',
-            fontWeight: FontWeight.bold,
-            fontSize: 17,
-            color: AppColors.heading)),
-        backgroundColor: AppColors.background,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () =>
-                Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => customernotification())),
-          ),
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () =>
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => searchcustomer())),
-          ),
-        ],
-      ),
-      backgroundColor: AppColors.background,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            if (_cloudImages.isNotEmpty) ...[
-          servicesCarousel(),
-      const SizedBox(height: 20),
-      AnimatedSmoothIndicator(
-        activeIndex: _current,
-        count: _cloudImages.length,
-        effect: ExpandingDotsEffect(
-            dotWidth: 10,
-            dotHeight: 10,
-            dotColor: Colors.grey,
-            activeDotColor: Colors.blueAccent),
-        onDotClicked: (index) => _carouselController.animateToPage(index),
-      ),
-            ],
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: buildCategoriesHeader(),
+  return Scaffold(
+        appBar: AppBar(
+          title: const Text("Home", style: TextStyle(fontFamily: 'Poppins',
+              fontWeight: FontWeight.bold,
+              fontSize: 17,
+              color: AppColors.heading)),
+          backgroundColor: AppColors.background,
+          leading: Icon(size: 0.0,Icons.arrow_back),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.notifications),
+              onPressed: () =>
+                  Navigator.push(context, MaterialPageRoute(
+                      builder: (context) => customernotification())),
             ),
-            buildHorizontalCategoryList(),
-            servicesList(),
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () =>
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => searchcustomer())),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.background,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              if (_cloudImages.isNotEmpty) ...[
+            servicesCarousel(),
+        const SizedBox(height: 20),
+        AnimatedSmoothIndicator(
+          activeIndex: _current,
+          count: _cloudImages.length,
+          effect: ExpandingDotsEffect(
+              dotWidth: 10,
+              dotHeight: 10,
+              dotColor: Colors.grey,
+              activeDotColor: Colors.blueAccent),
+          onDotClicked: (index) => _carouselController.animateToPage(index),
+        ),
+              ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: buildCategoriesHeader(),
+              ),
+              buildHorizontalCategoryList(),
+              servicesList(),
 
-    ])
-      ),
+      ])
+        ),
+
     );
   }
 
@@ -145,7 +151,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
         GestureDetector(
           onTap: () =>
               Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => CategoriesCustomer())),
+                  builder: (context) => CategoriesCustomer(onBackPress: widget.onBackPress,))),
           child: const Text(
               'View All', style: TextStyle(color: Colors.blue, fontSize: 16)),
         ),
@@ -181,7 +187,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
               category['icon'], category['label'], category['color'],
                   () =>
                   Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => CategoriesCustomer())),
+                      builder: (context) => CategoriesCustomer(onBackPress: widget.onBackPress,))),
             )).toList(),
       ),
     );
@@ -226,7 +232,6 @@ class _HomeCustomerState extends State<HomeCustomer> {
               ),
               GestureDetector(
                 onTap: () {
-                  // Navigation to a screen that lists all services
                 },
                 child: Text(
                   'View All',

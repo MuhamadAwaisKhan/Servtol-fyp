@@ -50,8 +50,12 @@ class _SignupCustomerState extends State<SignupCustomer> {
         'Username': usernameController.text,
       });
       Fluttertoast.showToast(msg: 'Account Created Successfully');
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => customermainscreen()));
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => customermainscreen(onBackPress: () {
+                    Navigator.of(context).pop();
+                  })));
     } catch (e) {
       Fluttertoast.showToast(msg: 'Failed to Create Account: $e');
     }

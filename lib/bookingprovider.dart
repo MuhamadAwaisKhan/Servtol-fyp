@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class BookingScreenWidget extends StatefulWidget {
-  final Function backPress;
+   Function onBackPress;
 
-  const BookingScreenWidget({Key? key, required this.backPress}) : super(key: key);
+   BookingScreenWidget({Key? key, required this.onBackPress}) : super(key: key);
 
   @override
   State<BookingScreenWidget> createState() => _BookingScreenWidgetState();
@@ -29,7 +30,7 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
   }
 
   Stream<QuerySnapshot<Object?>> _bookingStream(String searchText) {
-    print("Search Text: $searchText"); // Debugging output
+    // print("Search Text: $searchText"); // Debugging output
     if (searchText.isEmpty) {
       return FirebaseFirestore.instance.collection('bookings').snapshots();
     } else {
@@ -157,6 +158,8 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
               },
             ),
           ),
+          Lottie.asset('assets/images/booking.json', height: 200),
+
           Expanded( // Wrap StreamBuilder with Expanded
             child: StreamBuilder<QuerySnapshot>(
               stream: _bookingStream(searchController.text.trim()),

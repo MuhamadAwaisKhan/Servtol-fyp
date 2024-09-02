@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:servtol/util/AppColors.dart';
 class chatcustomer extends StatefulWidget {
-  const chatcustomer({super.key});
+  Function onBackPress; // Making this final and required
+
+
+   chatcustomer({super.key,required this.onBackPress});
 
   @override
   State<chatcustomer> createState() => _chatcustomerState();

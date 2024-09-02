@@ -14,7 +14,8 @@ import 'package:servtol/util/uihelper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 class logincustomer extends StatefulWidget {
-  const logincustomer({super.key});
+
+   logincustomer({super.key,});
 
   @override
   State<logincustomer> createState() => _logincustomerState();
@@ -54,7 +55,8 @@ class _logincustomerState extends State<logincustomer> {
       if (snapshot.docs.isNotEmpty) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) =>customermainscreen())
+          MaterialPageRoute(builder: (_) =>customermainscreen(onBackPress: () {
+            Navigator.of(context).pop();}))
         );
       } else {
         uihelper.CustomAlertbox(context, "No account found with this email.");

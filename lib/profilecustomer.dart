@@ -11,7 +11,9 @@ import 'package:servtol/logincustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class profilecustomer extends StatefulWidget {
-  const profilecustomer({super.key});
+  Function onBackPress; // Making this final and required
+
+   profilecustomer({super.key,required this.onBackPress});
 
   @override
   State<profilecustomer> createState() => _profilecustomerState();
@@ -21,6 +23,7 @@ class _profilecustomerState extends State<profilecustomer> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final ImagePicker _picker = ImagePicker();
   File? _image;
+  File? _tempImage; // Temporary image storage
   bool _isLoading = false;
 
   @override
@@ -35,7 +38,14 @@ class _profilecustomerState extends State<profilecustomer> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: StreamBuilder<DocumentSnapshot>(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : buildProfileScreen(),
+    );
+  }
+
+  Widget buildProfileScreen() {
+    return StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('customer')
             .doc(_auth.currentUser?.uid)
@@ -60,19 +70,69 @@ class _profilecustomerState extends State<profilecustomer> {
               children: [
                 GestureDetector(
                   onTap: pickImage,
-                  child: CircleAvatar(
-                    radius: 60,
-                    backgroundImage: _image != null
-                        ? FileImage(_image!) as ImageProvider<Object>?
-                        : data['ProfilePic'] != null
-                            ? NetworkImage(data['ProfilePic'] as String)
-                                as ImageProvider<Object>?
-                            : null,
-                    child: _image == null && data['ProfilePic'] == null
-                        ? Icon(Icons.add_a_photo,
-                            size: 60, color: Colors.grey[200])
-                        : null,
-                    backgroundColor: Colors.deepPurple[200],
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundImage: _image != null
+                            ? FileImage(_image!) as ImageProvider<Object>?
+                            : data['ProfilePic'] != null
+                                ? NetworkImage(data['ProfilePic'] as String)
+                                    as ImageProvider<Object>?
+                                : null,
+                        backgroundColor: Colors.deepPurple[200],
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.deepPurple,
+                            // Match the CircleAvatar background or choose another contrasting color
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: Colors.white,
+                                width: 2), // White border for visibility
+                          ),
+                          child: Icon(Icons.add,
+                              color: Colors.white,
+                              size: 24), // + icon for upload/change image
+                        ),
+                      ),
+                      if (_tempImage != null) ...[
+                        Positioned(
+                          right: 10,
+                          top: 10,
+                          child: GestureDetector(
+                            onTap: confirmUpload,
+                            child: Container(
+                              padding: EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.check, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: 10,
+                          top: 10,
+                          child: GestureDetector(
+                            onTap: cancelUpload,
+                            child: Container(
+                              padding: EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.close, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 SizedBox(height: 20),
@@ -104,9 +164,7 @@ class _profilecustomerState extends State<profilecustomer> {
               ],
             ),
           );
-        },
-      ),
-    );
+        });
   }
 
   Widget detailItem(String label, String? value) {
@@ -125,6 +183,82 @@ class _profilecustomerState extends State<profilecustomer> {
         ],
       ),
     );
+  }
+
+  Future<void> pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _tempImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  void confirmUpload() async {
+    if (_tempImage != null) {
+      setState(() {
+        _isLoading = true; // Activate loading indicator
+      });
+
+      try {
+        // Call the upload function with _tempImage as the argument
+        String imageUrl = await _uploadImageToFirebaseStorage(_tempImage!);
+
+        if (imageUrl.isNotEmpty) {
+          // Update Firestore with the new image URL
+          await updateProfileImageUrl(_auth.currentUser!.uid, imageUrl);
+          setState(() {
+            _image = _tempImage; // Make the upload permanent in the app state
+            _tempImage = null; // Clear the temporary image
+          });
+          Fluttertoast.showToast(msg: "Image uploaded successfully");
+        } else {
+          Fluttertoast.showToast(msg: "Failed to upload image");
+        }
+      } catch (e) {
+        // Handle errors in case of failure
+        print('Upload failed: $e');
+        Fluttertoast.showToast(msg: "Error during image upload: $e");
+      } finally {
+        setState(() {
+          _isLoading = false; // Deactivate loading indicator
+        });
+      }
+    }
+  }
+
+  void cancelUpload() {
+    setState(() {
+      _tempImage = null;
+    });
+  }
+
+  Future<void> updateProfileImageUrl(String userId, String imageUrl) async {
+    await FirebaseFirestore.instance
+        .collection('customer')
+        .doc(userId)
+        .update({'ProfilePic': imageUrl}).then((value) {
+      Fluttertoast.showToast(msg: "Profile image updated successfully");
+    }).catchError((error) {
+      Fluttertoast.showToast(msg: "Failed to update image URL: $error");
+      print("Failed to update image URL: $error");
+    });
+  }
+
+  void logout() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => logincustomer()));
+    Fluttertoast.showToast(msg: "Logged out successfully");
+  }
+
+  Future<String> _uploadImageToFirebaseStorage(File imageFile) async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference reference =
+        FirebaseStorage.instance.ref().child('images/profile/$fileName.jpg');
+    UploadTask uploadTask = reference.putFile(imageFile);
+    TaskSnapshot storageTaskSnapshot = await uploadTask;
+    return await storageTaskSnapshot.ref.getDownloadURL();
   }
 
   void showEditProfileDialog(Map<String, dynamic> data, String docId) {
@@ -153,38 +287,30 @@ class _profilecustomerState extends State<profilecustomer> {
                         setState(
                             () {}); // Refresh the dialog to show the selected image
                       },
-                      child: CircleAvatar(
-                        radius: 60,
-                        backgroundImage: _image != null
-                            ? FileImage(_image!) as ImageProvider<Object>?
-                            : data['ProfilePic'] != null
-                                ? NetworkImage(data['ProfilePic'] as String)
-                                    as ImageProvider<Object>?
-                                : null,
-                        child: _image == null && data['ProfilePic'] == null
-                            ? Icon(Icons.add_a_photo,
-                                size: 60, color: Colors.grey[200])
-                            : null,
-                        backgroundColor: Colors.deepPurple[200],
+                      child: ListBody(
+                        children: <Widget>[
+                          TextField(
+                              controller: firstNameController,
+                              decoration:
+                                  InputDecoration(labelText: "First Name")),
+                          SizedBox(height: 10),
+                          TextField(
+                              controller: lastNameController,
+                              decoration:
+                                  InputDecoration(labelText: "Last Name")),
+                          SizedBox(height: 10),
+                          TextField(
+                              controller: usernameController,
+                              decoration:
+                                  InputDecoration(labelText: "Username")),
+                          SizedBox(height: 10),
+                          TextField(
+                              controller: mobileController,
+                              decoration: InputDecoration(labelText: "Mobile")),
+                          SizedBox(height: 10),
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                        controller: firstNameController,
-                        decoration: InputDecoration(labelText: "First Name")),
-                    SizedBox(height: 10),
-                    TextField(
-                        controller: lastNameController,
-                        decoration: InputDecoration(labelText: "Last Name")),
-                    SizedBox(height: 10),
-                    TextField(
-                        controller: usernameController,
-                        decoration: InputDecoration(labelText: "Username")),
-                    SizedBox(height: 10),
-                    TextField(
-                        controller: mobileController,
-                        decoration: InputDecoration(labelText: "Mobile")),
-                    SizedBox(height: 10),
+                    )
                   ],
                 ),
               ),
@@ -210,16 +336,14 @@ class _profilecustomerState extends State<profilecustomer> {
                           setState(() {
                             _isLoading = true;
                           });
-                          String imageUrl =
-                              await _uploadImageToFirebaseStorage();
+                          // String imageUrl = await _uploadImageToFirebaseStorage();
                           await updateProfileData(
-                              docId,
-                              firstNameController.text,
-                              lastNameController.text,
-                              usernameController.text,
-                              mobileController.text,
-
-                              imageUrl);
+                            docId,
+                            firstNameController.text,
+                            lastNameController.text,
+                            usernameController.text,
+                            mobileController.text,
+                          );
                           setState(() {
                             _isLoading = false;
                           });
@@ -234,41 +358,18 @@ class _profilecustomerState extends State<profilecustomer> {
     );
   }
 
-  Future<void> pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-  }
-
-  Future<String> _uploadImageToFirebaseStorage() async {
-    if (_image == null) {
-      return ''; // Return empty if no image is selected
-    }
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference reference =
-        FirebaseStorage.instance.ref().child('images/profile/$fileName.jpg');
-    UploadTask uploadTask = reference.putFile(_image!);
-    TaskSnapshot storageTaskSnapshot = await uploadTask;
-    return await storageTaskSnapshot.ref.getDownloadURL();
-  }
-
   Future<void> updateProfileData(
-      String docId,
-      String firstName,
-      String lastName,
-      String username,
-      String mobile,
-
-      String imageUrl) async {
+    String docId,
+    String firstName,
+    String lastName,
+    String username,
+    String mobile,
+  ) async {
     Map<String, dynamic> dataToUpdate = {
       'FirstName': firstName,
       'LastName': lastName,
       'Username': username,
       'Mobile': mobile,
-      'ProfilePic': imageUrl.isNotEmpty ? imageUrl : null,
     };
     await FirebaseFirestore.instance
         .collection('customer')
@@ -277,12 +378,5 @@ class _profilecustomerState extends State<profilecustomer> {
         .then((value) => Fluttertoast.showToast(msg: "Profile Updated"))
         .catchError((error) =>
             Fluttertoast.showToast(msg: "Failed to update profile: $error"));
-  }
-
-  void logout() async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => logincustomer()));
-    Fluttertoast.showToast(msg: "Logged out successfully");
   }
 }

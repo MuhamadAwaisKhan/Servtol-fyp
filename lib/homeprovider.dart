@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:servtol/NotificationProvider.dart';
 import 'package:servtol/ServiceScreenDetail.dart';
+import 'package:servtol/bookingprovider.dart';
 import 'package:servtol/chatprovider.dart';
 import 'package:servtol/servicescreenprovider.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -10,7 +11,9 @@ import 'package:servtol/util/uihelper.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class HomeProvider extends StatefulWidget {
-  HomeProvider({super.key});
+  Function onBackPress; // Making this final and required
+
+  HomeProvider({super.key,required this.onBackPress});
 
   @override
   State<HomeProvider> createState() => _HomeProviderState();
@@ -97,6 +100,7 @@ class _HomeProviderState extends State<HomeProvider> {
           ),
         ),
         backgroundColor: AppColors.background,
+        leading: Icon(size: 0.0,Icons.arrow_back),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.message_outlined),
@@ -203,7 +207,15 @@ class _HomeProviderState extends State<HomeProvider> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              uihelper.CustomButton(() {}, "Booking", 50, 170),
+              uihelper.CustomButton(() {
+                print("button clicked ");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BookingScreenWidget(onBackPress: widget.onBackPress,),
+                  ),
+                );
+              }, "Booking", 50, 170),
               uihelper.CustomButton(() {}, "Total Services", 50, 170)
             ],
           ),
@@ -311,7 +323,7 @@ class _HomeProviderState extends State<HomeProvider> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ServiceScreenWidget(),
+                      builder: (context) => ServiceScreenWidget(onBackPress: widget.onBackPress,),
                     ),
                   );
                 },

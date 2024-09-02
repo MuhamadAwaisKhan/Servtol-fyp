@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class CategoriesCustomer extends StatefulWidget {
-  const CategoriesCustomer({Key? key}) : super(key: key);
+  Function onBackPress; // Making this final and required
+
+
+   CategoriesCustomer({Key? key,required this.onBackPress}) : super(key: key);
 
   @override
   State<CategoriesCustomer> createState() => _CategoriesCustomerState();
