@@ -8,6 +8,7 @@ import 'package:servtol/customermain.dart';
 import 'package:servtol/forgetpassword.dart';
 import 'package:servtol/homecustomer.dart';
 import 'package:servtol/homeprovider.dart';
+import 'package:servtol/notifications/notificationmessageservice.dart';
 import 'package:servtol/signupcustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
@@ -29,10 +30,11 @@ class _logincustomerState extends State<logincustomer> {
   bool _rememberMe = false;
   bool _isLoading = false;
   // GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
-  login(String email, String password) async {
+  void login(String email, String password) async {
     setState(() {
       _isLoading = true;
     });
+
     if (email.isEmpty || password.isEmpty) {
       uihelper.CustomAlertbox(context, "Please enter all required fields.");
       setState(() {
@@ -40,6 +42,7 @@ class _logincustomerState extends State<logincustomer> {
       });
       return;
     }
+
     if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email)) {
       uihelper.CustomAlertbox(context, "Please enter a valid email address.");
       setState(() {
@@ -49,14 +52,17 @@ class _logincustomerState extends State<logincustomer> {
     }
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
       QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('customer').where('Email', isEqualTo: email).get();
 
       if (snapshot.docs.isNotEmpty) {
+        NotificationService().uploadFcmToken(); // Call FCM token upload after successful login
+
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) =>customermainscreen(onBackPress: () {
-            Navigator.of(context).pop();}))
+          MaterialPageRoute(builder: (_) => customermainscreen(onBackPress: () {
+            Navigator.of(context).pop();
+          })),
         );
       } else {
         uihelper.CustomAlertbox(context, "No account found with this email.");
@@ -68,16 +74,16 @@ class _logincustomerState extends State<logincustomer> {
       } else if (ex.code == 'wrong-password') {
         errorMessage = "Wrong password provided for that user.";
       }
+
       uihelper.CustomAlertbox(context, errorMessage);
     } catch (e) {
-      print(e.toString());
+      print('Login error: ${e.toString()}');
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
-  }
-  // Future<void> _handleSignIn() async {
+  }  // Future<void> _handleSignIn() async {
   //   try {
   //     await _googleSignIn.signIn();
   //     // After sign in, you can get the user's information like this:

@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:servtol/NotificationProvider.dart';
 import 'package:servtol/ServiceScreenDetail.dart';
 import 'package:servtol/bookingprovider.dart';
+import 'package:servtol/bookingproviderdetail.dart';
 import 'package:servtol/chatprovider.dart';
 import 'package:servtol/servicescreenprovider.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -13,7 +15,7 @@ import 'package:fl_chart/fl_chart.dart';
 class HomeProvider extends StatefulWidget {
   Function onBackPress; // Making this final and required
 
-  HomeProvider({super.key,required this.onBackPress});
+  HomeProvider({super.key, required this.onBackPress});
 
   @override
   State<HomeProvider> createState() => _HomeProviderState();
@@ -22,15 +24,21 @@ class HomeProvider extends StatefulWidget {
 class _HomeProviderState extends State<HomeProvider> {
   final User? currentUser =
       FirebaseAuth.instance.currentUser; // Initial loading text
-
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String _userName = 'Loading...';
-  String? providerPicUrl ;
+  String? providerPicUrl;
+
+  int bookingCount = 0;
+  int serviceCount = 0;
 
   @override
   void initState() {
     super.initState();
     fetchUserInfo();
+    listenForUnreadNotifications();
+    _fetchBookingCount();
+    _fetchServiceCount();
   }
 
   Future<void> fetchUserInfo() async {
@@ -72,7 +80,7 @@ class _HomeProviderState extends State<HomeProvider> {
 
         setState(() {
           _userName = name ?? 'Name not available';
-          providerPicUrl = profilePic;  // Can be null if not available
+          providerPicUrl = profilePic; // Can be null if not available
         });
       }
     } catch (e) {
@@ -84,7 +92,54 @@ class _HomeProviderState extends State<HomeProvider> {
     }
   }
 
+  int unreadCount = 0;
 
+  // Function to listen for unread notifications
+  void listenForUnreadNotifications() {
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('providerId', isEqualTo: currentUser?.uid)
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .listen((snapshot) {
+      setState(() {
+        unreadCount = snapshot.docs.length;
+      });
+    });
+  }
+
+  Future<void> _fetchBookingCount() async {
+    if (currentUser != null) {
+      QuerySnapshot bookingSnapshot = await _firestore
+          .collection('bookings')
+          .where('customerId', isEqualTo: currentUser!.uid)
+          .get();
+      setState(() {
+        bookingCount = bookingSnapshot.size;
+      });
+    }
+  }
+
+  Future<void> _fetchServiceCount() async {
+    if (currentUser != null) {
+      QuerySnapshot serviceSnapshot = await _firestore
+          .collection('service')
+          .where('providerId', isEqualTo: currentUser!.uid)
+          .get();
+      setState(() {
+        serviceCount = serviceSnapshot.size;
+      });
+    }
+  }
+
+  Stream<QuerySnapshot> _fetchIncomingBookings() {
+    // Fetch bookings where providerId matches the current provider's ID
+    return _firestore
+        .collection('bookings')
+        .where('providerId', isEqualTo: currentUser?.uid)
+        .where('status', isEqualTo: 'Pending')
+        .snapshots();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,19 +155,77 @@ class _HomeProviderState extends State<HomeProvider> {
           ),
         ),
         backgroundColor: AppColors.background,
-        leading: Icon(size: 0.0,Icons.arrow_back),
+        leading: Icon(size: 0.0, Icons.arrow_back),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.message_outlined),
-            onPressed: () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => chatprovider())),
-          ),
-          IconButton(
-            icon: Icon(Icons.notifications),
+            icon: FaIcon(FontAwesomeIcons.message),
             onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => notificationprovider())),
+              context,
+              MaterialPageRoute(builder: (context) => chatprovider()),
+            ),
+          ),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('notifications')
+                .where('providerId',
+                    isEqualTo: currentUser
+                        ?.uid) // Make sure providerId is set correctly
+                .where('isRead',
+                    isEqualTo: false) // Query for unread notifications
+                .snapshots(),
+            builder: (context, snapshot) {
+              int unreadCount = 0;
+
+              if (snapshot.hasData) {
+                unreadCount = snapshot.data!.docs.length;
+              }
+
+              return Stack(
+                children: [
+                  IconButton(
+                    iconSize: 30,
+                    // Adjust icon size here
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    // Adjust icon padding here
+                    icon: FaIcon(FontAwesomeIcons.bell),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NotificationProvider(),
+                        ),
+                      );
+                    },
+                  ),
+                  if (unreadCount >
+                      0) // Only show badge if there are unread notifications
+                    Positioned(
+                      right: 11,
+                      top: 11,
+                      child: Container(
+                        padding: EdgeInsets.all(4),
+                        // Adjust padding inside badge
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: 15,
+                          minHeight: 15,
+                        ),
+                        child: Text(
+                          '$unreadCount',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 6, // Adjust font size of the badge
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -134,35 +247,32 @@ class _HomeProviderState extends State<HomeProvider> {
   }
 
   Widget providerInfoSection() => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    children: [
-
-
-      Padding(
-        padding: const EdgeInsets.only(right: 100.0),
-        child: Text("Hello  $_userName  ",
-            style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.heading)),
-      ),
-      SizedBox(width: 10),
-      providerPicUrl != null
-          ? CircleAvatar(
-        backgroundImage: NetworkImage(providerPicUrl!),
-        radius: 30,
-      )
-          : CircleAvatar(
-        child: Icon(Icons.account_circle, size: 60),
-        radius: 30,
-      ),
-    ],
-  );
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 100.0),
+            child: Text("Hello  $_userName  ",
+                style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.heading)),
+          ),
+          SizedBox(width: 10),
+          providerPicUrl != null
+              ? CircleAvatar(
+                  backgroundImage: NetworkImage(providerPicUrl!),
+                  radius: 30,
+                )
+              : CircleAvatar(
+                  child: Icon(Icons.account_circle, size: 60),
+                  radius: 30,
+                ),
+        ],
+      );
 
   Widget greetingSection() => Column(
         children: [
-
           SizedBox(height: 15),
           Padding(
             padding: const EdgeInsets.only(right: 215.0),
@@ -207,24 +317,78 @@ class _HomeProviderState extends State<HomeProvider> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              uihelper.CustomButton(() {
-                print("button clicked ");
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BookingScreenWidget(onBackPress: widget.onBackPress,),
-                  ),
-                );
-              }, "Booking", 50, 170),
-              uihelper.CustomButton(() {}, "Total Services", 50, 170)
+              uihelper.CustomButton1(
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookingScreenWidget(
+                        onBackPress: widget.onBackPress,
+                      ),
+                    ),
+                  );
+                },
+                "Bookings ",
+                50,
+                190,
+                icon:
+                    FaIcon(FontAwesomeIcons.calendarCheck, color: Colors.white),
+              ),
+              uihelper.CustomButton1(
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ServiceScreenWidget(
+                        onBackPress: widget.onBackPress,
+                      ),
+                    ),
+                  );
+                },
+                "Total Services ",
+                50,
+                190,
+                icon: FaIcon(FontAwesomeIcons.gears, color: Colors.white),
+              ),
             ],
           ),
           SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              uihelper.CustomButton(() {}, "Monthly Earning", 50, 180),
-              uihelper.CustomButton(() {}, "Wallet History", 50, 170)
+              uihelper.CustomButton1(
+                () {
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => BookingScreenWidget(
+                  //       onBackPress: widget.onBackPress,
+                  //     ),
+                  //   ),
+                  // );
+                },
+                "Monthly Earning ",
+                50,
+                190,
+                icon: FaIcon(FontAwesomeIcons.dollarSign, color: Colors.white),
+              ),
+              uihelper.CustomButton1(
+                () {
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => ServiceScreenWidget(
+                  //       onBackPress: widget.onBackPress,
+                  //     ),
+                  //   ),
+                  // );
+                },
+                "Wallet History ",
+                50,
+                190,
+                icon:
+                    FaIcon(FontAwesomeIcons.googleWallet, color: Colors.white),
+              ),
             ],
           ),
           SizedBox(height: 20),
@@ -275,29 +439,126 @@ class _HomeProviderState extends State<HomeProvider> {
         ],
       );
 
-  Widget upcomingBookings() => Column(
-        children: [
-          Text("Upcoming Booking",
-              style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.heading)),
-          SizedBox(height: 15),
-          Container(
-            width: 310,
+  Widget upcomingBookings() => Column(children: [
+        Text("Upcoming Booking",
+            style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.bold,
+                color: AppColors.heading)),
+        SizedBox(height: 15),
+        Container(
+            width: 360,
+            padding: EdgeInsets.all(8.0),
             decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 1)),
-            child: Column(
-              children: [
-                Card(child: ListTile(title: Text("Booking 1"))),
-                Card(child: ListTile(title: Text("Booking 2"))),
-                Card(child: ListTile(title: Text("Booking 3")))
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
+                ),
               ],
+              border: Border.all(color: Colors.grey, width:3),
             ),
-          ),
-          SizedBox(height: 15),
-        ],
-      );
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _fetchIncomingBookings(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(child: Text('No incoming bookings.'));
+                }
+
+                return Column(
+                  children:
+                      snapshot.data!.docs.map((DocumentSnapshot document) {
+                    var bookingData = document.data() as Map<String, dynamic>;
+                    return Card(
+                      margin: EdgeInsets.symmetric(vertical: 8.0),
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        contentPadding: EdgeInsets.all(12.0),
+                        leading: FaIcon(
+                          FontAwesomeIcons.calendarCheck,
+                          color: Colors.blueAccent,
+                          size: 30,
+                        ),
+                        title: Text(
+                          "Booking #${bookingData['bookingId']}",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 4),
+                            Text(
+                              "Service: ${bookingData['ServiceName']}",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Date: ${bookingData['date']}",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Status: ${bookingData['status']}",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: bookingData['status'] == 'pending'
+                                    ? Colors.orangeAccent
+                                    : Colors.green,
+                              ),
+                            ),
+                          ],
+                        ),
+                        trailing: Text(
+                          "\$${bookingData['total'].toStringAsFixed(2)}",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.green,
+                          ),
+                        ),
+                        onTap: (){
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => bookingproviderdetail(
+                                bookings: document,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                    );
+                  }).toList(),
+                );
+              },
+            )
+        ),
+    SizedBox(height: 15),
+      ]
+  );
 
   Widget servicesList() {
     return Column(
@@ -323,7 +584,9 @@ class _HomeProviderState extends State<HomeProvider> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ServiceScreenWidget(onBackPress: widget.onBackPress,),
+                      builder: (context) => ServiceScreenWidget(
+                        onBackPress: widget.onBackPress,
+                      ),
                     ),
                   );
                 },
@@ -409,23 +672,26 @@ class _HomeProviderState extends State<HomeProvider> {
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
                                     colors: [
-                                      Colors.black.withOpacity(0.5), // Top color with shadow effect
-                                      Colors.transparent, // Bottom color (no shadow)
+                                      Colors.black.withOpacity(0.5),
+                                      // Top color with shadow effect
+                                      Colors.transparent,
+                                      // Bottom color (no shadow)
                                     ],
-                                    stops: [0.5, 1.0], // Control where the gradient stops
+                                    stops: [
+                                      0.5,
+                                      1.0
+                                    ], // Control where the gradient stops
                                   ).createShader(bounds);
                                 },
-                                blendMode: BlendMode.darken, // Blending mode for the shadow effect
+                                blendMode: BlendMode.darken,
+                                // Blending mode for the shadow effect
                                 child: Image.network(
                                   doc['ImageUrl'] ?? 'default_image_url',
                                   fit: BoxFit.cover,
                                 ),
                               ),
                             ),
-
-
-
-                      Container(
+                            Container(
                               padding: EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
@@ -460,24 +726,29 @@ class _HomeProviderState extends State<HomeProvider> {
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-
                                     Text(
                                       doc['ServiceName'] ?? 'No name',
-                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
                                         color: Colors.white,
                                         shadows: [
                                           Shadow(
-                                            offset: Offset(-1.5, -1.5), // Bottom-left shadow
+                                            offset: Offset(-1.5, -1.5),
+                                            // Bottom-left shadow
                                             color: Colors.black,
                                             blurRadius: 2,
                                           ),
                                           Shadow(
-                                            offset: Offset(1.5, 1.5), // Top-right shadow
+                                            offset: Offset(1.5, 1.5),
+                                            // Top-right shadow
                                             color: Colors.black,
                                             blurRadius: 2,
                                           ),
                                           Shadow(
-                                            offset: Offset(0, 0), // Outline-style shadow
+                                            offset: Offset(0, 0),
+                                            // Outline-style shadow
                                             color: Colors.black,
                                             blurRadius: 8,
                                           ),
@@ -485,8 +756,6 @@ class _HomeProviderState extends State<HomeProvider> {
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
-
-
                                     SizedBox(height: 4),
                                     Text(
                                       "\$" +
@@ -499,13 +768,12 @@ class _HomeProviderState extends State<HomeProvider> {
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.bold,
                                       ),
-
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                     ],
+                          ],
                         ),
                       ),
                     ),
@@ -516,6 +784,29 @@ class _HomeProviderState extends State<HomeProvider> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class CustomButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  final String text;
+  final double height;
+  final double width;
+  final FaIcon? icon;
+
+  CustomButton(this.onPressed, this.text, this.height, this.width, {this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: icon ?? Container(), // Show icon if provided
+      label: Text(text, style: TextStyle(fontSize: 16)),
+      style: ElevatedButton.styleFrom(
+        minimumSize: Size(width, height),
+        backgroundColor: Colors.indigo, // Button background color
+      ),
     );
   }
 }

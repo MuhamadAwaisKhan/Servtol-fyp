@@ -443,4 +443,35 @@ class uihelper {
       ),
     );
   }
+  static Widget CustomButton1(
+      VoidCallback voidCallback,
+      String text,
+      double height,
+      double width, {
+         icon,
+      }) {
+    return SizedBox(
+      height: height,
+      width: width,
+      child: ElevatedButton.icon(
+        onPressed: voidCallback,
+        icon: icon ?? Container(), // Show icon if provided
+        label: Text(
+          text,
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: "Poppins",
+            fontSize: 15,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.customButton,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(26),
+          ),
+        ),
+      ),
+    );
+  }
+
 }

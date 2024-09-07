@@ -19,12 +19,12 @@ class _testerState extends State<tester> {
     super.initState();
     notificationService.requestNotificationPermission();
     // notificationService.Istokenrefresed();
-    notificationService.firebaseInit();
-    notificationService.getDeviceToken().then((value){
-  print("Device token");
-  print(value);
-
-    });
+    // notificationService.firebaseInit();
+    // notificationService.getDeviceToken().then((value){
+  // print("Device token");
+  // print(value);
+  //
+  //   });
   }
 
 

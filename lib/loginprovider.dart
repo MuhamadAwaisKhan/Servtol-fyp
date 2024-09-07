@@ -10,6 +10,8 @@ import 'package:servtol/util/uihelper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 
+import 'notifications/notificationmessageservice.dart';
+
 class loginprovider extends StatefulWidget {
   const loginprovider({super.key});
 
@@ -23,10 +25,11 @@ class _loginproviderState extends State<loginprovider> {
   bool _hidePassword = false;
   bool _rememberMe = false;
   bool _isLoading = false;
-  login(String email, String password) async {
+  void login(String email, String password) async {
     setState(() {
       _isLoading = true;
     });
+
     if (email.isEmpty || password.isEmpty) {
       uihelper.CustomAlertbox(context, "Please enter all required fields.");
       setState(() {
@@ -34,6 +37,7 @@ class _loginproviderState extends State<loginprovider> {
       });
       return;
     }
+
     if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email)) {
       uihelper.CustomAlertbox(context, "Please enter a valid email address.");
       setState(() {
@@ -43,10 +47,12 @@ class _loginproviderState extends State<loginprovider> {
     }
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
       QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('provider').where('Email', isEqualTo: email).get();
 
       if (snapshot.docs.isNotEmpty) {
+        NotificationService().uploadFcmToken(); // Call FCM token upload after successful login
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => ProviderMainLayout(onBackPress: () {
@@ -63,16 +69,16 @@ class _loginproviderState extends State<loginprovider> {
       } else if (ex.code == 'wrong-password') {
         errorMessage = "Wrong password provided for that user.";
       }
+
       uihelper.CustomAlertbox(context, errorMessage);
     } catch (e) {
-      print(e.toString());
+      print('Login error: ${e.toString()}');
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -255,7 +261,6 @@ class _loginproviderState extends State<loginprovider> {
               ),
               uihelper.CustomButton(() { login(emailcontroller.text.toString().trim(),
                   passwordcontroller.text.toString().trim());
-
                 // Navigator.push(context, MaterialPageRoute(builder: (context)=>MyHomePage()));
               }, "Login",40,190),
               SizedBox(

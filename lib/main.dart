@@ -4,9 +4,13 @@ import 'package:servtol/main%20login.dart';
 import 'package:servtol/startscreen.dart';
 import 'package:servtol/tester%20file.dart';
 import 'firebase_options.dart';
+import 'package:flutter/foundation.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+import 'notifications/notificationmessageservice.dart';
 
 
-void main() async {
+Future <void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(
@@ -21,7 +25,8 @@ void main() async {
     print('Failed to initialize Firebase App: $e');
   }
 
-
+  NotificationService().requestNotificationPermission();
+   NotificationService().initLocalNotification();
   runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
 
