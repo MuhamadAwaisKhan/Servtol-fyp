@@ -24,21 +24,53 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
 
   }
 
-  void updateBookingStatus() async {
+  void updateBookingStatus(String newStatus, String notificationMessage, String notificationMessage1) async {
     try {
-      await _firestore.collection('bookings').doc(widget.bookings.id).update({'status': 'Cancelled'});
-      // Correctly pop the screen first.
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Booking has been cancelled'))
-      );
+      // Get the booking ID
+      String bookingId = widget.bookings.id;
 
+      // 1. Update the booking status
+      await _firestore.collection('bookings').doc(bookingId).update({
+        'status': newStatus,
+      });
+
+      // 2. Find the corresponding notification
+      QuerySnapshot notificationSnapshot = await _firestore
+          .collection('notifications')
+          .where('providerId', isEqualTo: widget.bookings['providerId']) // Filter by providerId
+          .where('serviceNameLower', isEqualTo: (widget.bookings['ServiceName'] ?? '').toString().toLowerCase()) // Filter by service name (if available)
+          .get();
+
+
+      if (notificationSnapshot.docs.isNotEmpty) {
+        DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
+
+        // 3. Update the notification
+        await _firestore
+            .collection('notifications')
+            .doc(notificationDoc.id)
+            .update({
+          'message': notificationMessage,
+          'message1': notificationMessage1,
+          'status': newStatus,
+        });
+      } else {
+        print('No notification found for booking ID: $bookingId');
+      }
+
+      // 4. Show success message and navigate back
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Booking status updated to $newStatus')),
+      );
+      Navigator.pop(context);
     } catch (e) {
       print('Error updating booking status: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to cancel booking')),
+        SnackBar(content: Text('Failed to update booking status')),
       );
     }
   }
+
   void fetchTaxRate() async {
     try {
       var querySnapshot = await FirebaseFirestore.instance
@@ -547,25 +579,45 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                     ),
                     SizedBox(height: 20),
                     Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          updateBookingStatus();
-                          Navigator.pop(context);  // This will close the screen after cancellation
-                        },
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.red, // Button color
-                        ),
-                        child: Text('Cancel Booking'),
+                      child: Row( // Use a Row to arrange the buttons horizontally
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              updateBookingStatus(
+                                  'Accepted',
+                                  'You have accepted the booking.',
+                                  'Your booking is approved and wait for the next step.'
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.green, // Green for Accept
+                            ),
+                            child: Text('Accept'),
+                          ),
+                          SizedBox(width: 16), // Add some spacing between buttons
+                          ElevatedButton(
+                            onPressed: () {
+                              updateBookingStatus(
+                                  'Rejected',
+                                  'You have rejected the booking.',
+                                  'Your booking has been rejected.'
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.red, // Red for Reject
+                            ),
+                            child: Text('Reject'),
+                          ),
+                        ],
                       ),
                     )
                   ])
           );
-
         },
-
       ),
     );
   }
 }
-

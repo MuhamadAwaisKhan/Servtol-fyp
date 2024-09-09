@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -6,7 +7,7 @@ import 'package:servtol/bookingcustomerdetail.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class BookingCustomer extends StatefulWidget {
-  Function onBackPress; // Making this final and required
+  final Function onBackPress; // Making this final and required
 
   BookingCustomer({Key? key, required this.onBackPress}) : super(key: key);
 
@@ -16,6 +17,14 @@ class BookingCustomer extends StatefulWidget {
 
 class _BookingCustomerState extends State<BookingCustomer> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final User? currentUser = FirebaseAuth.instance.currentUser;
+  String? customerId;
+  // = currentUser?.uid;
+  @override
+  void initState() {
+    super.initState();
+    customerId = currentUser?.uid; // Initialize customerId in initState
+  }
   Future<void> _updateDateTime(BuildContext context, String bookingId) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -64,13 +73,10 @@ class _BookingCustomerState extends State<BookingCustomer> {
   }
 
   // Generalized method to fetch documents from Firestore
-  Future<Map<String, dynamic>?> fetchDocument(
-      String collection, String documentId) async {
+  Future<Map<String, dynamic>?> fetchDocument(String collection, String documentId) async {
     try {
-      var snapshot =
-          await _firestore.collection(collection).doc(documentId).get();
+      var snapshot = await _firestore.collection(collection).doc(documentId).get();
       if (snapshot.exists && snapshot.data() != null) {
-        // print("$collection Data: ${snapshot.data()}");
         return snapshot.data();
       } else {
         print("Document not found in $collection with ID $documentId");
@@ -82,16 +88,13 @@ class _BookingCustomerState extends State<BookingCustomer> {
     }
   }
 
-  Future<Map<String, dynamic>> fetchBookingDetails(
-      Map<String, dynamic> bookingData) async {
+  Future<Map<String, dynamic>> fetchBookingDetails(Map<String, dynamic> bookingData) async {
     try {
       Map<String, dynamic> result = {};
 
-      var providerData =
-          await fetchDocument('provider', bookingData['providerId']);
+      var providerData = await fetchDocument('provider', bookingData['providerId']);
       var couponData = await fetchDocument('coupons', bookingData['couponId']);
-      var serviceData =
-          await fetchDocument('service', bookingData['serviceId']);
+      var serviceData = await fetchDocument('service', bookingData['serviceId']);
 
       // Make sure to include booking-specific details
       result['provider'] = providerData ?? {};
@@ -116,26 +119,29 @@ class _BookingCustomerState extends State<BookingCustomer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text(
-            "Bookings",
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.bold,
-              fontSize: 17,
-              color: AppColors.heading,
-            ),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          "Bookings",
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            fontSize: 17,
+            color: AppColors.heading,
           ),
-          backgroundColor: AppColors.background,
         ),
         backgroundColor: AppColors.background,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+      ),
+      backgroundColor: AppColors.background,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Lottie.asset('assets/images/bookingc.json', height: 200),
-          StreamBuilder<QuerySnapshot>(
-              stream: _firestore.collection('bookings').snapshots(),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _firestore.collection('bookings')
+                  .where('customerId', isEqualTo: customerId)
+                  .snapshots(), // Fixed here
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
@@ -143,30 +149,25 @@ class _BookingCustomerState extends State<BookingCustomer> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 }
-                return Expanded(
-                  child: ListView(
-                    children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                      return FutureBuilder<Map<String, dynamic>>(
-                        future: fetchBookingDetails(
-                            document.data() as Map<String, dynamic>),
-                        builder: (context, detailSnapshot) {
-                          if (detailSnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
-                          }
-                          if (detailSnapshot.hasError ||
-                              detailSnapshot.data == null) {
-                            return Text('Error: Failed to fetch booking details');
-                          }
-                          return bookingCard(detailSnapshot.data!,
-                              document); // Pass document snapshot here
-                        },
-                      );
-                    }).toList(),
-                  ),
+                return ListView(
+                  children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                    return FutureBuilder<Map<String, dynamic>>(
+                      future: fetchBookingDetails(document.data() as Map<String, dynamic>),
+                      builder: (context, detailSnapshot) {
+                        if (detailSnapshot.connectionState == ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                        if (detailSnapshot.hasError || detailSnapshot.data == null) {
+                          return Text('Error: Failed to fetch booking details');
+                        }
+                        return bookingCard(detailSnapshot.data!, document);
+                      },
+                    );
+                  }).toList(),
                 );
               },
             ),
+          ),
         ],
       ),
     );
@@ -177,7 +178,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
 
     // Extracting nested data safely
     String serviceType =
-        (data['service']?['ServiceType'] as String? ?? '').toLowerCase();
+    (data['service']?['ServiceType'] as String? ?? '').toLowerCase();
     bool isRemoteService = serviceType == 'remote';
     String serviceName =
         data['service']?['ServiceName'] as String? ?? 'No Service';

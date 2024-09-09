@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:servtol/bookingproviderdetail.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:timeago/timeago.dart' as timeago;
 class NotificationProvider extends StatefulWidget {
-  const NotificationProvider({super.key});
+
+  const NotificationProvider({super.key,});
 
   @override
   State<NotificationProvider> createState() => _NotificationProviderState();
@@ -164,7 +166,7 @@ class _NotificationProviderState extends State<NotificationProvider> {
 
                             SizedBox(height: 4),
                             Text(
-                              "State: $serviceState",
+                              "Status: $serviceState",
                               style: TextStyle(
                                 fontSize: 14,
                                 color: serviceState == 'pending'
@@ -191,13 +193,34 @@ class _NotificationProviderState extends State<NotificationProvider> {
                             color: Colors.green)
                             : Icon(Icons.circle,
                             color: Colors.redAccent),
-                        onTap: () {
-                          // Mark the notification as read in Firestore
-                          FirebaseFirestore.instance
-                              .collection('notifications')
-                              .doc(notification.id)
-                              .update({'isRead': true});
-                        },
+                          onTap: () {
+                            FirebaseFirestore.instance
+                                .collection('notifications')
+                                .doc(notification.id)
+                                .update({'isRead': true});
+                            FirebaseFirestore.instance
+                                .collection('bookings') // Assuming your bookings are stored in a 'bookings' collection
+                                .doc(bookingId) // Use the bookingId from the notification
+                                .get()
+                                .then((bookingSnapshot) {
+                              if (bookingSnapshot.exists) {
+                                // Navigate to the booking details page with the fetched booking document
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => bookingproviderdetail(
+                                      bookings: bookingSnapshot, // Pass the entire DocumentSnapshot
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                print("Booking not found");
+                              }
+                            }).catchError((error) {
+                              print("Error fetching booking: $error");
+                            });
+                          }
+
                       ),
                     ),
                   );

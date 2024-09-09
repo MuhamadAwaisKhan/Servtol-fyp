@@ -29,20 +29,48 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
 
   void updateBookingStatus() async {
     try {
-      await _firestore.collection('bookings').doc(widget.bookings.id).update({'status': 'Cancelled'});
-   // Correctly pop the screen first.
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Booking has been cancelled'))
-      );
+      // Get the booking ID
+      String bookingId = widget.bookings.id;
 
+      // 1. Update the booking status
+      await _firestore.collection('bookings').doc(bookingId).update({
+        'status': 'Cancelled',
+      });
+
+      // 2. Find the corresponding notification
+      QuerySnapshot notificationSnapshot = await _firestore
+          .collection('notifications')
+          .where('bookingId', isEqualTo: bookingId)
+          .get();
+
+      if (notificationSnapshot.docs.isNotEmpty) {
+        DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
+
+        // 3. Update the notification
+        await _firestore
+            .collection('notifications')
+            .doc(notificationDoc.id)
+            .update({
+          'message': 'Your booking has been cancelled by the customer.',
+          'message1': 'You have cancelled the service booking.',
+          'status': 'Cancelled',
+        });
+      } else {
+        print('No notification found for booking ID: $bookingId');
+      }
+
+      // 4. Show success message and navigate back
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Booking has been cancelled')),
+      );
+      Navigator.pop(context);
     } catch (e) {
       print('Error updating booking status: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to cancel booking')),
       );
     }
-  }
-  void fetchTaxRate() async {
+  }  void fetchTaxRate() async {
     try {
       var querySnapshot = await FirebaseFirestore.instance
           .collection('taxRates')

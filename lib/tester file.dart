@@ -27,8 +27,48 @@ class _testerState extends State<tester> {
   //   });
   }
 
+//   Column(
+//   crossAxisAlignment: CrossAxisAlignment.center,
+//   children: [
+//   Lottie.asset('assets/images/bookingc.json', height: 200),
+//   Expanded(
+//   child: StreamBuilder<QuerySnapshot>(
+//   stream: _firestore.collection('bookings')
+//       .where('customerId', isEqualTo: customerId)
+//       .snapshots(), // Fixed here
+//   builder: (context, snapshot) {
+//   if (snapshot.hasError) {
+//   return Text('Error: ${snapshot.error}');
+//   }
+//   if (snapshot.connectionState == ConnectionState.waiting) {
+//   return Center(child: CircularProgressIndicator());
+//   }
+//   return ListView(
+//   children: snapshot.data!.docs.map((DocumentSnapshot document) {
+//   return FutureBuilder<Map<String, dynamic>>(
+//   future: fetchBookingDetails(document.data() as Map<String, dynamic>),
+//   builder: (context, detailSnapshot) {
+//   if (detailSnapshot.connectionState == ConnectionState.waiting) {
+//   return Center(child: CircularProgressIndicator());
+//   }
+//   if (detailSnapshot.hasError || detailSnapshot.data == null) {
+//   return Text('Error: Failed to fetch booking details');
+//   }
+//   return bookingCard(detailSnapshot.data!, document);
+//   },
+//   );
+//   }).toList(),
+//   );
+//   },
+//   ),
+//   ),
+//   ],
+//   ),
+//   );
+// }
 
-  @override
+
+@override
   Widget build(BuildContext context) {
     return  Scaffold(
 

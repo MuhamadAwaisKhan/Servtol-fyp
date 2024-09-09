@@ -324,6 +324,8 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           'customerId': currentUserId,
           'bookingId': formattedBookingId,
           'message': 'You have a new booking.',
+          'message1': 'You have booked a service',
+
           'date': formattedDate,
           'time': selectedTime?.format(context),
           'isRead': false,
