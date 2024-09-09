@@ -205,6 +205,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
             return Center(child: Text('Error fetching booking details'));
           }
           var data = snapshot.data!;
+          var bookingStatus =
+              widget.bookings['status'] as String? ?? '';
           return Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -577,19 +579,17 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                       ),
                     ),
                     SizedBox(height: 20),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          updateBookingStatus();
-                          Navigator.pop(context);  // This will close the screen after cancellation
-                        },
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.red, // Button color
+                    if (bookingStatus.toLowerCase() == 'pending')
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: () => updateBookingStatus(),
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.red,
+                          ),
+                          child: Text('Cancel Booking'),
                         ),
-                        child: Text('Cancel Booking'),
                       ),
-                    )
                   ])
           );
 
@@ -598,4 +598,5 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
       ),
     );
   }
+
 }

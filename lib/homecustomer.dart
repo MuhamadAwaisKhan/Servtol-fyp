@@ -1,23 +1,27 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:servtol/Servicecustomerdetail.dart';
 import 'package:servtol/categoriescustomer.dart';
 import 'package:servtol/searchcustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:servtol/notificationcustomer.dart';
+
 class HomeCustomer extends StatefulWidget {
   Function onBackPress; // Making this final and required
 
-   HomeCustomer({super.key,required this.onBackPress});
+  HomeCustomer({super.key, required this.onBackPress});
 
   @override
   State<HomeCustomer> createState() => _HomeCustomerState();
 }
 
 class _HomeCustomerState extends State<HomeCustomer> {
-
+  final User? currentUser =
+      FirebaseAuth.instance.currentUser; // Initial loading text
   int _current = 0;
   CarouselSliderController _carouselController = CarouselSliderController();
   List<Map<String, dynamic>> _cloudImages = [];
@@ -27,8 +31,6 @@ class _HomeCustomerState extends State<HomeCustomer> {
     super.initState();
     fetchImages();
   }
-
-
 
   void fetchImages() async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -40,95 +42,172 @@ class _HomeCustomerState extends State<HomeCustomer> {
     });
   }
 
+  int unreadCount = 0;
+
+  // Function to listen for unread notifications
+  void listenForUnreadNotifications() {
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('customerId', isEqualTo: currentUser?.uid)
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .listen((snapshot) {
+      setState(() {
+        unreadCount = snapshot.docs.length;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-  return Scaffold(
-        appBar: AppBar(
-          title: const Text("Home", style: TextStyle(fontFamily: 'Poppins',
-              fontWeight: FontWeight.bold,
-              fontSize: 17,
-              color: AppColors.heading)),
-          backgroundColor: AppColors.background,
-          leading: Icon(size: 0.0,Icons.arrow_back),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications),
-              onPressed: () =>
-                  Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => customernotification())),
-            ),
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () =>
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => searchcustomer())),
-            ),
-          ],
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Home",
+            style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.bold,
+                fontSize: 17,
+                color: AppColors.heading)),
         backgroundColor: AppColors.background,
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              if (_cloudImages.isNotEmpty) ...[
-            servicesCarousel(),
-        const SizedBox(height: 20),
-        AnimatedSmoothIndicator(
-          activeIndex: _current,
-          count: _cloudImages.length,
-          effect: ExpandingDotsEffect(
-              dotWidth: 10,
-              dotHeight: 10,
-              dotColor: Colors.grey,
-              activeDotColor: Colors.blueAccent),
-          onDotClicked: (index) => _carouselController.animateToPage(index),
-        ),
-              ],
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: buildCategoriesHeader(),
-              ),
-              buildHorizontalCategoryList(),
-              servicesList(),
+        leading: Icon(size: 0.0, Icons.arrow_back),
+        actions: [
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('notifications')
+                .where('customerId',
+                    isEqualTo: currentUser
+                        ?.uid) // Make sure providerId is set correctly
+                .where('isRead',
+                    isEqualTo: false) // Query for unread notifications
+                .snapshots(),
+            builder: (context, snapshot) {
+              int unreadCount = 0;
 
-      ])
-        ),
+              if (snapshot.hasData) {
+                unreadCount = snapshot.data!.docs.length;
+              }
 
+              return Stack(
+                children: [
+                  IconButton(
+                    iconSize: 30,
+                    // Adjust icon size here
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    // Adjust icon padding here
+                    icon: FaIcon(FontAwesomeIcons.bell),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => customernotification(),
+                        ),
+                      );
+                    },
+                  ),
+                  if (unreadCount >
+                      0) // Only show badge if there are unread notifications
+                    Positioned(
+                      right: 11,
+                      top: 11,
+                      child: Container(
+                        padding: EdgeInsets.all(4),
+                        // Adjust padding inside badge
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: 15,
+                          minHeight: 15,
+                        ),
+                        child: Text(
+                          '$unreadCount',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 6, // Adjust font size of the badge
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+
+          IconButton(
+            icon: FaIcon(FontAwesomeIcons.magnifyingGlass),
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (context) => searchcustomer())),
+          ),
+        ],
+      ),
+      backgroundColor: AppColors.background,
+      body: SingleChildScrollView(
+          child: Column(children: [
+        if (_cloudImages.isNotEmpty) ...[
+          servicesCarousel(),
+          const SizedBox(height: 20),
+          AnimatedSmoothIndicator(
+            activeIndex: _current,
+            count: _cloudImages.length,
+            effect: ExpandingDotsEffect(
+                dotWidth: 10,
+                dotHeight: 10,
+                dotColor: Colors.grey,
+                activeDotColor: Colors.blueAccent),
+            onDotClicked: (index) => _carouselController.animateToPage(index),
+          ),
+        ],
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: buildCategoriesHeader(),
+        ),
+        buildHorizontalCategoryList(),
+        servicesList(),
+      ])),
     );
   }
 
   Widget servicesCarousel() {
     return CarouselSlider(
-      items: _cloudImages.map((item) =>
-          GestureDetector(
-            onTap: () {
-              DocumentSnapshot serviceSnapshot;
-              FirebaseFirestore.instance.collection('service').doc(item['id']).get().then((doc) {
-                if (doc.exists) {
-                  serviceSnapshot = doc;
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Servicecustomerdetail(service: serviceSnapshot),
-                      ));
-                } else {
-                  print("Document does not exist.");
-                }
-              });
-            },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(item['url']),
-                    fit: BoxFit.cover,
+      items: _cloudImages
+          .map((item) => GestureDetector(
+                onTap: () {
+                  DocumentSnapshot serviceSnapshot;
+                  FirebaseFirestore.instance
+                      .collection('service')
+                      .doc(item['id'])
+                      .get()
+                      .then((doc) {
+                    if (doc.exists) {
+                      serviceSnapshot = doc;
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                Servicecustomerdetail(service: serviceSnapshot),
+                          ));
+                    } else {
+                      print("Document does not exist.");
+                    }
+                  });
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(item['url']),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          )).toList(),
+              ))
+          .toList(),
       options: CarouselOptions(
           autoPlay: true,
           enlargeCenterPage: true,
@@ -137,11 +216,11 @@ class _HomeCustomerState extends State<HomeCustomer> {
             setState(() {
               _current = index;
             });
-          }
-      ),
+          }),
       carouselController: _carouselController,
     );
   }
+
   Widget buildCategoriesHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -149,11 +228,14 @@ class _HomeCustomerState extends State<HomeCustomer> {
         const Text('Categories',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         GestureDetector(
-          onTap: () =>
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => CategoriesCustomer(onBackPress: widget.onBackPress,))),
-          child: const Text(
-              'View All', style: TextStyle(color: Colors.blue, fontSize: 16)),
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => CategoriesCustomer(
+                        onBackPress: widget.onBackPress,
+                      ))),
+          child: const Text('View All',
+              style: TextStyle(color: Colors.blue, fontSize: 16)),
         ),
       ],
     );
@@ -182,26 +264,33 @@ class _HomeCustomerState extends State<HomeCustomer> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: categories.map((category) =>
-            buildCategoryItem(
-              category['icon'], category['label'], category['color'],
-                  () =>
-                  Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => CategoriesCustomer(onBackPress: widget.onBackPress,))),
-            )).toList(),
+        children: categories
+            .map((category) => buildCategoryItem(
+                  category['icon'],
+                  category['label'],
+                  category['color'],
+                  () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CategoriesCustomer(
+                                onBackPress: widget.onBackPress,
+                              ))),
+                ))
+            .toList(),
       ),
     );
   }
 
-  Widget buildCategoryItem(IconData icon, String label, Color color,
-      VoidCallback onTap) {
+  Widget buildCategoryItem(
+      IconData icon, String label, Color color, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            CircleAvatar(radius: 20,
+            CircleAvatar(
+                radius: 20,
                 backgroundColor: color,
                 child: Icon(icon, color: Colors.white)),
             const SizedBox(height: 5),
@@ -231,8 +320,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                 ),
               ),
               GestureDetector(
-                onTap: () {
-                },
+                onTap: () {},
                 child: Text(
                   'View All',
                   style: TextStyle(
@@ -250,7 +338,8 @@ class _HomeCustomerState extends State<HomeCustomer> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('service').snapshots(),
+            stream:
+                FirebaseFirestore.instance.collection('service').snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return Text("No Data Available");
@@ -268,7 +357,8 @@ class _HomeCustomerState extends State<HomeCustomer> {
                 itemBuilder: (context, index) {
                   DocumentSnapshot serviceDoc = snapshot.data!.docs[index];
                   return FutureBuilder<DocumentSnapshot>(
-                      future: FirebaseFirestore.instance.collection('provider')
+                      future: FirebaseFirestore.instance
+                          .collection('provider')
                           .doc(serviceDoc['providerId'])
                           .get(),
                       builder: (context, providerSnapshot) {
@@ -277,8 +367,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                         }
                         return buildServiceCard(
                             context, serviceDoc, providerSnapshot.data!);
-                      }
-                  );
+                      });
                 },
               );
             },
@@ -287,21 +376,28 @@ class _HomeCustomerState extends State<HomeCustomer> {
       ],
     );
   }
-  Widget buildServiceCard(BuildContext context, DocumentSnapshot serviceDoc, DocumentSnapshot providerDoc) {
+
+  Widget buildServiceCard(BuildContext context, DocumentSnapshot serviceDoc,
+      DocumentSnapshot providerDoc) {
     // Assuming fields are correctly retrieved.
-    String imageUrl = getDocumentField(serviceDoc, 'ImageUrl', 'default_image_url');
-    String serviceName = getDocumentField(serviceDoc, 'ServiceName', 'No service name');
+    String imageUrl =
+        getDocumentField(serviceDoc, 'ImageUrl', 'default_image_url');
+    String serviceName =
+        getDocumentField(serviceDoc, 'ServiceName', 'No service name');
     String subcategory = getDocumentField(serviceDoc, 'Subcategory', 'General');
-    String servicePrice = getDocumentField(serviceDoc, 'Price', 'Call for price');
-    String providerPic = getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url');
-    String providerName = getDocumentField(providerDoc, 'FirstName', 'No provider name');
+    String servicePrice =
+        getDocumentField(serviceDoc, 'Price', 'Call for price');
+    String providerPic =
+        getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url');
+    String providerName =
+        getDocumentField(providerDoc, 'FirstName', 'No provider name');
 
     return InkWell(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Servicecustomerdetail(service:serviceDoc),
+            builder: (context) => Servicecustomerdetail(service: serviceDoc),
           ),
         );
       },
@@ -332,7 +428,10 @@ class _HomeCustomerState extends State<HomeCustomer> {
                 children: [
                   Text(
                     serviceName,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.deepPurple[800]),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.deepPurple[800]),
                   ),
                   SizedBox(height: 4),
                   Text(
@@ -357,7 +456,10 @@ class _HomeCustomerState extends State<HomeCustomer> {
                   ),
                   Text(
                     "\$" + servicePrice,
-                    style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(
+                        color: Colors.green[700],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
                   ),
                 ],
               ),
@@ -368,11 +470,11 @@ class _HomeCustomerState extends State<HomeCustomer> {
     );
   }
 
-  dynamic getDocumentField(DocumentSnapshot doc, String fieldName, [dynamic defaultValue = '']) {
+  dynamic getDocumentField(DocumentSnapshot doc, String fieldName,
+      [dynamic defaultValue = '']) {
     var data = doc.data() as Map<String, dynamic>?;
-    return data != null && data.containsKey(fieldName) ? data[fieldName] : defaultValue;
+    return data != null && data.containsKey(fieldName)
+        ? data[fieldName]
+        : defaultValue;
   }
-
-
-
 }

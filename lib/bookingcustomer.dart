@@ -19,12 +19,14 @@ class _BookingCustomerState extends State<BookingCustomer> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final User? currentUser = FirebaseAuth.instance.currentUser;
   String? customerId;
+
   // = currentUser?.uid;
   @override
   void initState() {
     super.initState();
     customerId = currentUser?.uid; // Initialize customerId in initState
   }
+
   Future<void> _updateDateTime(BuildContext context, String bookingId) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -41,41 +43,53 @@ class _BookingCustomerState extends State<BookingCustomer> {
         // Confirm the update via an AlertDialog
         showDialog(
           context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text("Confirm Update"),
-            content: Text("Do you want to update the booking to:\nDate: ${pickedDate.toString().substring(0, 10)}\nTime: ${pickedTime.format(context)}?"),
-            actions: <Widget>[
-              TextButton(
-                child: Text("Cancel"),
-                onPressed: () {
-                  Navigator.of(ctx).pop(); // Close the dialog
-                },
+          builder: (ctx) =>
+              AlertDialog(
+                title: Text("Confirm Update"),
+                content: Text(
+                    "Do you want to update the booking to:\nDate: ${pickedDate
+                        .toString().substring(0, 10)}\nTime: ${pickedTime
+                        .format(context)}?"),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text("Cancel"),
+                    onPressed: () {
+                      Navigator.of(ctx).pop(); // Close the dialog
+                    },
+                  ),
+                  TextButton(
+                    child: Text("Update"),
+                    onPressed: () async {
+                      // Perform the update on Firestore
+                      await _firestore
+                          .collection('bookings')
+                          .doc(bookingId)
+                          .update({
+                        'date': pickedDate.toString().substring(0, 10),
+                        // Store date as a string
+                        'time': pickedTime.format(context),
+                        // Store time as a string
+                      });
+                      Navigator.of(ctx).pop(); // Close the dialog
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text('Booking updated successfully!')),
+                      );
+                    },
+                  ),
+                ],
               ),
-              TextButton(
-                child: Text("Update"),
-                onPressed: () async {
-                  // Perform the update on Firestore
-                  await _firestore.collection('bookings').doc(bookingId).update({
-                    'date': pickedDate.toString().substring(0, 10), // Store date as a string
-                    'time': pickedTime.format(context), // Store time as a string
-                  });
-                  Navigator.of(ctx).pop(); // Close the dialog
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Booking updated successfully!')),
-                  );
-                },
-              ),
-            ],
-          ),
         );
       }
     }
   }
 
   // Generalized method to fetch documents from Firestore
-  Future<Map<String, dynamic>?> fetchDocument(String collection, String documentId) async {
+  Future<Map<String, dynamic>?> fetchDocument(String collection,
+      String documentId) async {
     try {
-      var snapshot = await _firestore.collection(collection).doc(documentId).get();
+      var snapshot =
+      await _firestore.collection(collection).doc(documentId).get();
       if (snapshot.exists && snapshot.data() != null) {
         return snapshot.data();
       } else {
@@ -88,13 +102,16 @@ class _BookingCustomerState extends State<BookingCustomer> {
     }
   }
 
-  Future<Map<String, dynamic>> fetchBookingDetails(Map<String, dynamic> bookingData) async {
+  Future<Map<String, dynamic>> fetchBookingDetails(
+      Map<String, dynamic> bookingData) async {
     try {
       Map<String, dynamic> result = {};
 
-      var providerData = await fetchDocument('provider', bookingData['providerId']);
+      var providerData =
+      await fetchDocument('provider', bookingData['providerId']);
       var couponData = await fetchDocument('coupons', bookingData['couponId']);
-      var serviceData = await fetchDocument('service', bookingData['serviceId']);
+      var serviceData =
+      await fetchDocument('service', bookingData['serviceId']);
 
       // Make sure to include booking-specific details
       result['provider'] = providerData ?? {};
@@ -113,6 +130,34 @@ class _BookingCustomerState extends State<BookingCustomer> {
     } catch (e) {
       print("Error fetching booking details: $e");
       return {};
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Pending':
+        return Colors.orange; // Or any color you prefer for pending
+      case 'Cancelled':
+        return Colors.grey;
+      case 'Rejected':
+        return Colors.red;
+      case 'Accepted':
+        return Colors.green;
+      default:
+        return Colors.redAccent; // Default color for unknown statuses
+    }
+  }
+
+  Color _getPaymentStatusColor(String status) {
+    switch (status) {
+      case 'Pending':
+        return Colors.orange;
+      case 'Paid':
+        return Colors.green;
+      case 'Failed':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 
@@ -139,7 +184,8 @@ class _BookingCustomerState extends State<BookingCustomer> {
           Lottie.asset('assets/images/bookingc.json', height: 200),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: _firestore.collection('bookings')
+              stream: _firestore
+                  .collection('bookings')
                   .where('customerId', isEqualTo: customerId)
                   .snapshots(), // Fixed here
               builder: (context, snapshot) {
@@ -150,14 +196,18 @@ class _BookingCustomerState extends State<BookingCustomer> {
                   return Center(child: CircularProgressIndicator());
                 }
                 return ListView(
-                  children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                  children:
+                  snapshot.data!.docs.map((DocumentSnapshot document) {
                     return FutureBuilder<Map<String, dynamic>>(
-                      future: fetchBookingDetails(document.data() as Map<String, dynamic>),
+                      future: fetchBookingDetails(
+                          document.data() as Map<String, dynamic>),
                       builder: (context, detailSnapshot) {
-                        if (detailSnapshot.connectionState == ConnectionState.waiting) {
+                        if (detailSnapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return Center(child: CircularProgressIndicator());
                         }
-                        if (detailSnapshot.hasError || detailSnapshot.data == null) {
+                        if (detailSnapshot.hasError ||
+                            detailSnapshot.data == null) {
                           return Text('Error: Failed to fetch booking details');
                         }
                         return bookingCard(detailSnapshot.data!, document);
@@ -172,6 +222,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
       ),
     );
   }
+
 
   Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document) {
     // print("Data being passed to bookingCard: $data");
@@ -193,8 +244,9 @@ class _BookingCustomerState extends State<BookingCustomer> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => BookingCustomerDetail(
-                bookings: document), // Correctly pass DocumentSnapshot
+            builder: (context) =>
+                BookingCustomerDetail(
+                    bookings: document), // Correctly pass DocumentSnapshot
           ),
         );
       },
@@ -209,54 +261,42 @@ class _BookingCustomerState extends State<BookingCustomer> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: (data['status'] as String? ?? '').toLowerCase() == 'rejected' ? Colors.red : Colors.redAccent,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          data['status'] as String? ?? 'Pending',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+
+
+                  Container(
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(
+                          data['status'] as String? ?? 'Pending'),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      data['status'] as String? ?? 'Pending',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      (data['status'] as String? ?? '').toLowerCase() == 'pending' ? IconButton(
-                        onPressed: () {
-                          _updateDateTime(context, data['bookingId']);
-                        },
-                        icon: Icon(FontAwesomeIcons.penToSquare, size: 16, color: Colors.white),
-                      ) : Container(),  // Show nothing if not pending
-                      Text(
-                        '#${data['bookingId'] as String? ?? 'Unknown'}',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                    ),
+                  ), // Show nothing if not pending
+                  Text(
+                    '#${data['bookingId'] as String? ?? 'Unknown'}',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
+
               SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-
                   ClipOval(
-
                     child: SizedBox(
                       height: 70, // Specifies the height of the image
                       width: 70, // Specifies the width of the image
@@ -264,16 +304,13 @@ class _BookingCustomerState extends State<BookingCustomer> {
                         data['service']['ImageUrl'] ??
                             'https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=',
                         fit: BoxFit.cover,
-                        loadingBuilder: (BuildContext context,
-                            Widget child,
+                        loadingBuilder: (BuildContext context, Widget child,
                             ImageChunkEvent? loadingProgress) {
                           if (loadingProgress == null) return child;
                           return Center(
                             child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes !=
-                                  null
-                                  ? loadingProgress
-                                  .cumulativeBytesLoaded /
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
                                   loadingProgress.expectedTotalBytes!
                                   : null,
                             ),
@@ -307,7 +344,8 @@ class _BookingCustomerState extends State<BookingCustomer> {
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
                               ),
-                            ), Text(
+                            ),
+                            Text(
                               "($discount% Off)",
                               style: TextStyle(
                                 color: Colors.brown,
@@ -323,7 +361,6 @@ class _BookingCustomerState extends State<BookingCustomer> {
                   ),
                 ],
               ),
-
               SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -384,7 +421,9 @@ class _BookingCustomerState extends State<BookingCustomer> {
                                   fontWeight: FontWeight.bold,
                                 )),
                             Text(
-                              "${data['provider']?['FirstName'] as String? ?? 'No First Name'} ${data['provider']?['LastName'] as String? ?? ''}",
+                              "${data['provider']?['FirstName'] as String? ??
+                                  'No First Name'} ${data['provider']?['LastName'] as String? ??
+                                  ''}",
                               style: TextStyle(
                                 color: Colors.cyan,
                                 fontSize: 16,
@@ -408,7 +447,9 @@ class _BookingCustomerState extends State<BookingCustomer> {
                             Text(
                               data['paymentStatus'] as String? ?? 'Pending',
                               style: TextStyle(
-                                color: Colors.amber[800],
+                                color: _getPaymentStatusColor(
+                                    data['paymentStatus'] as String? ??
+                                        'Pending'),
                                 fontSize: 16,
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
@@ -418,7 +459,6 @@ class _BookingCustomerState extends State<BookingCustomer> {
                         ),
                         if (!isRemoteService) ...[
                           Divider(),
-
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

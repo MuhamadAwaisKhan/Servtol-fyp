@@ -329,6 +329,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           'date': formattedDate,
           'time': selectedTime?.format(context),
           'isRead': false,
+          'isRead1': false,
           'status': 'Pending',
           'timestamp': FieldValue.serverTimestamp(),
         };

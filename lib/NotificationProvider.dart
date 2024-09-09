@@ -52,7 +52,20 @@ class _NotificationProviderState extends State<NotificationProvider> {
     }
     return null;
   }
-
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'cancelled':
+        return Colors.grey;
+      case 'rejected':
+        return Colors.red;
+      case 'accepted':
+        return Colors.green;
+      default:
+        return Colors.redAccent;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,9 +182,7 @@ class _NotificationProviderState extends State<NotificationProvider> {
                               "Status: $serviceState",
                               style: TextStyle(
                                 fontSize: 14,
-                                color: serviceState == 'pending'
-                                    ? Colors.orangeAccent
-                                    : Colors.green,
+                                color: _getStatusColor(serviceState), // Apply color scheme here
                               ),
                             ),
                             SizedBox(height: 4),

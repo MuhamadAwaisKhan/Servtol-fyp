@@ -15,6 +15,7 @@ class BookingScreenWidget extends StatefulWidget {
 }
 
 class _BookingScreenWidgetState extends State<BookingScreenWidget> {
+
   TextEditingController searchController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final User? currentUser = FirebaseAuth.instance.currentUser;
@@ -227,24 +228,22 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document, BuildCo
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: (data['status'] as String? ?? '').toLowerCase() ==
-                        'rejected'
-                        ? Colors.red
-                        : Colors.redAccent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    data['status'] as String? ?? 'Pending',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+        Container(
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+
+          decoration: BoxDecoration(
+          color: _getStatusColor(data['status'] as String? ?? 'Pending'),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Text(
+      data['status'] as String? ?? 'Pending',
+      style: TextStyle(
+        color: Colors.white,
+        fontFamily: 'Poppins',
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  ),
                 Text(
                   '#${data['bookingId'] as String? ?? 'Unknown'}',
                   style: TextStyle(
@@ -448,4 +447,19 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document, BuildCo
       ),
     ),
   );
+}
+
+Color _getStatusColor(String status) {
+  switch (status) {
+    case 'Pending':
+      return Colors.orange;
+    case 'Cancelled':
+      return Colors.grey;
+    case 'Rejected':
+      return Colors.red;
+    case 'Accepted':
+      return Colors.green;
+    default:
+      return Colors.redAccent;
+  }
 }

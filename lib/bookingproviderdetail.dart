@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:servtol/util/AppColors.dart';
+
 class bookingproviderdetail extends StatefulWidget {
   final DocumentSnapshot bookings;
-  const bookingproviderdetail({super.key,required this.bookings});
+
+  const bookingproviderdetail({super.key, required this.bookings});
 
   @override
   State<bookingproviderdetail> createState() => _bookingproviderdetailState();
@@ -11,6 +13,8 @@ class bookingproviderdetail extends StatefulWidget {
 
 class _bookingproviderdetailState extends State<bookingproviderdetail> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static const String bookingsCollection = 'bookings';
+  static const String notificationsCollection = 'notifications';
 
   // Declare these variables in the state class
   double taxRate = 0.05; // Default value
@@ -21,44 +25,55 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
     super.initState();
     fetchTaxRate();
     fetchBookingFee();
-
   }
 
-  void updateBookingStatus(String newStatus, String notificationMessage, String notificationMessage1) async {
+  void updateBookingStatus(String newStatus, String notificationMessage,
+      String notificationMessage1) async {
     try {
-      // Get the booking ID
       String bookingId = widget.bookings.id;
+      String providerId = widget.bookings['providerId'];
+      String serviceNameLower =
+      (widget.bookings['ServiceName'] ?? '').toString().toLowerCase();
+
+      WriteBatch batch = _firestore.batch();
 
       // 1. Update the booking status
-      await _firestore.collection('bookings').doc(bookingId).update({
-        'status': newStatus,
-      });
+      DocumentReference bookingRef =
+      _firestore.collection(bookingsCollection).doc(bookingId);
+      batch.update(bookingRef, {'status': newStatus});
 
-      // 2. Find the corresponding notification
+      // 2. Find the corresponding notification using bookingId
       QuerySnapshot notificationSnapshot = await _firestore
-          .collection('notifications')
-          .where('providerId', isEqualTo: widget.bookings['providerId']) // Filter by providerId
-          .where('serviceNameLower', isEqualTo: (widget.bookings['ServiceName'] ?? '').toString().toLowerCase()) // Filter by service name (if available)
+          .collection(notificationsCollection)
+          .where('bookingId', isEqualTo: bookingId)
           .get();
-
 
       if (notificationSnapshot.docs.isNotEmpty) {
         DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
 
         // 3. Update the notification
-        await _firestore
-            .collection('notifications')
-            .doc(notificationDoc.id)
-            .update({
+        DocumentReference notificationRef = _firestore
+            .collection(notificationsCollection)
+            .doc(notificationDoc.id);
+        batch.update(notificationRef, {
+          'status': newStatus,
           'message': notificationMessage,
           'message1': notificationMessage1,
-          'status': newStatus,
         });
       } else {
         print('No notification found for booking ID: $bookingId');
       }
 
-      // 4. Show success message and navigate back
+      await batch.commit().catchError((error) {
+        print('Error committing batch: $error');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Failed to update booking and notification. Please try again.')),
+        );
+        return;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Booking status updated to $newStatus')),
       );
@@ -66,11 +81,10 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
     } catch (e) {
       print('Error updating booking status: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update booking status')),
+        SnackBar(content: Text('An error occurred. Please try again later.')),
       );
     }
   }
-
   void fetchTaxRate() async {
     try {
       var querySnapshot = await FirebaseFirestore.instance
@@ -119,7 +133,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
       String collection, String documentId) async {
     try {
       var snapshot =
-      await _firestore.collection(collection).doc(documentId).get();
+          await _firestore.collection(collection).doc(documentId).get();
       if (snapshot.exists && snapshot.data() != null) {
         return snapshot.data();
       } else {
@@ -134,7 +148,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
 
   Future<Map<String, dynamic>> fetchBookingDetails() async {
     Map<String, dynamic> bookingData =
-    widget.bookings.data() as Map<String, dynamic>;
+        widget.bookings.data() as Map<String, dynamic>;
 
     Map<String, dynamic> result = {
       'provider': {},
@@ -144,30 +158,42 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
 
     if (bookingData['providerId'] != null) {
       result['provider'] =
-      await fetchDocument('provider', bookingData['providerId']);
+          await fetchDocument('provider', bookingData['providerId']);
     }
     if (bookingData['couponId'] != null) {
       result['coupon'] =
-      await fetchDocument('coupons', bookingData['couponId']);
+          await fetchDocument('coupons', bookingData['couponId']);
     }
     if (bookingData['serviceId'] != null) {
       result['service'] =
-      await fetchDocument('service', bookingData['serviceId']);
+          await fetchDocument('service', bookingData['serviceId']);
     }
 
     return result;
   }
-
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Pending':
+        return Colors.orange; // Or any color you prefer for pending
+      case 'Cancelled':
+        return Colors.grey;
+      case 'Rejected':
+        return Colors.red;
+      case 'Accepted':
+        return Colors.green;
+      default:
+        return Colors.redAccent; // Default color for unknown statuses
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar:  AppBar(
         title: Container(
-          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: EdgeInsets.symmetric(horizontal:
+              8, vertical: 4),
           decoration: BoxDecoration(
-            color: (widget.bookings['status'] as String? ?? 'pending').toLowerCase() == 'rejected'
-                ? Colors.red
-                : Colors.redAccent,
+            color: _getStatusColor(widget.bookings['status'] as String? ?? 'Pending'),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
@@ -179,7 +205,6 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
             ),
           ),
         ),
-
         backgroundColor: AppColors.background,
         actions: [
           TextButton(
@@ -206,6 +231,9 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
             return Center(child: Text('Error fetching booking details'));
           }
           var data = snapshot.data!;
+          var bookingStatus = widget.bookings['status'] as String? ??
+              ''; // Get the booking status
+
           return Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -297,10 +325,10 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                 return Center(
                                   child: CircularProgressIndicator(
                                     value: loadingProgress.expectedTotalBytes !=
-                                        null
+                                            null
                                         ? loadingProgress
-                                        .cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
                                         : null,
                                   ),
                                 );
@@ -342,7 +370,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                       // Adds margin around the card
                       shape: RoundedRectangleBorder(
                         borderRadius:
-                        BorderRadius.circular(10.0), // Rounded corners
+                            BorderRadius.circular(10.0), // Rounded corners
                       ),
                       child: ListTile(
                         leading: CircleAvatar(
@@ -367,7 +395,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                               },
                               icon: Icon(Icons.info),
                               tooltip:
-                              'More Info', // Tooltip text on long press
+                                  'More Info', // Tooltip text on long press
                             )
                           ],
                         ),
@@ -398,7 +426,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                             children: [
                               Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text('Price'),
                                     RichText(
@@ -410,11 +438,11 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                         children: [
                                           TextSpan(
                                             text:
-                                            '\$${(double.tryParse(data['service']?['Price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2)} x ${widget.bookings['quantity'].toString()} = ',
+                                                '\$${(double.tryParse(data['service']?['Price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2)} x ${widget.bookings['quantity'].toString()} = ',
                                           ),
                                           TextSpan(
                                             text:
-                                            '\$${((double.tryParse(data['service']?['Price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2) * (widget.bookings['quantity'] as int? ?? 0))}',
+                                                '\$${((double.tryParse(data['service']?['Price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2) * (widget.bookings['quantity'] as int? ?? 0))}',
                                             style: TextStyle(
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.bold,
@@ -427,7 +455,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                               Divider(),
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 // This will space out the children across the row.
                                 children: [
                                   // Left-aligned text for the discount description and percentage
@@ -439,11 +467,11 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                       children: [
                                         TextSpan(
                                           text:
-                                          'Discount ', // Normal text in black
+                                              'Discount ', // Normal text in black
                                         ),
                                         TextSpan(
                                           text:
-                                          ' (${data['coupon']['discount'] ?? '0'}% off',
+                                              ' (${data['coupon']['discount'] ?? '0'}% off',
                                           // Discount percentage in green
                                           style: TextStyle(
                                             color: Colors.green,
@@ -478,7 +506,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                               Divider(),
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text('Tax',
                                       style: TextStyle(
@@ -496,14 +524,14 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                                 padding: EdgeInsets.all(16.0),
                                                 child: Column(
                                                   mainAxisSize:
-                                                  MainAxisSize.min,
+                                                      MainAxisSize.min,
                                                   children: [
                                                     ListTile(
                                                       leading: Icon(
                                                           Icons.attach_money,
                                                           color: Colors.green),
                                                       title:
-                                                      Text('Booking Fee'),
+                                                          Text('Booking Fee'),
                                                       subtitle: Text(
                                                           '\$${bookingFee.toStringAsFixed(2)}'),
                                                     ),
@@ -512,7 +540,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                                           Icons.percent,
                                                           color: Colors.blue),
                                                       title:
-                                                      Text('Service Tax'),
+                                                          Text('Service Tax'),
                                                       subtitle: Text(
                                                           '${(taxRate).toStringAsFixed(2)}%'),
                                                     ),
@@ -525,9 +553,9 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                                       child: Text('Close'),
                                                       style: ElevatedButton
                                                           .styleFrom(
-                                                          backgroundColor:
-                                                          Colors
-                                                              .redAccent),
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .redAccent),
                                                     ),
                                                   ],
                                                 ),
@@ -550,7 +578,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                               Divider(),
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text('Total Amount',
                                       style: TextStyle(
@@ -578,44 +606,46 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                       ),
                     ),
                     SizedBox(height: 20),
-                    Center(
-                      child: Row( // Use a Row to arrange the buttons horizontally
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              updateBookingStatus(
-                                  'Accepted',
-                                  'You have accepted the booking.',
-                                  'Your booking is approved and wait for the next step.'
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.green, // Green for Accept
+                    if (bookingStatus == 'Pending') ...[
+                      Center(
+                        child: Row(
+                          // Use a Row to arrange the buttons horizontally
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                updateBookingStatus(
+                                    'Accepted',
+                                    'You have accepted the booking.',
+                                    'Your booking is approved and wait for the next step.');
+                              },
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor:
+                                    Colors.green, // Green for Accept
+                              ),
+                              child: Text('Accept'),
                             ),
-                            child: Text('Accept'),
-                          ),
-                          SizedBox(width: 16), // Add some spacing between buttons
-                          ElevatedButton(
-                            onPressed: () {
-                              updateBookingStatus(
-                                  'Rejected',
-                                  'You have rejected the booking.',
-                                  'Your booking has been rejected.'
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.red, // Red for Reject
+                            SizedBox(width: 16),
+                            // Add some spacing between buttons
+                            ElevatedButton(
+                              onPressed: () {
+                                updateBookingStatus(
+                                    'Rejected',
+                                    'You have rejected the booking.',
+                                    'Your booking has been rejected.');
+                              },
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.red, // Red for Reject
+                              ),
+                              child: Text('Reject'),
                             ),
-                            child: Text('Reject'),
-                          ),
-                        ],
-                      ),
-                    )
-                  ])
-          );
+                          ],
+                        ),
+                      )
+                    ] // Conditionally display the "Reject" button
+                  ]));
         },
       ),
     );
