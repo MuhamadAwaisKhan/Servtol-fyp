@@ -452,14 +452,21 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document, BuildCo
 Color _getStatusColor(String status) {
   switch (status) {
     case 'Pending':
-      return Colors.orange;
+      return Colors.orange; // Or any color you prefer for pending
     case 'Cancelled':
       return Colors.grey;
     case 'Rejected':
       return Colors.red;
     case 'Accepted':
+      return Colors.yellow;
+    case 'InProgress':
+      return Colors.pink;
+    case 'Waiting':
+      return Colors.blue;
+    case 'Complete':
       return Colors.green;
     default:
-      return Colors.redAccent;
+      return Colors.redAccent; // Default color for unknown statuses
   }
+
 }

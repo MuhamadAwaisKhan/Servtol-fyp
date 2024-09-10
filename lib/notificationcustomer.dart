@@ -52,21 +52,30 @@ class _customernotificationState extends State<customernotification> {
     }
     return null;
   }
+
   Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return Colors.orange;
-      case 'cancelled':
+    switch (status) {
+      case 'Pending':
+        return Colors.orange; // Or any color you prefer for pending
+      case 'Cancelled':
         return Colors.grey;
-      case 'rejected':
+      case 'Rejected':
         return Colors.red;
-      case 'accepted':
+      case 'Accepted':
+        return Colors.deepPurple;
+      case 'InProgress':
+        return Colors.pink;
+      case 'Waiting':
+        return Colors.blue;
+      case 'Complete':
         return Colors.green;
       default:
-        return Colors.redAccent;
+        return Colors.redAccent; // Default color for unknown statuses
     }
+
   }
-  @override
+
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -86,161 +95,163 @@ class _customernotificationState extends State<customernotification> {
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : customerId == null
-          ? Center(child: Text('No provider ID found'))
-          : StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('notifications')
-            .where('customerId', isEqualTo: customerId)
-            .orderBy('timestamp', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
+              ? Center(child: Text('No provider ID found'))
+              : StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('notifications')
+                      .where('customerId', isEqualTo: customerId)
+                      .orderBy('timestamp', descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    if (!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
+                    }
 
-          var notifications = snapshot.data!.docs;
+                    var notifications = snapshot.data!.docs;
 
-          if (notifications.isEmpty) {
-            return Center(child: Text('No notifications'));
-          }
+                    if (notifications.isEmpty) {
+                      return Center(child: Text('No notifications'));
+                    }
 
-          return ListView.builder(
-            itemCount: notifications.length,
-            itemBuilder: (context, index) {
-              var notification = notifications[index];
-              var customerId = notification['customerId'];
-              var message = notification['message1'] ?? 'No message';
-              var bookingId = notification['bookingId'];
-              var serviceState = notification['status'];
-              var timestamp = notification['timestamp'] as Timestamp;
+                    return ListView.builder(
+                      itemCount: notifications.length,
+                      itemBuilder: (context, index) {
+                        var notification = notifications[index];
+                        var customerId = notification['customerId'];
+                        var message = notification['message1'] ?? 'No message';
+                        var bookingId = notification['bookingId'];
+                        var serviceState = notification['status'];
+                        var timestamp = notification['timestamp'] as Timestamp;
 
-              return FutureBuilder<String?>(
-                future: fetchCustomerPic(customerId),
-                builder: (context, customerPicSnapshot) {
-                  if (customerPicSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
+                        return FutureBuilder<String?>(
+                          future: fetchCustomerPic(customerId),
+                          builder: (context, customerPicSnapshot) {
+                            if (customerPicSnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            }
 
-                  var customerPicUrl = customerPicSnapshot.data;
+                            var customerPicUrl = customerPicSnapshot.data;
 
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12.0, vertical: 8.0),
-                    child: Card(
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: ListTile(
-                          contentPadding: EdgeInsets.all(12),
-                          leading: CircleAvatar(
-                            backgroundImage: customerPicUrl != null
-                                ? NetworkImage(customerPicUrl)
-                                : AssetImage(
-                                'assets/default_avatar.png')
-                            as ImageProvider,
-                            radius: 30,
-                          ),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Booking Update',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12.0, vertical: 8.0),
+                              child: Card(
+                                elevation: 3,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                              ),
-                              Text(
-                                "#$bookingId",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                            ],
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 4),
-                              Text(
-                                message,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-
-                              SizedBox(height: 4),
-                              Text(
-                                "Status: $serviceState",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: _getStatusColor(serviceState), // Apply color scheme here
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-
-                                timeago.format(
-                                  (timestamp as Timestamp).toDate(),
-                                  locale: 'en_short',
-                                ),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[500],
-                                ),
-                              ),
-                            ],
-                          ),
-                          trailing: notification['isRead1']
-                              ? Icon(Icons.check_circle,
-                              color: Colors.green)
-                              : Icon(Icons.circle,
-                              color: Colors.redAccent),
-                          onTap: () {
-                            FirebaseFirestore.instance
-                                .collection('notifications')
-                                .doc(notification.id)
-                                .update({'isRead1': true});
-                            FirebaseFirestore.instance
-                                .collection('bookings') // Assuming your bookings are stored in a 'bookings' collection
-                                .doc(bookingId) // Use the bookingId from the notification
-                                .get()
-                                .then((bookingSnapshot) {
-                              if (bookingSnapshot.exists) {
-                                // Navigate to the booking details page with the fetched booking document
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => BookingCustomerDetail(
-                                      bookings: bookingSnapshot, // Pass the entire DocumentSnapshot
+                                child: ListTile(
+                                    contentPadding: EdgeInsets.all(12),
+                                    leading: CircleAvatar(
+                                      backgroundImage: customerPicUrl != null
+                                          ? NetworkImage(customerPicUrl)
+                                          : AssetImage(
+                                                  'assets/default_avatar.png')
+                                              as ImageProvider,
+                                      radius: 30,
                                     ),
-                                  ),
-                                );
-                              } else {
-                                print("Booking not found");
-                              }
-                            }).catchError((error) {
-                              print("Error fetching booking: $error");
-                            });
-                          }
-
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
-      ),
+                                    title: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Booking Update',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                        Text(
+                                          "#$bookingId",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(height: 4),
+                                        Text(
+                                          message,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          "Status: $serviceState",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: _getStatusColor(
+                                                serviceState), // Apply color scheme here
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          timeago.format(
+                                            (timestamp as Timestamp).toDate(),
+                                            locale: 'en_short',
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[500],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    trailing: notification['isRead1']
+                                        ? Icon(Icons.check_circle,
+                                            color: Colors.green)
+                                        : Icon(Icons.circle,
+                                            color: Colors.redAccent),
+                                    onTap: () {
+                                      FirebaseFirestore.instance
+                                          .collection('notifications')
+                                          .doc(notification.id)
+                                          .update({'isRead1': true});
+                                      FirebaseFirestore.instance
+                                          .collection(
+                                              'bookings') // Assuming your bookings are stored in a 'bookings' collection
+                                          .doc(
+                                              bookingId) // Use the bookingId from the notification
+                                          .get()
+                                          .then((bookingSnapshot) {
+                                        if (bookingSnapshot.exists) {
+                                          // Navigate to the booking details page with the fetched booking document
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  BookingCustomerDetail(
+                                                bookings:
+                                                    bookingSnapshot, // Pass the entire DocumentSnapshot
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          print("Booking not found");
+                                        }
+                                      }).catchError((error) {
+                                        print("Error fetching booking: $error");
+                                      });
+                                    }),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
     );
   }
 }

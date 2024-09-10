@@ -67,27 +67,27 @@ class _customermainscreenState extends State<customermainscreen> {
               currentIndex: myindex,
               items: const [
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.home_filled),
+                  icon: FaIcon(FontAwesomeIcons.home),
                   label: "Home",
                   backgroundColor: Colors.green,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.bolt_outlined),
+                  icon: FaIcon(FontAwesomeIcons.calendarCheck),
                   label: "Booking",
                   backgroundColor: Colors.cyan,
                 ),
                 BottomNavigationBarItem(
-                  icon: FaIcon(Icons.category_rounded),
+                  icon: FaIcon(FontAwesomeIcons.thList),
                   label: "Categories",
                   backgroundColor: Colors.lightGreenAccent,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.chat_bubble),
+                  icon: FaIcon(FontAwesomeIcons.commentDots),
                   label: "Chat",
                   backgroundColor: Colors.indigo,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
+                  icon: FaIcon(FontAwesomeIcons.user),
                   label: "Profile",
                   backgroundColor: Colors.red,
                 ),

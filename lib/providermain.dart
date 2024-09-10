@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:servtol/bookingprovider.dart';
 import 'package:servtol/homeprovider.dart';
 import 'package:servtol/paymentprovider.dart';
@@ -59,27 +60,27 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout> {
           currentIndex: myindex,
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_filled),
+              icon: FaIcon(FontAwesomeIcons.home),
               label: "Home",
               backgroundColor: Colors.green,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.bolt_outlined),
+              icon: FaIcon(FontAwesomeIcons.calendarCheck),
               label: "Booking",
               backgroundColor: Colors.cyan,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.payment_rounded),
+              icon: FaIcon(FontAwesomeIcons.moneyBillWave),
               label: "Payment",
               backgroundColor: Colors.lightGreenAccent,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_repair_service),
+              icon: FaIcon(FontAwesomeIcons.laptopHouse),
               label: "Service",
               backgroundColor: Colors.indigo,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person),
+              icon: FaIcon(FontAwesomeIcons.user),
               label: "Profile",
               backgroundColor: Colors.red,
             ),

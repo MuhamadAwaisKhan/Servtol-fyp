@@ -77,7 +77,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                 .where('customerId',
                     isEqualTo: currentUser
                         ?.uid) // Make sure providerId is set correctly
-                .where('isRead',
+                .where('isRead1',
                     isEqualTo: false) // Query for unread notifications
                 .snapshots(),
             builder: (context, snapshot) {
@@ -134,7 +134,6 @@ class _HomeCustomerState extends State<HomeCustomer> {
               );
             },
           ),
-
           IconButton(
             icon: FaIcon(FontAwesomeIcons.magnifyingGlass),
             onPressed: () => Navigator.push(context,

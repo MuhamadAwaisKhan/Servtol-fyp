@@ -180,10 +180,17 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
       case 'Rejected':
         return Colors.red;
       case 'Accepted':
+        return Colors.yellow;
+      case 'InProgress':
+        return Colors.pink;
+      case 'Waiting':
+        return Colors.blue;
+      case 'Complete':
         return Colors.green;
       default:
         return Colors.redAccent; // Default color for unknown statuses
     }
+
   }
   @override
   Widget build(BuildContext context) {

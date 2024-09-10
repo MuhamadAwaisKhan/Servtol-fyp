@@ -277,16 +277,17 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
       var user = FirebaseAuth.instance.currentUser;
       var currentUserId = user?.uid ?? 'no-user-id';
       DocumentReference counterRef =
-      FirebaseFirestore.instance.collection('counters').doc('bookingIds');
+          FirebaseFirestore.instance.collection('counters').doc('bookingIds');
 
       await FirebaseFirestore.instance.runTransaction((transaction) async {
         DocumentSnapshot counterSnapshot = await transaction.get(counterRef);
         int lastId = (counterSnapshot.data() as Map<String, dynamic>? ??
-            {})['current'] as int? ??
+                {})['current'] as int? ??
             0;
         int newId = lastId + 1;
         String formattedBookingId = newId.toString().padLeft(2, '0');
-        transaction.set(counterRef, {'current': newId}, SetOptions(merge: true));
+        transaction.set(
+            counterRef, {'current': newId}, SetOptions(merge: true));
 
         // Use discountedTotal if the coupon is applied, otherwise use the normal total
         double finalTotal = isCouponApplied ? discountedTotal : total;
@@ -301,6 +302,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           'description': descriptionController.text,
           'total': finalTotal, // Save the discounted or normal total here
           'status': 'Pending',
+          'paymentstatus': 'Pending',
           'bookingId': formattedBookingId,
           'couponId': couponId,
           'address': isRemoteService ? 'Remote' : addressController.text,
@@ -309,7 +311,8 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           'bookingFeeId': bookingFeeId,
           'ServiceName': widget.service['ServiceName'], // Original service name
           'serviceNameLower':
-          (widget.service['ServiceName'] ?? '').toString().toLowerCase(),
+              (widget.service['ServiceName'] ?? '').toString().toLowerCase(),
+          'ImageUrl': widget.service['ImageUrl'],
         };
 
         transaction.set(
@@ -325,16 +328,19 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           'bookingId': formattedBookingId,
           'message': 'You have a new booking.',
           'message1': 'You have booked a service',
-
           'date': formattedDate,
           'time': selectedTime?.format(context),
           'isRead': false,
           'isRead1': false,
           'status': 'Pending',
+          'paymentstatus': 'Pending',
+
           'timestamp': FieldValue.serverTimestamp(),
         };
 
-        transaction.set(FirebaseFirestore.instance.collection('notifications').doc(), notificationData);
+        transaction.set(
+            FirebaseFirestore.instance.collection('notifications').doc(),
+            notificationData);
       });
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -685,9 +691,9 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                                         },
                                         child: Text('Close'),
                                         style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.indigoAccent,
-                                            foregroundColor: Colors.white
-                                        ),
+                                            backgroundColor:
+                                                Colors.indigoAccent,
+                                            foregroundColor: Colors.white),
                                       ),
                                     ],
                                   ),
@@ -715,7 +721,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                 // ),
 
                 if (isCouponApplied)
-                  if (isCouponApplied)...[
+                  if (isCouponApplied) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -727,7 +733,6 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                     ),
                     Divider(),
                   ],
-
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

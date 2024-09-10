@@ -24,7 +24,6 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
     super.initState();
     fetchTaxRate();
     fetchBookingFee();
-
   }
 
   void updateBookingStatus() async {
@@ -70,7 +69,9 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         SnackBar(content: Text('Failed to cancel booking')),
       );
     }
-  }  void fetchTaxRate() async {
+  }
+
+  void fetchTaxRate() async {
     try {
       var querySnapshot = await FirebaseFirestore.instance
           .collection('taxRates')
@@ -157,6 +158,28 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
     return result;
   }
 
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Pending':
+        return Colors.orange; // Or any color you prefer for pending
+      case 'Cancelled':
+        return Colors.grey;
+      case 'Rejected':
+        return Colors.red;
+      case 'Accepted':
+        return Colors.yellow;
+      case 'InProgress':
+        return Colors.pink;
+      case 'Waiting':
+        return Colors.blue;
+      case 'Complete':
+        return Colors.green;
+      default:
+        return Colors.redAccent; // Default color for unknown statuses
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,9 +187,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         title: Container(
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: (widget.bookings['status'] as String? ?? 'pending').toLowerCase() == 'rejected'
-                ? Colors.red
-                : Colors.redAccent,
+            color: _getStatusColor(
+                widget.bookings['status'] as String? ?? 'pending'),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
@@ -178,7 +200,6 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
             ),
           ),
         ),
-
         backgroundColor: AppColors.background,
         actions: [
           TextButton(
@@ -205,8 +226,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
             return Center(child: Text('Error fetching booking details'));
           }
           var data = snapshot.data!;
-          var bookingStatus =
-              widget.bookings['status'] as String? ?? '';
+          var bookingStatus = widget.bookings['status'] as String? ?? '';
           return Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -590,13 +610,9 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                           child: Text('Cancel Booking'),
                         ),
                       ),
-                  ])
-          );
-
+                  ]));
         },
-
       ),
     );
   }
-
 }
