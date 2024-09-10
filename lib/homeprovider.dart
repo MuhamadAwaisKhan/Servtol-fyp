@@ -534,127 +534,170 @@ class _HomeProviderState extends State<HomeProvider> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: ListTile(
+                      child:
+                      ListTile(
                         contentPadding: EdgeInsets.all(12.0),
-                        leading: ClipRect(
-                          child: SizedBox(
-                            height: 70, // Specifies the height of the image
-                            width: 70, // Specifies the width of the image
-                            child: Image.network(
-                              bookingData['ImageUrl'] ??
-                                  'https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=',
-                              fit: BoxFit.cover,
-                              loadingBuilder: (BuildContext context,
-                                  Widget child,
-                                  ImageChunkEvent? loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                        : null,
-                                  ),
-                                );
-                              },
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Text('Failed to load image'),
-                            ),
-                          ),
-                        ),
-                        // FaIcon(
-                        //   FontAwesomeIcons.calendarCheck,
-                        //   color: Colors.blueAccent,
-                        //   size: 30,
-                        // ),
                         title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              "Booking #${bookingData['bookingId']}",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                            ClipOval(
+                              child: SizedBox(
+                                height: 70, // Specifies the height of the image
+                                width: 70, // Specifies the width of the image
+                                child: Image.network(
+                                  bookingData['ImageUrl'] ??
+                                      'https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=',
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress.expectedTotalBytes != null
+                                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) => Text('Failed to load image'),
+                                ),
                               ),
                             ),
-                            Text(
-                                '${bookingData['serviceNameLower'] ?? 'No Service'}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.bold,
-                                )),
+                            SizedBox(width: 12), // Adds spacing between the image and the text
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+
+                                      Text(
+                                        '${bookingData['serviceNameLower'] ?? 'No Service'}',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        " #${bookingData['bookingId']}",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 4),
+                                  Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          FaIcon(
+                                            FontAwesomeIcons.calendarAlt, // Change to desired icon
+                                            size: 14,
+                                            color: Colors.grey[700],
+                                          ),
+                                          SizedBox(width: 4), // Adds spacing between the icon and text
+                                          Text(
+                                            " ${bookingData['date']}",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[700],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 4), // Adds spacing between date and time rows
+                                      Row(
+                                        children: [
+                                          FaIcon(
+                                            FontAwesomeIcons.clock, // Change to desired icon
+                                            size: 14,
+                                            color: Colors.grey[700],
+                                          ),
+                                          SizedBox(width: 4), // Adds spacing between the icon and text
+                                          Text(
+                                            " ${bookingData['time']}",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[700],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                        subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 4),
-                              Text(
-                                " ${bookingData['date']}",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              Text(
-                                " ${bookingData['time']}",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                            color: Colors.deepPurpleAccent)),
-                                    padding: EdgeInsets.all(8.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
+                        subtitle: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.deepPurpleAccent),
+                            ),
+                            padding: EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
 
-                                        Divider(),
-                                        Text(
-                                          "Booking Status: ${bookingData['status']}",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: bookingData['status'] ==
-                                                    'pending'
-                                                ? Colors.orangeAccent
-                                                : Colors.green,
-                                          ),
-                                        ),
-                                        Text(
-                                          "Payment Status: ${bookingData['paymentstatus']}",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color:
-                                                bookingData['paymentstatus'] ==
-                                                        'pending'
-                                                    ? Colors.orangeAccent
-                                                    : Colors.green,
-                                          ),
-                                        ),
-                                      ],
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Booking Status",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: bookingData['status'] == 'pending' ? Colors.orangeAccent : Colors.green,
+                                      ),
                                     ),
-                                  ))
-                            ]),
-                        trailing: Text(
-                          "\$${bookingData['total'].toStringAsFixed(2)}",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.green,
+                                    Text(
+                                      " ${bookingData['status']}",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: bookingData['status'] == 'pending' ? Colors.orangeAccent : Colors.green,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Divider(),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Payment Status ",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: bookingData['paymentstatus'] == 'pending' ? Colors.orangeAccent : Colors.green,
+                                      ),
+                                    ),
+                                    Text(
+                                      " ${bookingData['paymentstatus']}",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: bookingData['paymentstatus'] == 'pending' ? Colors.orangeAccent : Colors.green,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
+                        // trailing: Text(
+                        //   "\$${bookingData['total'].toStringAsFixed(2)}",
+                        //   style: TextStyle(
+                        //     fontWeight: FontWeight.bold,
+                        //     fontSize: 16,
+                        //     color: Colors.green,
+                        //   ),
+                        // ),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -666,6 +709,7 @@ class _HomeProviderState extends State<HomeProvider> {
                           );
                         },
                       ),
+
                     );
                   }).toList(),
                 );

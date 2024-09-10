@@ -15,7 +15,6 @@ class BookingScreenWidget extends StatefulWidget {
 }
 
 class _BookingScreenWidgetState extends State<BookingScreenWidget> {
-
   TextEditingController searchController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final User? currentUser = FirebaseAuth.instance.currentUser;
@@ -55,20 +54,24 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
             .snapshots();
       } else {
         // Searching by Service Name (case-insensitive)
-        searchText = searchText.toLowerCase(); // Ensure search term is in lowercase
+        searchText =
+            searchText.toLowerCase(); // Ensure search term is in lowercase
         return _firestore
             .collection('bookings')
             .where('providerId', isEqualTo: providerId)
             .where('serviceNameLower', isGreaterThanOrEqualTo: searchText)
-            .where('serviceNameLower', isLessThanOrEqualTo: searchText + '\uf8ff')
+            .where('serviceNameLower',
+                isLessThanOrEqualTo: searchText + '\uf8ff')
             .snapshots();
       }
     }
   }
 
-  Future<Map<String, dynamic>?> fetchDocument(String collection, String documentId) async {
+  Future<Map<String, dynamic>?> fetchDocument(
+      String collection, String documentId) async {
     try {
-      var snapshot = await _firestore.collection(collection).doc(documentId).get();
+      var snapshot =
+          await _firestore.collection(collection).doc(documentId).get();
       if (snapshot.exists && snapshot.data() != null) {
         return snapshot.data();
       } else {
@@ -81,14 +84,18 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
     }
   }
 
-  Future<Map<String, dynamic>> fetchBookingDetails(Map<String, dynamic> bookingData) async {
+  Future<Map<String, dynamic>> fetchBookingDetails(
+      Map<String, dynamic> bookingData) async {
     try {
       Map<String, dynamic> result = {};
 
-      var providerData = await fetchDocument('provider', bookingData['providerId']);
-      var customerData = await fetchDocument('customer', bookingData['customerId']);
+      var providerData =
+          await fetchDocument('provider', bookingData['providerId']);
+      var customerData =
+          await fetchDocument('customer', bookingData['customerId']);
       var couponData = await fetchDocument('coupons', bookingData['couponId']);
-      var serviceData = await fetchDocument('service', bookingData['serviceId']);
+      var serviceData =
+          await fetchDocument('service', bookingData['serviceId']);
 
       result['provider'] = providerData ?? {};
       result['coupon'] = couponData ?? {};
@@ -129,37 +136,37 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: TextField(
-              controller: searchController,
-              style: const TextStyle(fontSize: 16),
-              decoration: InputDecoration(
-                labelText: 'Search Bookings',
-                labelStyle: const TextStyle(fontFamily: 'Poppins'),
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                suffixIcon: searchController.text.isNotEmpty
-                    ? GestureDetector(
-                  child: const Icon(Icons.clear, color: Colors.grey),
-                  onTap: () {
-                    searchController.clear();
-                    setState(() {});
-                  },
-                )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-              ),
-              onChanged: (value) {
-                setState(() {});
-              },
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(10),
+          //   child: TextField(
+          //     controller: searchController,
+          //     style: const TextStyle(fontSize: 16),
+          //     decoration: InputDecoration(
+          //       labelText: 'Search Bookings',
+          //       labelStyle: const TextStyle(fontFamily: 'Poppins'),
+          //       prefixIcon: const Icon(Icons.search, color: Colors.grey),
+          //       suffixIcon: searchController.text.isNotEmpty
+          //           ? GestureDetector(
+          //         child: const Icon(Icons.clear, color: Colors.grey),
+          //         onTap: () {
+          //           searchController.clear();
+          //           setState(() {});
+          //         },
+          //       )
+          //           : null,
+          //       border: OutlineInputBorder(
+          //         borderRadius: BorderRadius.circular(25),
+          //         borderSide: BorderSide.none,
+          //       ),
+          //       filled: true,
+          //       fillColor: Colors.white,
+          //       contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+          //     ),
+          //     onChanged: (value) {
+          //       setState(() {});
+          //     },
+          //   ),
+          // ),
           Lottie.asset('assets/images/booking.json', height: 200),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
@@ -175,17 +182,24 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
                   return const Center(child: Text('No bookings found.'));
                 }
                 return ListView(
-                  children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                  children:
+                      snapshot.data!.docs.map((DocumentSnapshot document) {
                     return FutureBuilder<Map<String, dynamic>>(
-                      future: fetchBookingDetails(document.data() as Map<String, dynamic>),
+                      future: fetchBookingDetails(
+                          document.data() as Map<String, dynamic>),
                       builder: (context, detailSnapshot) {
-                        if (detailSnapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (detailSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
-                        if (detailSnapshot.hasError || detailSnapshot.data == null) {
-                          return const Text('Error: Failed to fetch booking details');
+                        if (detailSnapshot.hasError ||
+                            detailSnapshot.data == null) {
+                          return const Text(
+                              'Error: Failed to fetch booking details');
                         }
-                        return bookingCard(detailSnapshot.data!, document, context);
+                        return bookingCard(
+                            detailSnapshot.data!, document, context);
                       },
                     );
                   }).toList(),
@@ -199,10 +213,13 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
   }
 }
 
-Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document, BuildContext context) {
-  String serviceType = (data['service']?['ServiceType'] as String? ?? '').toLowerCase();
+Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
+    BuildContext context) {
+  String serviceType =
+      (data['service']?['ServiceType'] as String? ?? '').toLowerCase();
   bool isRemoteService = serviceType == 'remote';
-  String serviceName = data['service']?['ServiceName'] as String? ?? 'No Service';
+  String serviceName =
+      data['service']?['ServiceName'] as String? ?? 'No Service';
   String servicePrice = data['service']?['Price'].toString() ?? '0.00';
   String discount = data['coupon']?['discount'].toString() ?? '0';
 
@@ -228,22 +245,22 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document, BuildCo
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-        Container(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-
-          decoration: BoxDecoration(
-          color: _getStatusColor(data['status'] as String? ?? 'Pending'),
-      borderRadius: BorderRadius.circular(10),
-    ),
-    child: Text(
-      data['status'] as String? ?? 'Pending',
-      style: TextStyle(
-        color: Colors.white,
-        fontFamily: 'Poppins',
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-  ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color:
+                        _getStatusColor(data['status'] as String? ?? 'Pending'),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    data['status'] as String? ?? 'Pending',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 Text(
                   '#${data['bookingId'] as String? ?? 'Unknown'}',
                   style: TextStyle(
@@ -281,7 +298,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document, BuildCo
                           child: CircularProgressIndicator(
                             value: loadingProgress.expectedTotalBytes != null
                                 ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
+                                    loadingProgress.expectedTotalBytes!
                                 : null,
                           ),
                         );
@@ -468,5 +485,4 @@ Color _getStatusColor(String status) {
     default:
       return Colors.redAccent; // Default color for unknown statuses
   }
-
 }
