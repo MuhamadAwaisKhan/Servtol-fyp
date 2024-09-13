@@ -58,23 +58,63 @@ class _NotificationProviderState extends State<NotificationProvider> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Pending':
-        return Colors.orange; // Or any color you prefer for pending
-      case 'Cancelled':
-        return Colors.grey;
-      case 'Rejected':
-        return Colors.red;
-      case 'Accepted':
-        return Colors.deepPurple;
-      case 'InProgress':
-        return Colors.pink;
-      case 'Waiting':
-        return Colors.blue;
-      case 'Complete':
-        return Colors.green;
-      default:
-        return Colors.redAccent; // Default color for unknown statuses
-    }
+        return Colors
+            .deepOrange; // Darker orange that stands out on a light background.
 
+      case 'Cancelled':
+        return Colors
+            .black54; // A dark grey to indicate a disabled or inactive state.
+
+      case 'Rejected':
+        return Colors
+            .red[800]!; // A dark red to clearly indicate a negative status.
+
+      case 'Accepted':
+        return Colors
+            .green[700]!; // A darker shade of green for better visibility.
+
+      case 'In Progress':
+        return Colors
+            .indigo[700]!; // A deep indigo for a sense of ongoing work.
+
+      case 'Waiting':
+        return Colors.blueGrey[
+        800]!; // Dark blue-grey to suggest a paused or waiting state.
+
+      case 'Complete':
+        return Colors
+            .green[900]!;
+      case 'Payment Pending':
+        return Colors
+            .deepPurple[900]!; // A dark green to represent finality and success.
+
+      case 'On going':
+        return Colors.blue[800]!;
+      case 'In Process':
+        return Colors
+            .brown[800]!; // A dark blue that conveys stability and continuity.
+
+      default:
+        return Colors
+            .grey[800]!; // Dark grey for any unknown or undefined statuses.
+    }
+  }
+
+
+  Color _getPaymentStatusColor(String status) {
+    switch (status) {
+      case 'Pending':
+        return Colors.orange;
+
+      case 'Paid by Card':
+        return Colors.green;
+      case 'OnCash':
+        return Colors.teal;
+      case 'Failed':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
     @override
   Widget build(BuildContext context) {
@@ -189,7 +229,7 @@ class _NotificationProviderState extends State<NotificationProvider> {
                                         ),
                                         SizedBox(height: 4),
                                         Text(
-                                          "Status: $serviceState",
+                                           "Status: $serviceState",
                                           style: TextStyle(
                                             fontSize: 14,
                                             color: _getStatusColor(

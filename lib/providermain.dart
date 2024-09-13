@@ -75,7 +75,7 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout> {
               backgroundColor: Colors.lightGreenAccent,
             ),
             BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.laptopHouse),
+              icon: FaIcon(FontAwesomeIcons.houseLaptop),
               label: "Service",
               backgroundColor: Colors.indigo,
             ),

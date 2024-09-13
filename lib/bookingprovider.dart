@@ -469,20 +469,61 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
 Color _getStatusColor(String status) {
   switch (status) {
     case 'Pending':
-      return Colors.orange; // Or any color you prefer for pending
+      return Colors
+          .deepOrange; // Darker orange that stands out on a light background.
+
     case 'Cancelled':
-      return Colors.grey;
+      return Colors
+          .black54; // A dark grey to indicate a disabled or inactive state.
+
     case 'Rejected':
-      return Colors.red;
+      return Colors
+          .red[800]!; // A dark red to clearly indicate a negative status.
+
     case 'Accepted':
-      return Colors.yellow;
-    case 'InProgress':
-      return Colors.pink;
+      return Colors
+          .green[700]!; // A darker shade of green for better visibility.
+
+    case 'In Progress':
+      return Colors
+          .indigo[700]!; // A deep indigo for a sense of ongoing work.
+
     case 'Waiting':
-      return Colors.blue;
+      return Colors.blueGrey[
+      800]!; // Dark blue-grey to suggest a paused or waiting state.
+
     case 'Complete':
-      return Colors.green;
+      return Colors
+          .green[900]!;
+    case 'Payment Pending':
+      return Colors
+          .deepPurple[900]!; // A dark green to represent finality and success.
+
+    case 'On going':
+      return Colors.blue[800]!;
+    case 'In Process':
+      return Colors
+          .brown[800]!; // A dark blue that conveys stability and continuity.
+
     default:
-      return Colors.redAccent; // Default color for unknown statuses
+      return Colors
+          .grey[800]!; // Dark grey for any unknown or undefined statuses.
+  }
+}
+
+
+Color _getPaymentStatusColor(String status) {
+  switch (status) {
+    case 'Pending':
+      return Colors.orange;
+
+    case 'Paid by Card':
+      return Colors.green;
+    case 'OnCash':
+      return Colors.teal;
+    case 'Failed':
+      return Colors.red;
+    default:
+      return Colors.grey;
   }
 }

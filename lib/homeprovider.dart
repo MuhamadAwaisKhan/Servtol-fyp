@@ -196,7 +196,7 @@ class _HomeProviderState extends State<HomeProvider> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Provider Home",
+          "Service Provider Home",
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,
@@ -311,7 +311,7 @@ class _HomeProviderState extends State<HomeProvider> {
           SizedBox(width: 10),
           providerPicUrl != null
               ? CircleAvatar(
-                  backgroundImage: NetworkImage(providerPicUrl!),
+            backgroundImage: NetworkImage(providerPicUrl!),
                   radius: 30,
                 )
               : CircleAvatar(
@@ -521,7 +521,7 @@ class _HomeProviderState extends State<HomeProvider> {
                 }
 
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(child: Text('No incoming bookings.'));
+                  return Center(child: Text('No Incoming bookings.'));
                 }
 
                 return Column(
@@ -534,8 +534,7 @@ class _HomeProviderState extends State<HomeProvider> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child:
-                      ListTile(
+                      child: ListTile(
                         contentPadding: EdgeInsets.all(12.0),
                         title: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,29 +547,38 @@ class _HomeProviderState extends State<HomeProvider> {
                                   bookingData['ImageUrl'] ??
                                       'https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=',
                                   fit: BoxFit.cover,
-                                  loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                                  loadingBuilder: (BuildContext context,
+                                      Widget child,
+                                      ImageChunkEvent? loadingProgress) {
                                     if (loadingProgress == null) return child;
                                     return Center(
                                       child: CircularProgressIndicator(
-                                        value: loadingProgress.expectedTotalBytes != null
-                                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
                                             : null,
                                       ),
                                     );
                                   },
-                                  errorBuilder: (context, error, stackTrace) => Text('Failed to load image'),
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Text('Failed to load image'),
                                 ),
                               ),
                             ),
-                            SizedBox(width: 12), // Adds spacing between the image and the text
+                            SizedBox(width: 12),
+                            // Adds spacing between the image and the text
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-
                                       Text(
                                         '${bookingData['serviceNameLower'] ?? 'No Service'}',
                                         style: TextStyle(
@@ -594,11 +602,13 @@ class _HomeProviderState extends State<HomeProvider> {
                                       Row(
                                         children: [
                                           FaIcon(
-                                            FontAwesomeIcons.calendarAlt, // Change to desired icon
+                                            FontAwesomeIcons.calendarAlt,
+                                            // Change to desired icon
                                             size: 14,
                                             color: Colors.grey[700],
                                           ),
-                                          SizedBox(width: 4), // Adds spacing between the icon and text
+                                          SizedBox(width: 4),
+                                          // Adds spacing between the icon and text
                                           Text(
                                             " ${bookingData['date']}",
                                             style: TextStyle(
@@ -608,15 +618,18 @@ class _HomeProviderState extends State<HomeProvider> {
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: 4), // Adds spacing between date and time rows
+                                      SizedBox(height: 4),
+                                      // Adds spacing between date and time rows
                                       Row(
                                         children: [
                                           FaIcon(
-                                            FontAwesomeIcons.clock, // Change to desired icon
+                                            FontAwesomeIcons.clock,
+                                            // Change to desired icon
                                             size: 14,
                                             color: Colors.grey[700],
                                           ),
-                                          SizedBox(width: 4), // Adds spacing between the icon and text
+                                          SizedBox(width: 4),
+                                          // Adds spacing between the icon and text
                                           Text(
                                             " ${bookingData['time']}",
                                             style: TextStyle(
@@ -628,7 +641,6 @@ class _HomeProviderState extends State<HomeProvider> {
                                       ),
                                     ],
                                   ),
-
                                 ],
                               ),
                             ),
@@ -640,48 +652,62 @@ class _HomeProviderState extends State<HomeProvider> {
                             decoration: BoxDecoration(
                               color: Colors.grey[200],
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.deepPurpleAccent),
+                              border:
+                                  Border.all(color: Colors.deepPurpleAccent),
                             ),
                             padding: EdgeInsets.all(8.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       "Booking Status",
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: bookingData['status'] == 'pending' ? Colors.orangeAccent : Colors.green,
+                                        color:
+                                            bookingData['status'] == 'Pending'
+                                                ? Colors.orangeAccent
+                                                : Colors.green,
                                       ),
                                     ),
                                     Text(
                                       " ${bookingData['status']}",
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: bookingData['status'] == 'pending' ? Colors.orangeAccent : Colors.green,
+                                        color:
+                                            bookingData['status'] == 'Pending'
+                                                ? Colors.orangeAccent
+                                                : Colors.green,
                                       ),
                                     ),
                                   ],
                                 ),
                                 Divider(),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       "Payment Status ",
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: bookingData['paymentstatus'] == 'pending' ? Colors.orangeAccent : Colors.green,
+                                        color: bookingData['paymentstatus'] ==
+                                                'Pending'
+                                            ? Colors.orangeAccent
+                                            : Colors.green,
                                       ),
                                     ),
                                     Text(
                                       " ${bookingData['paymentstatus']}",
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: bookingData['paymentstatus'] == 'pending' ? Colors.orangeAccent : Colors.green,
+                                        color: bookingData['paymentstatus'] ==
+                                                'Pending'
+                                            ? Colors.orangeAccent
+                                            : Colors.green,
                                       ),
                                     ),
                                   ],
@@ -709,7 +735,6 @@ class _HomeProviderState extends State<HomeProvider> {
                           );
                         },
                       ),
-
                     );
                   }).toList(),
                 );

@@ -648,7 +648,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
             uihelper.detailCard(
                 "Wage Type", widget.service.get('WageType') ?? 'Not provided'),
             uihelper.detailCard(
-                "Time Slot", widget.service.get('TimeSlot') ?? 'Not provided'),
+                "Time Slot", widget.service.get('Duration') ?? 'Not provided'),
             uihelper.detailCard(
                 "Province", widget.service.get('Province') ?? 'Not provided'),
             uihelper.detailCard(
