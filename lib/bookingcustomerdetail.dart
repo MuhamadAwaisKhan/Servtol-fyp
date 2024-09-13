@@ -164,6 +164,60 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
 
     return result;
   }
+  void updateBookingStatus1(String cancellationReason) async {
+    try {
+      String bookingId = widget.bookings.id;
+
+      // 1. Update the booking status and include cancellation reason
+      await _firestore.collection('bookings').doc(bookingId).update({
+        'status': 'Cancelled',
+        'cancellationReason': cancellationReason, // Add the reason
+      });
+
+      // 2. Find the corresponding notification
+      QuerySnapshot notificationSnapshot = await _firestore
+          .collection('notifications')
+          .where('bookingId', isEqualTo: bookingId)
+          .get();
+
+      if (notificationSnapshot.docs.isNotEmpty) {
+        DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
+
+        // 3. Update the notification with the reason (if provided)
+        String providerMessage =
+            'Your booking has been cancelled by the customer.';
+        String customerMessage = 'You have cancelled the service booking.';
+
+        // if (cancellationReason.isNotEmpty) {
+        //   providerMessage += ' Reason: $cancellationReason';
+        //   customerMessage += ' Reason: $cancellationReason';
+        // }
+
+        await _firestore
+            .collection('notifications')
+            .doc(notificationDoc.id)
+            .update({
+          'message': providerMessage,
+          'message1': customerMessage,
+          'status': 'Cancelled',
+        });
+      } else {
+        print('No notification found for booking ID: $bookingId');
+      }
+
+      // 4. Show success message and navigate back
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Booking has been cancelled')),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      print('Error updating booking status: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to cancel booking')),
+      );
+    }
+  }
+
 
   Color _getStatusColor(String status) {
     switch (status) {
@@ -226,6 +280,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         return Colors.grey;
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -689,7 +744,79 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                         ),
                       ),
                       SizedBox(height: 20),
+                      if (bookingStatus == 'Accepted' || bookingStatus == 'Pending' )  ...[
+                        Center(
+                          child: Row(
+                                // Use a Row to arrange the buttons horizontally
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
 
+
+                                  // Add some spacing between buttons
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      // Controller for the cancellation reason text field
+                                      TextEditingController reasonController =
+                                      TextEditingController();
+
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('Cancel Booking'),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                    'Are you sure you want to cancel this booking? This action cannot be undone.'),
+                                                SizedBox(height: 16),
+                                                // Add some spacing
+                                                TextField(
+                                                  controller: reasonController,
+                                                  decoration: InputDecoration(
+                                                    labelText:
+                                                    'Reason for Cancellation (Optional)',
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: Text('No'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+
+                                                  String cancellationReason =
+                                                  reasonController.text
+                                                      .trim();
+                                                  updateBookingStatus1(
+                                                      cancellationReason);
+                                                },
+                                                child: Text('Yes'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors.red,
+                                    ),
+                                    child: Text('Cancel'),
+                                  ),
+
+                                ],
+                              ),
+
+
+                        )
+                      ]
 
                     ]),
               ));

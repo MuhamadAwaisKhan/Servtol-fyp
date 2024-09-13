@@ -260,8 +260,8 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
 
         // 3. Update the notification with the reason (if provided)
         String providerMessage =
-            'Your booking has been cancelled by the customer.';
-        String customerMessage = 'You have cancelled the service booking.';
+            'You have cancelled the service booking.';
+        String customerMessage = 'Your booking has been cancelled by the service provider.';
 
         // if (cancellationReason.isNotEmpty) {
         //   providerMessage += ' Reason: $cancellationReason';
