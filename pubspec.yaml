@@ -63,6 +63,7 @@ dependencies:
   async: ^2.11.0
   intl: ^0.19.0
   timeago: ^3.7.0
+  rxdart: ^0.28.0
 
 
 dev_dependencies:

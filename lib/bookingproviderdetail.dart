@@ -32,15 +32,23 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
     try {
       String bookingId = widget.bookings.id;
       String providerId = widget.bookings['providerId'];
+      String customerId = widget.bookings['customerId'];
       String serviceNameLower =
-          (widget.bookings['ServiceName'] ?? '').toString().toLowerCase();
+      (widget.bookings['ServiceName'] ?? '').toString().toLowerCase();
+      String formattedBookingId = bookingId; // Add any formatting logic if needed
+
+      String bookingStatus = widget.bookings['status']; // Assuming this is where the current booking status is stored
+      String paymentStatus = widget.bookings['paymentstatus']; // Assuming this is where the payment status is stored
 
       WriteBatch batch = _firestore.batch();
 
-      // 1. Update the booking status
+      // 1. Update the booking status and timestamp
       DocumentReference bookingRef =
-          _firestore.collection(bookingsCollection).doc(bookingId);
-      batch.update(bookingRef, {'status': newStatus});
+      _firestore.collection(bookingsCollection).doc(bookingId);
+      batch.update(bookingRef, {
+        'status': newStatus,
+        // 'timestamp': FieldValue.serverTimestamp(), // Update timestamp
+      });
 
       // 2. Find the corresponding notification using bookingId
       QuerySnapshot notificationSnapshot = await _firestore
@@ -51,19 +59,38 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
       if (notificationSnapshot.docs.isNotEmpty) {
         DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
 
-        // 3. Update the notification
-        DocumentReference notificationRef = _firestore
-            .collection(notificationsCollection)
-            .doc(notificationDoc.id);
+        // 3. Update the notification status, messages, and timestamp
+        DocumentReference notificationRef =
+        _firestore.collection(notificationsCollection).doc(notificationDoc.id);
         batch.update(notificationRef, {
           'status': newStatus,
           'message': notificationMessage,
           'message1': notificationMessage1,
+          // 'timestamp': FieldValue.serverTimestamp(), // Update timestamp
         });
       } else {
         print('No notification found for booking ID: $bookingId');
       }
 
+      // 4. Conditionally create a new document in the paymentnotification collection
+      if ((bookingStatus == 'Accepted' || bookingStatus == 'In Process') &&
+          paymentStatus == "Pending") {
+        DocumentReference paymentNotificationRef =
+        _firestore.collection('paymentnotification').doc();
+        batch.set(paymentNotificationRef, {
+          'providerId': providerId,
+          'customerId': customerId,
+          'bookingId': formattedBookingId,
+          'message': notificationMessage,
+          'message1': notificationMessage1,
+          'isRead': false,
+          'isRead1': false,
+          'paymentstatus': 'Pending',
+          'timestamp': FieldValue.serverTimestamp(), // Add timestamp here too
+        });
+      }
+
+      // Commit all batch operations
       await batch.commit().catchError((error) {
         print('Error committing batch: $error');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -85,6 +112,9 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
       );
     }
   }
+
+
+
 
   void fetchTaxRate() async {
     try {
@@ -246,7 +276,8 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
       // 1. Update the booking status and include cancellation reason
       await _firestore.collection('bookings').doc(bookingId).update({
         'status': 'Cancelled',
-        'cancellationReason': cancellationReason, // Add the reason
+        'cancellationReason': cancellationReason,
+        'timestamp': FieldValue.serverTimestamp(),
       });
 
       // 2. Find the corresponding notification
@@ -261,7 +292,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
         // 3. Update the notification with the reason (if provided)
         String providerMessage =
             'You have cancelled the service booking.';
-        String customerMessage = 'Your booking has been cancelled by the service provider.';
+        String customerMessage = 'Your booking has been cancelled by the service provder.';
 
         // if (cancellationReason.isNotEmpty) {
         //   providerMessage += ' Reason: $cancellationReason';
@@ -275,6 +306,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
           'message': providerMessage,
           'message1': customerMessage,
           'status': 'Cancelled',
+          'timestamp': FieldValue.serverTimestamp(),
         });
       } else {
         print('No notification found for booking ID: $bookingId');
@@ -308,6 +340,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
             widget.bookings['status'] as String? ?? 'Pending',
             style: TextStyle(
               color: Colors.white,
+              fontSize: 18,
               fontFamily: 'Poppins',
               fontWeight: FontWeight.bold,
             ),
@@ -901,6 +934,95 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                 ),
                                 child: Text('Ask Customer to Pay'),
                               ),
+                            ],
+                          ),
+                        )
+                      ],
+                      if ((bookingStatus == 'Payment Pending' ) && paymentstatus == "Pending" ) ...[
+                        Center(
+                          child: Column(
+                            children: [
+                              Row(
+                                // Use a Row to arrange the buttons horizontally
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      updateBookingStatus(
+                                          'Waiting',
+                                          'You have processed the booking to waiting stage.',
+                                          'Your booking is successfully processed and set waiting for the some time.');
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor:
+                                          Colors.blue, // Green for Accept
+                                    ),
+                                    child: Text('Waiting'),
+                                  ),
+                                  SizedBox(width: 10),
+                                  // Add some spacing between buttons
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      // Controller for the cancellation reason text field
+                                      TextEditingController reasonController =
+                                      TextEditingController();
+
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('Cancel Booking'),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                    'Are you sure you want to cancel this booking? This action cannot be undone.'),
+                                                SizedBox(height: 16),
+                                                // Add some spacing
+                                                TextField(
+                                                  controller: reasonController,
+                                                  decoration: InputDecoration(
+                                                    labelText:
+                                                    'Reason for Cancellation (Optional)',
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: Text('No'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+
+                                                  String cancellationReason =
+                                                  reasonController.text
+                                                      .trim();
+                                                  updateBookingStatus1(
+                                                      cancellationReason);
+                                                },
+                                                child: Text('Yes'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors.red,
+                                    ),
+                                    child: Text('Cancel'),
+                                  ),
+
+                                ],
+                              ),
+
                             ],
                           ),
                         )

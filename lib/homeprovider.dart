@@ -11,7 +11,7 @@ import 'package:servtol/servicescreenprovider.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 import 'package:fl_chart/fl_chart.dart';
-
+import 'package:rxdart/rxdart.dart';
 class HomeProvider extends StatefulWidget {
   Function onBackPress; // Making this final and required
 
@@ -96,14 +96,32 @@ class _HomeProviderState extends State<HomeProvider> {
 
   // Function to listen for unread notifications
   void listenForUnreadNotifications() {
+    // Listen to notifications collection
     FirebaseFirestore.instance
         .collection('notifications')
         .where('providerId', isEqualTo: currentUser?.uid)
         .where('isRead', isEqualTo: false)
+        .orderBy('timestamp', descending: true) // Add orderBy clause
         .snapshots()
         .listen((snapshot) {
-      setState(() {
-        unreadCount = snapshot.docs.length;
+      // Update unread count for notifications
+      int notificationUnreadCount = snapshot.docs.length;
+
+      // Listen to paymentnotification collection
+      FirebaseFirestore.instance
+          .collection('paymentnotification')
+          .where('providerId', isEqualTo: currentUser?.uid)
+          .where('isRead', isEqualTo: false)
+          .orderBy('timestamp', descending: true) // Add orderBy clause
+          .snapshots()
+          .listen((snapshot) {
+        // Update unread count for payment notifications
+        int paymentNotificationUnreadCount = snapshot.docs.length;
+
+        // Combine unread counts and update state
+        setState(() {
+          unreadCount = notificationUnreadCount + paymentNotificationUnreadCount;
+        });
       });
     });
   }
@@ -214,29 +232,34 @@ class _HomeProviderState extends State<HomeProvider> {
               MaterialPageRoute(builder: (context) => chatprovider()),
             ),
           ),
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('notifications')
-                .where('providerId',
-                    isEqualTo: currentUser
-                        ?.uid) // Make sure providerId is set correctly
-                .where('isRead',
-                    isEqualTo: false) // Query for unread notifications
-                .snapshots(),
+          StreamBuilder<List<QuerySnapshot>>(
+            stream: CombineLatestStream.list([
+              FirebaseFirestore.instance
+                  .collection('notifications')
+                  .where('providerId', isEqualTo: currentUser?.uid)
+                  .where('isRead', isEqualTo: false)
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+              FirebaseFirestore.instance
+                  .collection('paymentnotification') // Corrected collection name
+                  .where('providerId', isEqualTo: currentUser?.uid)
+                  .where('isRead', isEqualTo: false)
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+            ]),
             builder: (context, snapshot) {
               int unreadCount = 0;
 
               if (snapshot.hasData) {
-                unreadCount = snapshot.data!.docs.length;
+                // Combine unread counts from both collections
+                unreadCount = snapshot.data![0].docs.length + snapshot.data![1].docs.length;
               }
 
               return Stack(
                 children: [
                   IconButton(
                     iconSize: 30,
-                    // Adjust icon size here
                     padding: EdgeInsets.symmetric(horizontal: 12),
-                    // Adjust icon padding here
                     icon: FaIcon(FontAwesomeIcons.bell),
                     onPressed: () {
                       Navigator.push(
@@ -247,14 +270,12 @@ class _HomeProviderState extends State<HomeProvider> {
                       );
                     },
                   ),
-                  if (unreadCount >
-                      0) // Only show badge if there are unread notifications
+                  if (unreadCount > 0)
                     Positioned(
                       right: 11,
                       top: 11,
                       child: Container(
                         padding: EdgeInsets.all(4),
-                        // Adjust padding inside badge
                         decoration: BoxDecoration(
                           color: Colors.red,
                           borderRadius: BorderRadius.circular(6),
@@ -267,7 +288,7 @@ class _HomeProviderState extends State<HomeProvider> {
                           '$unreadCount',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 6, // Adjust font size of the badge
+                            fontSize: 6,
                           ),
                           textAlign: TextAlign.center,
                         ),

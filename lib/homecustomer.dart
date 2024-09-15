@@ -9,7 +9,7 @@ import 'package:servtol/searchcustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:servtol/notificationcustomer.dart';
-
+import 'package:rxdart/rxdart.dart';
 class HomeCustomer extends StatefulWidget {
   Function onBackPress; // Making this final and required
 
@@ -46,14 +46,32 @@ class _HomeCustomerState extends State<HomeCustomer> {
 
   // Function to listen for unread notifications
   void listenForUnreadNotifications() {
+    // Listen to notifications collection
     FirebaseFirestore.instance
         .collection('notifications')
         .where('customerId', isEqualTo: currentUser?.uid)
-        .where('isRead', isEqualTo: false)
+        .where('isRead1', isEqualTo: false)
+        .orderBy('timestamp', descending: true) // Add orderBy clause
         .snapshots()
         .listen((snapshot) {
-      setState(() {
-        unreadCount = snapshot.docs.length;
+      // Update unread count for notifications
+      int notificationUnreadCount = snapshot.docs.length;
+
+      // Listen to paymentnotification collection
+      FirebaseFirestore.instance
+          .collection('paymentnotification')
+          .where('customerId', isEqualTo: currentUser?.uid)
+          .where('isRead1', isEqualTo: false)
+          .orderBy('timestamp', descending: true) // Add orderBy clause
+          .snapshots()
+          .listen((snapshot) {
+        // Update unread count for payment notifications
+        int paymentNotificationUnreadCount = snapshot.docs.length;
+
+        // Combine unread counts and update state
+        setState(() {
+          unreadCount = notificationUnreadCount + paymentNotificationUnreadCount;
+        });
       });
     });
   }
@@ -71,29 +89,34 @@ class _HomeCustomerState extends State<HomeCustomer> {
         backgroundColor: AppColors.background,
         leading: Icon(size: 0.0, Icons.arrow_back),
         actions: [
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('notifications')
-                .where('customerId',
-                    isEqualTo: currentUser
-                        ?.uid) // Make sure providerId is set correctly
-                .where('isRead1',
-                    isEqualTo: false) // Query for unread notifications
-                .snapshots(),
+          StreamBuilder<List<QuerySnapshot>>(
+            stream: CombineLatestStream.list([
+              FirebaseFirestore.instance
+                  .collection('notifications')
+                  .where('customerId', isEqualTo: currentUser?.uid)
+                  .where('isRead1', isEqualTo: false)
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+              FirebaseFirestore.instance
+                  .collection('paymentnotification') // Corrected collection name
+                  .where('customerId', isEqualTo: currentUser?.uid)
+                  .where('isRead1', isEqualTo: false)
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+            ]),
             builder: (context, snapshot) {
               int unreadCount = 0;
 
               if (snapshot.hasData) {
-                unreadCount = snapshot.data!.docs.length;
+                // Combine unread counts from both collections
+                unreadCount = snapshot.data![0].docs.length + snapshot.data![1].docs.length;
               }
 
               return Stack(
                 children: [
                   IconButton(
                     iconSize: 30,
-                    // Adjust icon size here
                     padding: EdgeInsets.symmetric(horizontal: 12),
-                    // Adjust icon padding here
                     icon: FaIcon(FontAwesomeIcons.bell),
                     onPressed: () {
                       Navigator.push(
@@ -104,14 +127,12 @@ class _HomeCustomerState extends State<HomeCustomer> {
                       );
                     },
                   ),
-                  if (unreadCount >
-                      0) // Only show badge if there are unread notifications
+                  if (unreadCount > 0)
                     Positioned(
                       right: 11,
                       top: 11,
                       child: Container(
                         padding: EdgeInsets.all(4),
-                        // Adjust padding inside badge
                         decoration: BoxDecoration(
                           color: Colors.red,
                           borderRadius: BorderRadius.circular(6),
@@ -124,7 +145,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                           '$unreadCount',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 6, // Adjust font size of the badge
+                            fontSize: 6,
                           ),
                           textAlign: TextAlign.center,
                         ),

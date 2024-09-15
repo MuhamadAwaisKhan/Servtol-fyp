@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:servtol/util/AppColors.dart';
+
+enum PaymentMethod { cash, card }
 
 class BookingCustomerDetail extends StatefulWidget {
   final DocumentSnapshot bookings;
@@ -33,7 +36,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
       // 1. Update the booking status and include cancellation reason
       await _firestore.collection('bookings').doc(bookingId).update({
         'status': 'Cancelled',
-        'cancellationReason': cancellationReason, // Add the reason
+        'cancellationReason': cancellationReason,
+        'timestamp': FieldValue.serverTimestamp(),// Add the reason
       });
 
       // 2. Find the corresponding notification
@@ -46,7 +50,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
 
         // 3. Update the notification with the reason (if provided)
-        String providerMessage = 'Your booking has been cancelled by the customer.';
+        String providerMessage =
+            'Your booking has been cancelled by the customer.';
         String customerMessage = 'You have cancelled the service booking.';
 
         // if (cancellationReason.isNotEmpty) {
@@ -61,6 +66,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
           'message': providerMessage,
           'message1': customerMessage,
           'status': 'Cancelled',
+          'timestamp': FieldValue.serverTimestamp(),
         });
       } else {
         print('No notification found for booking ID: $bookingId');
@@ -78,6 +84,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
       );
     }
   }
+
   void fetchTaxRate() async {
     try {
       var querySnapshot = await FirebaseFirestore.instance
@@ -164,6 +171,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
 
     return result;
   }
+
   void updateBookingStatus1(String cancellationReason) async {
     try {
       String bookingId = widget.bookings.id;
@@ -171,7 +179,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
       // 1. Update the booking status and include cancellation reason
       await _firestore.collection('bookings').doc(bookingId).update({
         'status': 'Cancelled',
-        'cancellationReason': cancellationReason, // Add the reason
+        'cancellationReason': cancellationReason,
+        'timestamp': FieldValue.serverTimestamp(),// Add the reason
       });
 
       // 2. Find the corresponding notification
@@ -200,6 +209,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
           'message': providerMessage,
           'message1': customerMessage,
           'status': 'Cancelled',
+          'timestamp': FieldValue.serverTimestamp(),
         });
       } else {
         print('No notification found for booking ID: $bookingId');
@@ -217,7 +227,6 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
       );
     }
   }
-
 
   Color _getStatusColor(String status) {
     switch (status) {
@@ -243,14 +252,13 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
 
       case 'Waiting':
         return Colors.blueGrey[
-        800]!; // Dark blue-grey to suggest a paused or waiting state.
+            800]!; // Dark blue-grey to suggest a paused or waiting state.
 
       case 'Complete':
-        return Colors
-            .green[900]!;
+        return Colors.green[900]!;
       case 'Payment Pending':
-        return Colors
-            .deepPurple[900]!; // A dark green to represent finality and success.
+        return Colors.deepPurple[
+            900]!; // A dark green to represent finality and success.
 
       case 'On going':
         return Colors.blue[800]!;
@@ -263,7 +271,6 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
             .grey[800]!; // Dark grey for any unknown or undefined statuses.
     }
   }
-
 
   Color _getPaymentStatusColor(String status) {
     switch (status) {
@@ -281,6 +288,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
     }
   }
 
+  // PaymentMethod? _selectedMethod = null;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -296,6 +305,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
             widget.bookings['status'] as String? ?? 'Pending',
             style: TextStyle(
               color: Colors.white,
+              fontSize: 18,
               fontFamily: 'Poppins',
               fontWeight: FontWeight.bold,
             ),
@@ -335,29 +345,149 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if ((bookingStatus == 'Accepted' || bookingStatus == 'In Process' ) && paymentstatus =='Pending' ) ...[
+                      if ((bookingStatus == 'Accepted' || bookingStatus == 'In Process' || bookingStatus == 'Payment Pending' ) && paymentstatus == 'Pending') ...[
                         Column(
-
                           children: [
-
-                            Text('Your booking request is accepted please select payment method for further processing ',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.bold,
-                                )),
+                            Text(
+                              'Your booking request is accepted please select payment method for further processing',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             SizedBox(height: 5),
+                            ElevatedButton(
+                              onPressed: () {
+                                PaymentMethod? _selectedMethod = null; // Declare _selectedMethod here
 
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return StatefulBuilder(
+                                      builder: (context, setState) {
+                                        return AlertDialog(
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              Text(
+                                                'Choose Payment Method',
+                                                style: TextStyle(
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.teal,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 20),
+                                              Card(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(15.0),
+                                                ),
+                                                elevation: 5,
+                                                child: ListTile(
+                                                  leading: FaIcon(
+                                                    FontAwesomeIcons.moneyBillAlt,
+                                                    color: Colors.green,
+                                                  ),
+                                                  title: Text(
+                                                    'On Cash',
+                                                    style: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  trailing: Radio<PaymentMethod>(
+                                                    value: PaymentMethod.cash,
+                                                    groupValue: _selectedMethod,
+                                                    onChanged: (PaymentMethod? value) {
+                                                      setState(() {
+                                                        _selectedMethod = value!;
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              Card(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(15.0),
+                                                ),
+                                                elevation: 5,
+                                                child: ListTile(
+                                                  leading: FaIcon(
+                                                    FontAwesomeIcons.creditCard,
+                                                    color: Colors.blue,
+                                                  ),
+                                                  title: Text(
+                                                    'Card Payment',
+                                                    style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontFamily: "Poppins",
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  trailing: Radio<PaymentMethod>(
+                                                    value: PaymentMethod.card,
+                                                    groupValue: _selectedMethod,
+                                                    onChanged: (PaymentMethod? value) {
+                                                      setState(() {
+                                                        _selectedMethod = value!;
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text('Cancel',
+                                              style: TextStyle(color: Colors.red,),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+
+                                                if (_selectedMethod != null) {
+                                                  // Handle the selected payment method here
+                                                  print("Selected Payment Method: $_selectedMethod");
+
+                                                  // You can add your logic to update the booking status or navigate to a payment screen based on _selectedMethod
+                                                } else {
+                                                  // Handle the case where no payment method is selected
+                                                  // You might want to show a message to the user
+                                                }
+                                              },
+                                              child: Text('Confirm',
+                                              style: TextStyle(color: Colors.blue),),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.blueGrey,
+                              ),
+                              child: Text('Payment Methods'),
+                            ),
+                            SizedBox(height: 10),
+                            Divider(),
+                            SizedBox(height: 10),
                           ],
-                        ), SizedBox(height: 10),
-                        Divider(),
-                        SizedBox(height: 10),
+                        ),
                       ],
                       if (bookingStatus == 'Cancelled') ...[
                         Column(
-
                           children: [
-                
                             Text('Reason ',
                                 style: TextStyle(
                                   fontSize: 18,
@@ -369,11 +499,12 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                 '${widget.bookings['cancellationReason'] as String? ?? 'No Reason'}',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color:Colors.grey,
+                                  color: Colors.grey,
                                   fontFamily: 'Poppins',
                                 )),
                           ],
-                        ), SizedBox(height: 10),
+                        ),
+                        SizedBox(height: 10),
                         Divider(),
                         SizedBox(height: 10),
                       ],
@@ -462,12 +593,14 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                   if (loadingProgress == null) return child;
                                   return Center(
                                     child: CircularProgressIndicator(
-                                      value: loadingProgress.expectedTotalBytes !=
-                                              null
-                                          ? loadingProgress
-                                                  .cumulativeBytesLoaded /
-                                              loadingProgress.expectedTotalBytes!
-                                          : null,
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
                                     ),
                                   );
                                 },
@@ -478,7 +611,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                           ),
                         ],
                       ),
-                
+
                       SizedBox(height: 10),
                       Divider(),
                       SizedBox(height: 10),
@@ -557,7 +690,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                           decoration: BoxDecoration(
                               color: Colors.grey[200],
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.deepPurpleAccent)),
+                              border:
+                                  Border.all(color: Colors.deepPurpleAccent)),
                           padding: EdgeInsets.all(8.0),
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -628,7 +762,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                         ],
                                       ),
                                     ),
-                
+
                                     // Right-aligned text for the calculated discount value
                                     Text(
                                       '-\$${(double.parse(data['service']['Price'] ?? '0') * double.parse(widget.bookings['quantity'].toString()) * (double.parse(data['coupon']['discount'] ?? '0') / 100)).toStringAsFixed(2)}',
@@ -667,7 +801,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                                       ListTile(
                                                         leading: Icon(
                                                             Icons.attach_money,
-                                                            color: Colors.green),
+                                                            color:
+                                                                Colors.green),
                                                         title:
                                                             Text('Booking Fee'),
                                                         subtitle: Text(
@@ -691,6 +826,9 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                                         child: Text('Close'),
                                                         style: ElevatedButton
                                                             .styleFrom(
+                                                                foregroundColor:
+                                                                    Colors
+                                                                        .white,
                                                                 backgroundColor:
                                                                     Colors
                                                                         .redAccent),
@@ -701,7 +839,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                               },
                                             );
                                           },
-                                          icon: Icon(Icons.info_outline_rounded),
+                                          icon:
+                                              Icon(Icons.info_outline_rounded),
                                         ),
                                         Text(
                                             ' \$${widget.bookings['tax']?.toStringAsFixed(2) ?? '0.00'}',
@@ -733,91 +872,85 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                 ),
                               ]),
                           // Text(
-                
+
                           // SizedBox(height: 10),
                           // Text(
                           //     'Total Price: \$${widget.bookings['total']?.toStringAsFixed(2) ?? '0.00'}',
                           //     style: TextStyle(fontSize: 16)),
                           // SizedBox(height: 10),
-                
+
                           // // Add more fields as necessary
                         ),
                       ),
                       SizedBox(height: 20),
-                      if (bookingStatus == 'Accepted' || bookingStatus == 'Pending' )  ...[
+                      if (bookingStatus == 'Accepted' ||
+                          bookingStatus == 'Pending') ...[
                         Center(
                           child: Row(
-                                // Use a Row to arrange the buttons horizontally
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-
-
-                                  // Add some spacing between buttons
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      // Controller for the cancellation reason text field
-                                      TextEditingController reasonController =
+                            // Use a Row to arrange the buttons horizontally
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Add some spacing between buttons
+                              ElevatedButton(
+                                onPressed: () {
+                                  // Controller for the cancellation reason text field
+                                  TextEditingController reasonController =
                                       TextEditingController();
 
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Text('Cancel Booking'),
-                                            content: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Text(
-                                                    'Are you sure you want to cancel this booking? This action cannot be undone.'),
-                                                SizedBox(height: 16),
-                                                // Add some spacing
-                                                TextField(
-                                                  controller: reasonController,
-                                                  decoration: InputDecoration(
-                                                    labelText:
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Cancel Booking'),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                                'Are you sure you want to cancel this booking? This action cannot be undone.'),
+                                            SizedBox(height: 16),
+                                            // Add some spacing
+                                            TextField(
+                                              controller: reasonController,
+                                              decoration: InputDecoration(
+                                                labelText:
                                                     'Reason for Cancellation (Optional)',
-                                                  ),
-                                                ),
-                                              ],
+                                              ),
                                             ),
-                                            actions: <Widget>[
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('No'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
+                                          ],
+                                        ),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text('No'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
 
-                                                  String cancellationReason =
-                                                  reasonController.text
-                                                      .trim();
-                                                  updateBookingStatus1(
-                                                      cancellationReason);
-                                                },
-                                                child: Text('Yes'),
-                                              ),
-                                            ],
-                                          );
-                                        },
+                                              String cancellationReason =
+                                                  reasonController.text.trim();
+                                              updateBookingStatus1(
+                                                  cancellationReason);
+                                            },
+                                            child: Text('Yes'),
+                                          ),
+                                        ],
                                       );
                                     },
-                                    style: ElevatedButton.styleFrom(
-                                      foregroundColor: Colors.white,
-                                      backgroundColor: Colors.red,
-                                    ),
-                                    child: Text('Cancel'),
-                                  ),
-
-                                ],
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: Colors.red,
+                                ),
+                                child: Text('Cancel'),
                               ),
-
-
+                            ],
+                          ),
                         )
                       ]
-
                     ]),
               ));
         },

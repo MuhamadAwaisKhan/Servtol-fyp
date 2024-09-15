@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:servtol/bookingproviderdetail.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:rxdart/rxdart.dart';
 
 class NotificationProvider extends StatefulWidget {
   const NotificationProvider({
@@ -42,7 +43,7 @@ class _NotificationProviderState extends State<NotificationProvider> {
   Future<String?> fetchCustomerPic(String customerId) async {
     try {
       DocumentSnapshot customerSnapshot = await FirebaseFirestore.instance
-          .collection('customer')
+          .collection('provider')
           .doc(customerId)
           .get();
 
@@ -136,163 +137,211 @@ class _NotificationProviderState extends State<NotificationProvider> {
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : providerId == null
-              ? Center(child: Text('No provider ID found'))
-              : StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('notifications')
-                      .where('providerId', isEqualTo: providerId)
-                      .orderBy('timestamp', descending: true)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    }
-                    if (!snapshot.hasData) {
-                      return Center(child: CircularProgressIndicator());
-                    }
+          ? Center(child: Text('No customer ID found'))
+          : StreamBuilder<List<QuerySnapshot>>(
+        stream: CombineLatestStream.list([
+          FirebaseFirestore.instance
+              .collection('notifications')
+              .where('providerId', isEqualTo: providerId)
+              .orderBy('timestamp', descending: true)
+              .snapshots(),
+          FirebaseFirestore.instance
+              .collection('paymentnotification')
+              .where('providerId', isEqualTo: providerId)
+              .orderBy('timestamp', descending: true)
+              .snapshots(),
+        ]),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-                    var notifications = snapshot.data!.docs;
+          // Combine both notification and payment notifications into one list
+          var notifications = snapshot.data![0].docs;
+          var paymentNotifications = snapshot.data![1].docs;
 
-                    if (notifications.isEmpty) {
-                      return Center(child: Text('No notifications'));
-                    }
+          // Combine both lists into a single list and sort by timestamp
+          var combinedNotifications = [
+            ...notifications,
+            ...paymentNotifications
+          ]..sort((a, b) {
+            Timestamp timestampA = a['timestamp'];
+            Timestamp timestampB = b['timestamp'];
+            // Handle null timestamps by placing them at the end
+            // if (timestampA == null && timestampB == null) return 0;
+            // if (timestampA == null) return 1;
+            // if (timestampB == null) return -1;
+            return timestampB
+                .compareTo(timestampA); // Descending order
+          });
 
-                    return ListView.builder(
-                      itemCount: notifications.length,
-                      itemBuilder: (context, index) {
-                        var notification = notifications[index];
-                        var customerId = notification['customerId'];
-                        var message = notification['message'] ?? 'No message';
-                        var bookingId = notification['bookingId'];
-                        var serviceState = notification['status'];
-                        var timestamp = notification['timestamp'] as Timestamp;
+          if (combinedNotifications.isEmpty) {
+            return Center(child: Text('No notifications'));
+          }
 
-                        return FutureBuilder<String?>(
-                          future: fetchCustomerPic(customerId),
-                          builder: (context, customerPicSnapshot) {
-                            if (customerPicSnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            }
+          return ListView.builder(
+            itemCount: combinedNotifications.length,
+            itemBuilder: (context, index) {
+              var notification = combinedNotifications[index];
 
-                            var customerPicUrl = customerPicSnapshot.data;
+              // Check if the notification is from `notifications` or `paymentnotification`
+              bool isPaymentNotification =
+              paymentNotifications.contains(notification);
 
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12.0, vertical: 8.0),
-                              child: Card(
-                                elevation: 3,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+              var message = isPaymentNotification
+                  ? notification['message'] ?? 'No payment message'
+                  : notification['message'] ?? 'No message';
+
+              var timestamp = notification['timestamp'] as Timestamp;
+
+              return FutureBuilder<String?>(
+                future: fetchCustomerPic(providerId!),
+                builder: (context, customerPicSnapshot) {
+                  if (customerPicSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  var customerPicUrl = customerPicSnapshot.data;
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12.0, vertical: 8.0),
+                    child: Card(
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: ListTile(
+                          contentPadding: EdgeInsets.all(12),
+                          leading: CircleAvatar(
+                            backgroundImage: customerPicUrl != null
+                                ? NetworkImage(customerPicUrl)
+                                : AssetImage(
+                                'assets/default_avatar.png')
+                            as ImageProvider,
+                            radius: 30,
+                          ),
+                          title: Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                isPaymentNotification
+                                    ? 'Payment Update'
+                                    : 'Booking Update',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
                                 ),
-                                child: ListTile(
-                                    contentPadding: EdgeInsets.all(12),
-                                    leading: CircleAvatar(
-                                      backgroundImage: customerPicUrl != null
-                                          ? NetworkImage(customerPicUrl)
-                                          : AssetImage(
-                                                  'assets/default_avatar.png')
-                                              as ImageProvider,
-                                      radius: 30,
-                                    ),
-                                    title: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Booking Update',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                        Text(
-                                          "#$bookingId",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey[700],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(height: 4),
-                                        Text(
-                                          message,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                           "Status: $serviceState",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: _getStatusColor(
-                                                serviceState), // Apply color scheme here
-                                          ),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          timeago.format(
-                                            (timestamp as Timestamp).toDate(),
-                                            locale: 'en_short',
-                                          ),
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[500],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    trailing: notification['isRead']
-                                        ? Icon(Icons.check_circle,
-                                            color: Colors.green)
-                                        : Icon(Icons.circle,
-                                            color: Colors.redAccent),
-                                    onTap: () {
-                                      FirebaseFirestore.instance
-                                          .collection('notifications')
-                                          .doc(notification.id)
-                                          .update({'isRead': true});
-                                      FirebaseFirestore.instance
-                                          .collection(
-                                              'bookings') // Assuming your bookings are stored in a 'bookings' collection
-                                          .doc(
-                                              bookingId) // Use the bookingId from the notification
-                                          .get()
-                                          .then((bookingSnapshot) {
-                                        if (bookingSnapshot.exists) {
-                                          // Navigate to the booking details page with the fetched booking document
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  bookingproviderdetail(
-                                                bookings:
-                                                    bookingSnapshot, // Pass the entire DocumentSnapshot
-                                              ),
-                                            ),
-                                          );
-                                        } else {
-                                          print("Booking not found");
-                                        }
-                                      }).catchError((error) {
-                                        print("Error fetching booking: $error");
-                                      });
-                                    }),
                               ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
+                              // if (!isPaymentNotification)
+                              Text(
+                                "#${notification['bookingId']}",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            ],
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 4),
+                              Text(
+                                message,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              if (isPaymentNotification)
+                                Text(
+                                  "Payment Status: ${notification['paymentstatus']}",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: _getPaymentStatusColor(
+                                        notification[
+                                        'paymentstatus']),
+                                  ),
+                                )
+                              else
+                                Text(
+                                  "Booking Status: ${notification['status']}",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: _getStatusColor(
+                                        notification['status']),
+                                  ),
+                                ),
+                              SizedBox(height: 4),
+                              Text(
+                                timeago.format(
+                                  timestamp.toDate(),
+                                  locale: 'en_short',
+                                ),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                            ],
+                          ),
+                          trailing: notification['isRead'] ?? false
+                              ? Icon(Icons.check_circle,
+                              color: Colors.green)
+                              : Icon(Icons.circle,
+                              color: Colors.redAccent),
+                          onTap: () {
+                            FirebaseFirestore.instance
+                                .collection(isPaymentNotification
+                                ? 'paymentnotification'
+                                : 'notifications')
+                                .doc(notification.id)
+                                .update({'isRead1': true});
+
+                            // Fetch the booking ID, handling both notification types
+                            String bookingId = isPaymentNotification
+                                ? notification[
+                            'bookingId'] // Assuming payment notifications also have a bookingId
+                                : notification['bookingId'];
+
+                            FirebaseFirestore.instance
+                                .collection('bookings')
+                                .doc(bookingId)
+                                .get()
+                                .then((bookingSnapshot) {
+                              if (bookingSnapshot.exists) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        bookingproviderdetail(
+                                          bookings: bookingSnapshot,
+                                        ),
+                                  ),
+                                );
+                              } else {
+                                print("Booking not found");
+                              }
+                            }).catchError((error) {
+                              print("Error fetching booking: $error");
+                            });
+                          }),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
     );
-  }
+    }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:servtol/bookingcustomerdetail.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:rxdart/rxdart.dart';
 
 class customernotification extends StatefulWidget {
   const customernotification({super.key});
@@ -30,7 +31,7 @@ class _customernotificationState extends State<customernotification> {
         isLoading = false;
       });
     } catch (e) {
-      print("Error fetching providerId: $e");
+      print("Error fetching customerId: $e");
       setState(() {
         isLoading = false;
       });
@@ -56,54 +57,34 @@ class _customernotificationState extends State<customernotification> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Pending':
-        return Colors
-            .deepOrange; // Darker orange that stands out on a light background.
-
+        return Colors.deepOrange;
       case 'Cancelled':
-        return Colors
-            .black54; // A dark grey to indicate a disabled or inactive state.
-
+        return Colors.black54;
       case 'Rejected':
-        return Colors
-            .red[800]!; // A dark red to clearly indicate a negative status.
-
+        return Colors.red[800]!;
       case 'Accepted':
-        return Colors
-            .green[700]!; // A darker shade of green for better visibility.
-
+        return Colors.green[700]!;
       case 'In Progress':
-        return Colors
-            .indigo[700]!; // A deep indigo for a sense of ongoing work.
-
+        return Colors.indigo[700]!;
       case 'Waiting':
-        return Colors.blueGrey[
-        800]!; // Dark blue-grey to suggest a paused or waiting state.
-
+        return Colors.blueGrey[800]!;
       case 'Complete':
-        return Colors
-            .green[900]!;
+        return Colors.green[900]!;
       case 'Payment Pending':
-        return Colors
-            .deepPurple[900]!; // A dark green to represent finality and success.
-
+        return Colors.deepPurple[900]!;
       case 'On going':
         return Colors.blue[800]!;
       case 'In Process':
-        return Colors
-            .brown[800]!; // A dark blue that conveys stability and continuity.
-
+        return Colors.brown[800]!;
       default:
-        return Colors
-            .grey[800]!; // Dark grey for any unknown or undefined statuses.
+        return Colors.grey[800]!;
     }
   }
-
 
   Color _getPaymentStatusColor(String status) {
     switch (status) {
       case 'Pending':
         return Colors.orange;
-
       case 'Paid by Card':
         return Colors.green;
       case 'OnCash':
@@ -135,13 +116,20 @@ class _customernotificationState extends State<customernotification> {
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : customerId == null
-              ? Center(child: Text('No provider ID found'))
-              : StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('notifications')
-                      .where('customerId', isEqualTo: customerId)
-                      .orderBy('timestamp', descending: true)
-                      .snapshots(),
+              ? Center(child: Text('No customer ID found'))
+              : StreamBuilder<List<QuerySnapshot>>(
+                  stream: CombineLatestStream.list([
+                    FirebaseFirestore.instance
+                        .collection('notifications')
+                        .where('customerId', isEqualTo: customerId)
+                        .orderBy('timestamp', descending: true)
+                        .snapshots(),
+                    FirebaseFirestore.instance
+                        .collection('paymentnotification')
+                        .where('customerId', isEqualTo: customerId)
+                        .orderBy('timestamp', descending: true)
+                        .snapshots(),
+                  ]),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(child: Text('Error: ${snapshot.error}'));
@@ -150,24 +138,46 @@ class _customernotificationState extends State<customernotification> {
                       return Center(child: CircularProgressIndicator());
                     }
 
-                    var notifications = snapshot.data!.docs;
+                    // Combine both notification and payment notifications into one list
+                    var notifications = snapshot.data![0].docs;
+                    var paymentNotifications = snapshot.data![1].docs;
 
-                    if (notifications.isEmpty) {
+                    // Combine both lists into a single list and sort by timestamp
+                    var combinedNotifications = [
+                      ...notifications,
+                      ...paymentNotifications
+                    ]..sort((a, b) {
+                        Timestamp timestampA = a['timestamp'];
+                        Timestamp timestampB = b['timestamp'];
+                        // Handle null timestamps by placing them at the end
+                        // if (timestampA == null && timestampB == null) return 0;
+                        // if (timestampA == null) return 1;
+                        // if (timestampB == null) return -1;
+                        return timestampB
+                            .compareTo(timestampA); // Descending order
+                      });
+
+                    if (combinedNotifications.isEmpty) {
                       return Center(child: Text('No notifications'));
                     }
 
                     return ListView.builder(
-                      itemCount: notifications.length,
+                      itemCount: combinedNotifications.length,
                       itemBuilder: (context, index) {
-                        var notification = notifications[index];
-                        var customerId = notification['customerId'];
-                        var message = notification['message1'] ?? 'No message';
-                        var bookingId = notification['bookingId'];
-                        var serviceState = notification['status'];
+                        var notification = combinedNotifications[index];
+
+                        // Check if the notification is from `notifications` or `paymentnotification`
+                        bool isPaymentNotification =
+                            paymentNotifications.contains(notification);
+
+                        var message = isPaymentNotification
+                            ? notification['message1'] ?? 'No payment message'
+                            : notification['message1'] ?? 'No message';
+
                         var timestamp = notification['timestamp'] as Timestamp;
 
                         return FutureBuilder<String?>(
-                          future: fetchCustomerPic(customerId),
+                          future: fetchCustomerPic(customerId!),
                           builder: (context, customerPicSnapshot) {
                             if (customerPicSnapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -199,19 +209,22 @@ class _customernotificationState extends State<customernotification> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          'Booking Update',
+                                          isPaymentNotification
+                                              ? 'Payment Update'
+                                              : 'Booking Update',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 18,
                                           ),
                                         ),
-                                        Text(
-                                          "#$bookingId",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey[700],
+                                        // if (!isPaymentNotification)
+                                          Text(
+                                            "#${notification['bookingId']}",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[700],
+                                            ),
                                           ),
-                                        ),
                                       ],
                                     ),
                                     subtitle: Column(
@@ -227,18 +240,29 @@ class _customernotificationState extends State<customernotification> {
                                           ),
                                         ),
                                         SizedBox(height: 4),
-                                        Text(
-                                          "Status: $serviceState",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: _getStatusColor(
-                                                serviceState), // Apply color scheme here
+                                        if (isPaymentNotification)
+                                          Text(
+                                            "Payment Status: ${notification['paymentstatus']}",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: _getPaymentStatusColor(
+                                                  notification[
+                                                      'paymentstatus']),
+                                            ),
+                                          )
+                                        else
+                                          Text(
+                                            "Booking Status: ${notification['status']}",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: _getStatusColor(
+                                                  notification['status']),
+                                            ),
                                           ),
-                                        ),
                                         SizedBox(height: 4),
                                         Text(
                                           timeago.format(
-                                            (timestamp as Timestamp).toDate(),
+                                            timestamp.toDate(),
                                             locale: 'en_short',
                                           ),
                                           style: TextStyle(
@@ -248,32 +272,37 @@ class _customernotificationState extends State<customernotification> {
                                         ),
                                       ],
                                     ),
-                                    trailing: notification['isRead1']
+                                    trailing: notification['isRead1'] ?? false
                                         ? Icon(Icons.check_circle,
                                             color: Colors.green)
                                         : Icon(Icons.circle,
                                             color: Colors.redAccent),
                                     onTap: () {
                                       FirebaseFirestore.instance
-                                          .collection('notifications')
+                                          .collection(isPaymentNotification
+                                              ? 'paymentnotification'
+                                              : 'notifications')
                                           .doc(notification.id)
                                           .update({'isRead1': true});
+
+                                      // Fetch the booking ID, handling both notification types
+                                      String bookingId = isPaymentNotification
+                                          ? notification[
+                                              'bookingId'] // Assuming payment notifications also have a bookingId
+                                          : notification['bookingId'];
+
                                       FirebaseFirestore.instance
-                                          .collection(
-                                              'bookings') // Assuming your bookings are stored in a 'bookings' collection
-                                          .doc(
-                                              bookingId) // Use the bookingId from the notification
+                                          .collection('bookings')
+                                          .doc(bookingId)
                                           .get()
                                           .then((bookingSnapshot) {
                                         if (bookingSnapshot.exists) {
-                                          // Navigate to the booking details page with the fetched booking document
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   BookingCustomerDetail(
-                                                bookings:
-                                                    bookingSnapshot, // Pass the entire DocumentSnapshot
+                                                bookings: bookingSnapshot,
                                               ),
                                             ),
                                           );

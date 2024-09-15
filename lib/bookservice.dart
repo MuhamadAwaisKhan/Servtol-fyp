@@ -499,7 +499,6 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
 
         uihelper.customDescriptionField1(
             descriptionController, "Enter Description"),
-
         if (!isRemoteService)
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
