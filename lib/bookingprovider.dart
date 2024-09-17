@@ -109,6 +109,7 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
       result['address'] = bookingData['address'];
       result['discount'] = bookingData['discount'];
       result['quantity'] = bookingData['quantity'];
+      result['paymentstatus'] = bookingData['paymentstatus'];
 
       return result;
     } catch (e) {
@@ -504,6 +505,9 @@ Color _getStatusColor(String status) {
     case 'In Process':
       return Colors
           .brown[800]!; // A dark blue that conveys stability and continuity.
+    case 'Ready to Service':
+      return Colors.tealAccent[400]!;
+
 
     default:
       return Colors

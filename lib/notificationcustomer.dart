@@ -76,6 +76,9 @@ class _customernotificationState extends State<customernotification> {
         return Colors.blue[800]!;
       case 'In Process':
         return Colors.brown[800]!;
+      case 'Ready to Service':
+        return Colors.tealAccent[400]!;
+
       default:
         return Colors.grey[800]!;
     }

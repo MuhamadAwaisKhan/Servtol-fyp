@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Servicecustomerdetail.dart'; // Correct path for your Servicecustomerdetail import
@@ -70,8 +71,23 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         alignment: Alignment.center,
                         child: CircularProgressIndicator(),
                       );
-                    } else if (serviceSnapshot.hasData && serviceSnapshot.data != null) {
-                      var doc = serviceSnapshot.data!.data() as Map<String, dynamic>;
+                    } else if (serviceSnapshot.hasError) {
+                      return ListTile(
+                        title: Text("Error loading service details"),
+                      );
+                    } else if (serviceSnapshot.hasData && serviceSnapshot.data!.exists) {
+                      // Checking if the document exists
+                      var doc = serviceSnapshot.data!.data() as Map<String, dynamic>?;
+                      if (doc == null) {
+                        return ListTile(
+                          title: Text("No details available"),
+                        );
+                      }
+
+                      // Print serviceId and document data for debugging
+                      print("Service ID: $serviceId");
+                      print("Document Data: $doc");
+
                       return Container(
                         margin: EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -97,22 +113,22 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             radius: 25,
                           ),
                           title: Text(
-                              doc['ServiceName'] ?? 'No name',
-                              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)
+                            doc['ServiceName'] ?? 'No name',
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                           subtitle: Text(
-                              doc['Category'] ?? 'No category',
-                              style: TextStyle(color: Colors.white70)
+                            doc['Category'] ?? 'No category',
+                            style: TextStyle(color: Colors.white70),
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                  "\$" + (doc['Price']?.toString() ?? 'No Price'),
-                                  style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold)
+                                "\$" + (doc['Price']?.toString() ?? 'No Price'),
+                                style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
                               ),
                               IconButton(
-                                icon: Icon(Icons.delete_outline),
+                                icon: FaIcon(FontAwesomeIcons.trashCan),
                                 onPressed: () => removeFavorite(serviceId),
                                 tooltip: 'Remove from favorites',
                               ),
@@ -123,21 +139,24 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => Servicecustomerdetail(service: serviceSnapshot.data!)
+                                  builder: (context) => Servicecustomerdetail(service: serviceSnapshot.data!),
                                 ),
                               );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Service details are not available.'))
+                                SnackBar(content: Text('Service details are not available.')),
                               );
                             }
                           },
                         ),
                       );
                     } else {
-                      return ListTile(title: Text("No details available",style: TextStyle(fontFamily: 'Poppins',)));
+                      return ListTile(
+                        // title: Text("No details available", style: TextStyle(fontFamily: 'Poppins')),
+                      );
                     }
                   },
+
                 );
               },
             );

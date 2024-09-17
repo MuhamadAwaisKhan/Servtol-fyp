@@ -94,6 +94,9 @@ class _NotificationProviderState extends State<NotificationProvider> {
       case 'In Process':
         return Colors
             .brown[800]!; // A dark blue that conveys stability and continuity.
+      case 'Ready to Service':
+        return Colors.tealAccent[400]!;
+
 
       default:
         return Colors

@@ -119,6 +119,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
       result['service'] = serviceData ?? {};
       result['bookingId'] = bookingData['bookingId'];
       result['status'] = bookingData['status'];
+      result['paymentstatus'] = bookingData['paymentstatus'];
       result['date'] = bookingData['date'];
       result['time'] = bookingData['time'];
       result['total'] = bookingData['total']; // Example for total amount
@@ -171,6 +172,9 @@ class _BookingCustomerState extends State<BookingCustomer> {
       case 'In Process':
         return Colors
             .brown[800]!; // A dark blue that conveys stability and continuity.
+      case 'Ready to Service':
+        return Colors.tealAccent[400]!;
+
 
       default:
         return Colors
@@ -259,28 +263,21 @@ class _BookingCustomerState extends State<BookingCustomer> {
 
 
   Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document) {
-    // print("Data being passed to bookingCard: $data");
-
-    // Extracting nested data safely
+    // Ensure service and nested fields are accessed safely
     String serviceType =
     (data['service']?['ServiceType'] as String? ?? '').toLowerCase();
     bool isRemoteService = serviceType == 'remote';
-    String serviceName =
-        data['service']?['ServiceName'] as String? ?? 'No Service';
-    String servicePrice = data['service']?['Price'].toString() ?? '0.00';
-    String discount = data['coupon']?['discount'].toString() ?? '0';
+
+    String serviceName = data['service']?['ServiceName'] as String? ?? 'No Service';
+    String servicePrice = data['service']?['Price']?.toString() ?? '0.00';
+    String discount = data['coupon']?['discount']?.toString() ?? '0';
 
     return InkWell(
       onTap: () {
-        // Perform your action on tap!
-        // print("Card tapped: ${data['bookingId']}");
-        // Navigate to a detail screen or perform another action
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                BookingCustomerDetail(
-                    bookings: document), // Correctly pass DocumentSnapshot
+            builder: (context) => BookingCustomerDetail(bookings: document),
           ),
         );
       },
@@ -295,14 +292,10 @@ class _BookingCustomerState extends State<BookingCustomer> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-
-
                   Container(
-                    padding:
-                    EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(
-                          data['status'] as String? ?? 'Pending'),
+                      color: _getStatusColor(data['status'] as String? ?? 'Pending'),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -313,7 +306,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ), // Show nothing if not pending
+                  ),
                   Text(
                     '#${data['bookingId'] as String? ?? 'Unknown'}',
                     style: TextStyle(
@@ -325,33 +318,29 @@ class _BookingCustomerState extends State<BookingCustomer> {
                   ),
                 ],
               ),
-
               SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ClipOval(
                     child: SizedBox(
-                      height: 70, // Specifies the height of the image
-                      width: 70, // Specifies the width of the image
+                      height: 70,
+                      width: 70,
                       child: Image.network(
-                        data['service']['ImageUrl'] ??
+                        data['service']?['ImageUrl'] ??
                             'https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=',
                         fit: BoxFit.cover,
-                        loadingBuilder: (BuildContext context, Widget child,
-                            ImageChunkEvent? loadingProgress) {
+                        loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
                           if (loadingProgress == null) return child;
                           return Center(
                             child: CircularProgressIndicator(
                               value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
+                                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
                                   : null,
                             ),
                           );
                         },
-                        errorBuilder: (context, error, stackTrace) =>
-                            Text('Failed to load image'),
+                        errorBuilder: (context, error, stackTrace) => Text('Failed to load image'),
                       ),
                     ),
                   ),
@@ -363,9 +352,10 @@ class _BookingCustomerState extends State<BookingCustomer> {
                         Text(
                           serviceName,
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         SizedBox(height: 10),
                         Row(
@@ -479,11 +469,10 @@ class _BookingCustomerState extends State<BookingCustomer> {
                                   fontWeight: FontWeight.bold,
                                 )),
                             Text(
-                              data['paymentStatus'] as String? ?? 'Pending',
+                              data['paymentstatus'] as String? ?? 'Pending',
                               style: TextStyle(
-                                color: _getPaymentStatusColor(
-                                    data['paymentStatus'] as String? ??
-                                        'Pending'),
+                                color: _getPaymentStatusColor(data['paymentstatus'] as String? ?? 'No payments'),
+
                                 fontSize: 16,
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,

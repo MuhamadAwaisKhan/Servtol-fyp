@@ -246,6 +246,8 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
       case 'In Process':
         return Colors
             .brown[800]!; // A dark blue that conveys stability and continuity.
+      case 'Ready to Service':
+        return Colors.tealAccent[400]!;
 
       default:
         return Colors
@@ -406,6 +408,34 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                         Divider(),
                         SizedBox(height: 10),
                       ],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Payment Status',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '${widget.bookings['paymentstatus'] as String? ?? 'No payments'}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold,
+                              color: _getPaymentStatusColor(widget.bookings['paymentstatus'] as String? ?? 'No payments'),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: 10,),
+                      Divider(),
+                      SizedBox(height: 10,),
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

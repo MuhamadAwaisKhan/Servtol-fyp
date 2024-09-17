@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:servtol/bookingcustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 
 enum PaymentMethod { cash, card }
@@ -37,7 +40,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
       await _firestore.collection('bookings').doc(bookingId).update({
         'status': 'Cancelled',
         'cancellationReason': cancellationReason,
-        'timestamp': FieldValue.serverTimestamp(),// Add the reason
+        'timestamp': FieldValue.serverTimestamp(), // Add the reason
       });
 
       // 2. Find the corresponding notification
@@ -180,7 +183,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
       await _firestore.collection('bookings').doc(bookingId).update({
         'status': 'Cancelled',
         'cancellationReason': cancellationReason,
-        'timestamp': FieldValue.serverTimestamp(),// Add the reason
+        'timestamp': FieldValue.serverTimestamp(), // Add the reason
       });
 
       // 2. Find the corresponding notification
@@ -263,8 +266,10 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
       case 'On going':
         return Colors.blue[800]!;
       case 'In Process':
-        return Colors
-            .brown[800]!; // A dark blue that conveys stability and continuity.
+        return Colors.brown[800]!;
+
+      case 'Ready to Service':
+        return Colors.tealAccent[400]!;
 
       default:
         return Colors
@@ -286,6 +291,23 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
       default:
         return Colors.grey;
     }
+  }
+
+  String generateUniquePaymentId() {
+    // ... your logic to generate a unique payment ID
+    // For now, let's use a simple combination of timestamp and random number
+    int timestamp = DateTime.now().millisecondsSinceEpoch;
+    int randomNumber =
+        Random().nextInt(10000); // Generate a random number between 0 and 9999
+    return 'P$timestamp\_$randomNumber';
+  }
+
+  String generateUniqueTransactionId() {
+    // ... your logic to generate a unique transaction ID
+    // Similar to payment ID, let's use timestamp and random number
+    int timestamp = DateTime.now().millisecondsSinceEpoch;
+    int randomNumber = Random().nextInt(10000);
+    return 'TR_$timestamp\_$randomNumber';
   }
 
   // PaymentMethod? _selectedMethod = null;
@@ -345,7 +367,10 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if ((bookingStatus == 'Accepted' || bookingStatus == 'In Process' || bookingStatus == 'Payment Pending' ) && paymentstatus == 'Pending') ...[
+                      if ((bookingStatus == 'Accepted' ||
+                              bookingStatus == 'In Process' ||
+                              bookingStatus == 'Payment Pending') &&
+                          paymentstatus == 'Pending') ...[
                         Column(
                           children: [
                             Text(
@@ -359,7 +384,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                             SizedBox(height: 5),
                             ElevatedButton(
                               onPressed: () {
-                                PaymentMethod? _selectedMethod = null; // Declare _selectedMethod here
+                                PaymentMethod? _selectedMethod =
+                                    null; // Declare _selectedMethod here
 
                                 showDialog(
                                   context: context,
@@ -381,12 +407,15 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                               const SizedBox(height: 20),
                                               Card(
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(15.0),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          15.0),
                                                 ),
                                                 elevation: 5,
                                                 child: ListTile(
                                                   leading: FaIcon(
-                                                    FontAwesomeIcons.moneyBillAlt,
+                                                    FontAwesomeIcons
+                                                        .moneyBillAlt,
                                                     color: Colors.green,
                                                   ),
                                                   title: Text(
@@ -394,15 +423,19 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                                     style: TextStyle(
                                                       fontFamily: "Poppins",
                                                       fontSize: 18,
-                                                      fontWeight: FontWeight.w500,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                     ),
                                                   ),
-                                                  trailing: Radio<PaymentMethod>(
+                                                  trailing:
+                                                      Radio<PaymentMethod>(
                                                     value: PaymentMethod.cash,
                                                     groupValue: _selectedMethod,
-                                                    onChanged: (PaymentMethod? value) {
+                                                    onChanged:
+                                                        (PaymentMethod? value) {
                                                       setState(() {
-                                                        _selectedMethod = value!;
+                                                        _selectedMethod =
+                                                            value!;
                                                       });
                                                     },
                                                   ),
@@ -411,7 +444,9 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                               const SizedBox(height: 10),
                                               Card(
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(15.0),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          15.0),
                                                 ),
                                                 elevation: 5,
                                                 child: ListTile(
@@ -424,15 +459,19 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                                     style: TextStyle(
                                                       fontSize: 18,
                                                       fontFamily: "Poppins",
-                                                      fontWeight: FontWeight.w500,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                     ),
                                                   ),
-                                                  trailing: Radio<PaymentMethod>(
+                                                  trailing:
+                                                      Radio<PaymentMethod>(
                                                     value: PaymentMethod.card,
                                                     groupValue: _selectedMethod,
-                                                    onChanged: (PaymentMethod? value) {
+                                                    onChanged:
+                                                        (PaymentMethod? value) {
                                                       setState(() {
-                                                        _selectedMethod = value!;
+                                                        _selectedMethod =
+                                                            value!;
                                                       });
                                                     },
                                                   ),
@@ -445,8 +484,11 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                               onPressed: () {
                                                 Navigator.of(context).pop();
                                               },
-                                              child: Text('Cancel',
-                                              style: TextStyle(color: Colors.red,),
+                                              child: Text(
+                                                'Cancel',
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                ),
                                               ),
                                             ),
                                             TextButton(
@@ -454,17 +496,148 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                                 Navigator.of(context).pop();
 
                                                 if (_selectedMethod != null) {
-                                                  // Handle the selected payment method here
-                                                  print("Selected Payment Method: $_selectedMethod");
+                                                  // Handle the selected payment method
+                                                  print(
+                                                      "Selected Payment Method: $_selectedMethod");
 
-                                                  // You can add your logic to update the booking status or navigate to a payment screen based on _selectedMethod
+                                                  // 1. Get necessary data
+                                                  String bookingId =
+                                                      widget.bookings.id;
+                                                  String customerId = widget
+                                                      .bookings['customerId'];
+                                                  String providerId = widget
+                                                      .bookings['providerId'];
+                                                  String notificationMessage;
+                                                  String notificationMessage1;
+
+                                                  if (_selectedMethod ==
+                                                      PaymentMethod.cash) {
+                                                    notificationMessage =
+                                                        "Customer has selected On Cash as payment method";
+                                                    notificationMessage1 =
+                                                        "You have selected to pay On Cash";
+                                                  } else if (_selectedMethod ==
+                                                      PaymentMethod.card) {
+                                                    notificationMessage =
+                                                        "Customer has selected to pay by Card";
+                                                    notificationMessage1 =
+                                                        "You have selected to pay by Card";
+                                                  } else {
+                                                    // Handle the case where the payment method is not recognized
+                                                    notificationMessage =
+                                                        "Customer has selected an unknown payment method";
+                                                    notificationMessage1 =
+                                                        "You have selected an unknown payment method";
+                                                  }
+                                                  String paymentStatus =
+                                                      _selectedMethod ==
+                                                              PaymentMethod.cash
+                                                          ? 'OnCash'
+                                                          : 'Paid by Card';
+
+                                                  // 2. Create or Update PaymentNotification
+                                                  final paymentNotificationRef =
+                                                      FirebaseFirestore.instance
+                                                          .collection(
+                                                              'paymentnotification')
+                                                          .doc(bookingId);
+
+                                                  paymentNotificationRef
+                                                      .get()
+                                                      .then((snapshot) async {
+                                                    if (!snapshot.exists) {
+                                                      // Create a new payment notification if it doesn't exist
+                                                      await paymentNotificationRef
+                                                          .set({
+                                                        'providerId':
+                                                            providerId,
+                                                        'customerId':
+                                                            customerId,
+                                                        'bookingId': bookingId,
+                                                        'message':
+                                                            notificationMessage,
+                                                        'message1':
+                                                            notificationMessage1,
+                                                        'isRead': false,
+                                                        'isRead1': false,
+                                                        'paymentstatus':
+                                                            'Pending',
+                                                        'timestamp': FieldValue
+                                                            .serverTimestamp(),
+                                                      });
+                                                    } else {
+                                                      // Update the existing payment notification if it exists
+                                                      await paymentNotificationRef
+                                                          .update({
+                                                        'paymentstatus':
+                                                        paymentStatus
+                                                                .toString(),
+                                                        // Or any other field you want to update
+                                                        'timestamp': FieldValue
+                                                            .serverTimestamp(),
+                                                      });
+                                                    }
+                                                  });
+
+                                                  // 3. Create Payment Document
+                                                  final paymentRef =
+                                                      FirebaseFirestore.instance
+                                                          .collection(
+                                                              'payments')
+                                                          .doc();
+                                                  paymentRef.set({
+                                                    'bookingId': bookingId,
+                                                    'customerId': customerId,
+                                                    'providerId': providerId,
+                                                    'paymentId':
+                                                        generateUniquePaymentId(),
+                                                    'transactionId':
+                                                        generateUniqueTransactionId(),
+                                                    'paymentstatus':
+                                                        paymentStatus,
+                                                  });
+
+                                                  // 4. Update Booking Status in Firestore
+                                                  FirebaseFirestore.instance
+                                                      .collection('bookings')
+                                                      .doc(bookingId)
+                                                      .update({
+                                                    'paymentstatus':
+                                                        paymentStatus,
+                                                    'status':
+                                                        'Ready to Service',
+                                                  }).then((_) {
+                                                    Navigator.of(context).pop();
+                                                    // Trigger a reload of the data after the update
+                                                    setState(() {
+                                                      RefreshProgressIndicator();
+                                                    });
+
+                                                    // Navigator.of(context).push(MaterialPageRoute(
+                                                    //   builder: (context) => BookingCustomer(onBackPress:  ), // Replace with your actual TargetScreen widget
+                                                    // ));
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                          content: Text(
+                                                              'Payment selected, service is ready to begin')),
+                                                    );
+                                                  });
                                                 } else {
-                                                  // Handle the case where no payment method is selected
-                                                  // You might want to show a message to the user
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                        content: Text(
+                                                            'Please select a payment method')),
+                                                  );
                                                 }
                                               },
-                                              child: Text('Confirm',
-                                              style: TextStyle(color: Colors.blue),),
+                                              child: Text(
+                                                'Confirm',
+                                                style: TextStyle(
+                                                    color: Colors.blue),
+                                              ),
                                             ),
                                           ],
                                         );
@@ -508,6 +681,40 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                         Divider(),
                         SizedBox(height: 10),
                       ],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Payment Status',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '${widget.bookings['paymentstatus'] as String? ?? 'No payments'}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold,
+                              color: _getPaymentStatusColor(
+                                  widget.bookings['paymentstatus'] as String? ??
+                                      'No payments'),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Divider(),
+                      SizedBox(
+                        height: 10,
+                      ),
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -956,5 +1163,31 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         },
       ),
     );
+  }
+
+  void _listenToProviderReadiness(String bookingId) {
+    FirebaseFirestore.instance
+        .collection('bookings')
+        .doc(bookingId)
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.exists) {
+        Map<String, dynamic> bookingData =
+            snapshot.data() as Map<String, dynamic>;
+
+        if (bookingData['status'] == 'Ready to Service') {
+          // Perform actions when the service provider is ready
+          // For example, navigate the customer to the service start page
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content:
+                    Text('Service provider is ready to start the service')),
+          );
+
+          // Navigate to a new screen or perform any other necessary actions
+          // Navigator.push(context, MaterialPageRoute(...));
+        }
+      }
+    });
   }
 }
