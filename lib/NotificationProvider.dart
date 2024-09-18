@@ -297,17 +297,15 @@ class _NotificationProviderState extends State<NotificationProvider> {
                             ],
                           ),
                           trailing: notification['isRead'] ?? false
-                              ? Icon(Icons.check_circle,
-                              color: Colors.green)
-                              : Icon(Icons.circle,
-                              color: Colors.redAccent),
+                              ? Icon(Icons.check_circle, color: Colors.green)
+                              : Icon(Icons.circle, color: Colors.redAccent),
                           onTap: () {
                             FirebaseFirestore.instance
                                 .collection(isPaymentNotification
                                 ? 'paymentnotification'
                                 : 'notifications')
                                 .doc(notification.id)
-                                .update({'isRead1': true});
+                                .update({'isRead': true});
 
                             // Fetch the booking ID, handling both notification types
                             String bookingId = isPaymentNotification

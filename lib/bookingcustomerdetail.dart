@@ -31,7 +31,33 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
     fetchTaxRate();
     fetchBookingFee();
   }
+  Future<void> updatePaymentNotificationStatus(
+      String bookingId, String newPaymentStatus) async {
+    try {
+      // Find the payment notification document
+      QuerySnapshot paymentNotificationSnapshot = await _firestore
+          .collection('paymentnotification')
+          .where('bookingId', isEqualTo: bookingId)
+          .get();
 
+      if (paymentNotificationSnapshot.docs.isNotEmpty) {
+        DocumentSnapshot notificationDoc = paymentNotificationSnapshot.docs.first;
+
+        // Update the payment notification status
+        await _firestore
+            .collection('paymentnotification')
+            .doc(notificationDoc.id)
+            .update({
+          'paymentstatus': newPaymentStatus,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      } else {
+        print('No payment notification found for booking ID: $bookingId');
+      }
+    } catch (e) {
+      print('Error updating payment notification status: $e');
+    }
+  }
   void updateBookingStatus(String cancellationReason) async {
     try {
       String bookingId = widget.bookings.id;
@@ -561,7 +587,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                                         'isRead': false,
                                                         'isRead1': false,
                                                         'paymentstatus':
-                                                            'Pending',
+                                                            paymentStatus,
                                                         'timestamp': FieldValue
                                                             .serverTimestamp(),
                                                       });

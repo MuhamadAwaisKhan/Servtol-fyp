@@ -8,6 +8,7 @@ import 'package:servtol/favouriteservice.dart';
 import 'package:servtol/province.dart';
 import 'package:servtol/service.dart';
 import 'package:servtol/subcategory.dart';
+import 'package:servtol/timestamp.dart';
 
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
@@ -205,6 +206,28 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   // });
                 },
                 "Coupons",
+                40,
+                150,
+                // Icons.contacts_sharp,
+                // Colors.grey, // Specify the default color of the icon
+                // isFirstButtonClicked, // Pass the clicked state to the button
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              uihelper.CustomButton(
+                    () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => timestamp()));
+                  // setState(() {
+                  //   isSecondButtonClicked = false; // Reset second button state
+                  //   isFirstButtonClicked =
+                  //   !isFirstButtonClicked; // Toggle first button state
+                  // });
+                },
+                "Time Stamp",
                 40,
                 150,
                 // Icons.contacts_sharp,

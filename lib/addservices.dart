@@ -27,7 +27,8 @@ class _ServicesAdditionState extends State<ServicesAddition> {
   TextEditingController nameController = TextEditingController();
   TextEditingController areaController = TextEditingController();
   TextEditingController priceController = TextEditingController();
-  TextEditingController durationController = TextEditingController();
+
+  // TextEditingController durationController = TextEditingController();
   TextEditingController discountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   File? profilePic;
@@ -36,19 +37,23 @@ class _ServicesAdditionState extends State<ServicesAddition> {
       selectedProvinceId,
       selectedCityId,
       selectedServiceTypeId,
+      selectedtimestampId,
       selectedWageTypeId;
   String? selectedCategoryName,
       selectedSubcategoryName,
+      selectedtimestampName,
       selectedProvinceName,
       selectedCityName,
       selectedServiceTypeName,
       selectedWageTypeName;
+
   List<DropdownItem> categoryItems = [];
   List<DropdownItem> subcategoryItems = [];
   List<DropdownItem> provinceItems = [];
   List<DropdownItem> cityItems = [];
   List<DropdownItem> serviceTypeItems = [];
   List<DropdownItem> wageTypeItems = [];
+  List<DropdownItem> timestampItems = [];
   bool _isLoading = false;
 
   @override
@@ -62,6 +67,7 @@ class _ServicesAdditionState extends State<ServicesAddition> {
     fetchFirestoreData('Province', provinceItems, updateProvince);
     fetchFirestoreData('ServiceTypes', serviceTypeItems, null);
     fetchFirestoreData('wageTypes', wageTypeItems, null);
+    fetchFirestoreData('timestamp', timestampItems, null);
   }
 
   void fetchFirestoreData(
@@ -129,9 +135,9 @@ class _ServicesAdditionState extends State<ServicesAddition> {
   Future<void> _addData() async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You are not logged in. Please log in and try again.'))
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text('You are not logged in. Please log in and try again.')));
       return;
     }
 
@@ -146,11 +152,11 @@ class _ServicesAdditionState extends State<ServicesAddition> {
         priceController.text.isEmpty ||
         discountController.text.isEmpty ||
         selectedWageTypeId == null ||
+        selectedtimestampName == null ||
         selectedServiceTypeId == null ||
         descriptionController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please fill all fields and select an image.'))
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Please fill all fields and select an image.')));
       return;
     }
 
@@ -173,19 +179,18 @@ class _ServicesAdditionState extends State<ServicesAddition> {
         'ServiceType': selectedServiceTypeName,
         'Description': descriptionController.text.trim(),
         'ImageUrl': imageUrl,
-        'Duration': durationController.text.trim(),
+        'Duration': selectedtimestampName,
         'providerId': currentUser.uid,
-        'serviceNameLower': nameController.text.trim().toLowerCase(), // Correct lowercase version for searching
+        'serviceNameLower': nameController.text.trim().toLowerCase(),
+        // Correct lowercase version for searching
       });
 
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Service added successfully'))
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Service added successfully')));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add service: ${e.toString()}'))
-      );
+          SnackBar(content: Text('Failed to add service: ${e.toString()}')));
     } finally {
       setState(() {
         _isLoading = false; // Stop loading regardless of the outcome
@@ -249,12 +254,11 @@ class _ServicesAdditionState extends State<ServicesAddition> {
                       priceController, "Price", Icons.money, false),
                   uihelper.CustomNumberField(
                       discountController, "Discount %", Icons.percent, false),
-                  uihelper.CustomTextField(durationController, "Time Slot",
-                      Icons.data_usage_rounded,false ),
+                  // uihelper.CustomTextField(durationController, "Time Slot",
+                  //     Icons.data_usage_rounded,false ),
                   uihelper.customDescriptionField(
-                      descriptionController, "Description",
-                      // Icons.description
-
+                    descriptionController, "Description",
+                    // Icons.description
                   ),
                   SizedBox(height: 20),
                   uihelper.CustomButton(() {
@@ -392,6 +396,26 @@ class _ServicesAdditionState extends State<ServicesAddition> {
             }
           },
           labelText: "Select Service Type",
+        ),
+        uihelper.customDropdownButtonFormField(
+          value: selectedtimestampId,
+          items: timestampItems.map((DropdownItem item) {
+            return DropdownMenuItem<String>(
+              value: item.id,
+              child: Text(item.name),
+            );
+          }).toList(),
+          onChanged: (String? value) {
+            if (value != null) {
+              var selectedItem =
+                  timestampItems.firstWhere((item) => item.id == value);
+              setState(() {
+                selectedtimestampId = value; // Assign to selectedtimestampId
+                selectedtimestampName = selectedItem.name;
+              });
+            }
+          },
+          labelText: "Select Duration",
         ),
         // Wage Type Dropdown
         uihelper.customDropdownButtonFormField(
