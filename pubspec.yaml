@@ -65,7 +65,7 @@ dependencies:
   timeago: ^3.7.0
   rxdart: ^0.28.0
   stop_watch_timer: ^3.2.1
-
+  motion_tab_bar: ^2.0.4
 
 dev_dependencies:
   flutter_test:

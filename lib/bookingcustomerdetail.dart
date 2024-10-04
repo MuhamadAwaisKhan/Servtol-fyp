@@ -623,7 +623,10 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                                     'transactionId':
                                                         generateUniqueTransactionId(),
                                                     'paymentstatus':
+                                                        'Paid',
+                                                    'Method':
                                                         paymentStatus,
+
                                                   });
 
                                                   // 4. Update Booking Status in Firestore

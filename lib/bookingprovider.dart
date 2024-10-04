@@ -177,7 +177,10 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                      child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                  ));
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return const Center(child: Text('No bookings found.'));
@@ -192,7 +195,10 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
                         if (detailSnapshot.connectionState ==
                             ConnectionState.waiting) {
                           return const Center(
-                              child: CircularProgressIndicator());
+                              child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.blue),
+                          ));
                         }
                         if (detailSnapshot.hasError ||
                             detailSnapshot.data == null) {
@@ -486,16 +492,14 @@ Color _getStatusColor(String status) {
           .green[700]!; // A darker shade of green for better visibility.
 
     case 'In Progress':
-      return Colors
-          .indigo[700]!; // A deep indigo for a sense of ongoing work.
+      return Colors.indigo[700]!; // A deep indigo for a sense of ongoing work.
 
     case 'Waiting':
       return Colors.blueGrey[
-      800]!; // Dark blue-grey to suggest a paused or waiting state.
+          800]!; // Dark blue-grey to suggest a paused or waiting state.
 
     case 'Complete':
-      return Colors
-          .green[900]!;
+      return Colors.green[900]!;
     case 'Payment Pending':
       return Colors
           .deepPurple[900]!; // A dark green to represent finality and success.
@@ -508,13 +512,11 @@ Color _getStatusColor(String status) {
     case 'Ready to Service':
       return Colors.tealAccent[400]!;
 
-
     default:
       return Colors
           .grey[800]!; // Dark grey for any unknown or undefined statuses.
   }
 }
-
 
 Color _getPaymentStatusColor(String status) {
   switch (status) {

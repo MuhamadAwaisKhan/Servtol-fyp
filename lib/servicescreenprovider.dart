@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:servtol/ServiceScreenDetail.dart';
 import 'package:servtol/addservices.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -36,7 +37,8 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
         backgroundColor: AppColors.background,
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.add_box_rounded),
+            color: AppColors.customButton,
+            icon: FaIcon(FontAwesomeIcons.circlePlus),
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => ServicesAddition()));
@@ -104,7 +106,10 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                   return Text("Error: ${snapshot.error}");
                 }
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
+                  return CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue), // Blue loader
+
+                  );
                 }
                 final data = snapshot.requireData;
                 return ListView.builder(
@@ -177,20 +182,23 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => ServicesAddition()));
-        },
-        label: Text(
-          'Add Service',
-          style: TextStyle(color: Colors.white), // Set your text color here
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 68.0),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => ServicesAddition()));
+          },
+          label: Text(
+            'Add Service',
+            style: TextStyle(color: Colors.white,fontFamily: "Poppins"), // Set your text color here
+          ),
+          icon: Icon(
+            FontAwesomeIcons.add,
+            color: Colors.blueGrey, // Set your icon color here
+          ),
+          backgroundColor: AppColors.customButton,
         ),
-        icon: Icon(
-          Icons.add,
-          color: AppColors.secondaryColor, // Set your icon color here
-        ),
-        backgroundColor: AppColors.primaryColor,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

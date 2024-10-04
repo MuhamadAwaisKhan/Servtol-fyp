@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:motion_tab_bar/motiontabbar.dart';
 import 'package:servtol/bookingprovider.dart';
 import 'package:servtol/homeprovider.dart';
 import 'package:servtol/paymentprovider.dart';
@@ -8,7 +9,7 @@ import 'package:servtol/servicescreenprovider.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class ProviderMainLayout extends StatefulWidget {
-  Function onBackPress;
+  final Function onBackPress;
 
   ProviderMainLayout({super.key, required this.onBackPress});
 
@@ -16,9 +17,17 @@ class ProviderMainLayout extends StatefulWidget {
   State<ProviderMainLayout> createState() => _ProviderMainLayoutState();
 }
 
-class _ProviderMainLayoutState extends State<ProviderMainLayout> {
+class _ProviderMainLayoutState extends State<ProviderMainLayout>
+    with TickerProviderStateMixin {
   int myindex = 0;
   late final List<Widget> widgetlist;
+  late TabController _tabController;
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -30,63 +39,52 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout> {
       ServiceScreenWidget(onBackPress: widget.onBackPress),
       ProfileScreenWidget(onBackPress: widget.onBackPress),
     ];
+    _tabController = TabController(
+      initialIndex: 0,
+      length: widgetlist.length,
+      vsync: this,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Check if the current index is 0 (home tab)
         if (myindex == 0) {
-          // If on the home tab, do nothing and do not allow the back action
           return false;
         } else {
-          // If not on the home tab, navigate to the home tab
           setState(() {
             myindex = 0;
+            _tabController.index = 0;
           });
-          return false; // Intercept the back action
+          return false;
         }
       },
       child: Scaffold(
         backgroundColor: AppColors.background,
         body: Center(child: widgetlist[myindex]),
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: AppColors.background,
-          onTap: (index) {
+        bottomNavigationBar: MotionTabBar(
+          labels: const ["Home", "Booking", "Payment", "Service", "Profile"],
+          initialSelectedTab: "Home",
+          tabIconColor: Colors.blueGrey,
+          tabSelectedColor: Colors.blue,
+          tabSize: 50,
+          tabBarHeight: 55,
+          onTabItemSelected: (int value) {
+
             setState(() {
-              myindex = index;
+              myindex = value;
+              _tabController.index = value;
             });
           },
-          currentIndex: myindex,
-          items: const [
-            BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.home),
-              label: "Home",
-              backgroundColor: Colors.green,
-            ),
-            BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.calendarCheck),
-              label: "Booking",
-              backgroundColor: Colors.cyan,
-            ),
-            BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.moneyBillWave),
-              label: "Payment",
-              backgroundColor: Colors.lightGreenAccent,
-            ),
-            BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.houseLaptop),
-              label: "Service",
-              backgroundColor: Colors.indigo,
-            ),
-            BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.user),
-              label: "Profile",
-              backgroundColor: Colors.red,
-            ),
+          icons: const [
+            FontAwesomeIcons.home,
+            FontAwesomeIcons.calendarCheck,
+            FontAwesomeIcons.moneyBillWave,
+            FontAwesomeIcons.houseLaptop,
+            FontAwesomeIcons.user,
           ],
+          textStyle: const TextStyle(color: Colors.blue),
         ),
       ),
     );

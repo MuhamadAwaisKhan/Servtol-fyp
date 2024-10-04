@@ -552,7 +552,10 @@ class _HomeProviderState extends State<HomeProvider> {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+
+                  ));
                 }
 
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -596,6 +599,7 @@ class _HomeProviderState extends State<HomeProvider> {
                                             loadingProgress
                                                 .expectedTotalBytes!
                                             : null,
+
                                       ),
                                     );
                                   },
@@ -833,7 +837,9 @@ class _HomeProviderState extends State<HomeProvider> {
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return Center(child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                ));
               }
               if (!snapshot.hasData) {
                 return Center(child: Text("No Data Available"));
