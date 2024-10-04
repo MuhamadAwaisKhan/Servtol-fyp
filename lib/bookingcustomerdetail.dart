@@ -31,6 +31,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
     fetchTaxRate();
     fetchBookingFee();
   }
+
   Future<void> updatePaymentNotificationStatus(
       String bookingId, String newPaymentStatus) async {
     try {
@@ -41,7 +42,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
           .get();
 
       if (paymentNotificationSnapshot.docs.isNotEmpty) {
-        DocumentSnapshot notificationDoc = paymentNotificationSnapshot.docs.first;
+        DocumentSnapshot notificationDoc =
+            paymentNotificationSnapshot.docs.first;
 
         // Update the payment notification status
         await _firestore
@@ -58,6 +60,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
       print('Error updating payment notification status: $e');
     }
   }
+
   void updateBookingStatus(String cancellationReason) async {
     try {
       String bookingId = widget.bookings.id;
@@ -596,7 +599,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                                       await paymentNotificationRef
                                                           .update({
                                                         'paymentstatus':
-                                                        paymentStatus
+                                                            paymentStatus
                                                                 .toString(),
                                                         // Or any other field you want to update
                                                         'timestamp': FieldValue

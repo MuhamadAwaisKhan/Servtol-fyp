@@ -9,15 +9,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class ServiceScreenWidget extends StatefulWidget {
   Function onBackPress;
-   ServiceScreenWidget({super.key,required this.onBackPress});
+
+  ServiceScreenWidget({super.key, required this.onBackPress});
 
   @override
   State<ServiceScreenWidget> createState() => _ServiceScreenWidgetState();
 }
 
 class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
-
-
   TextEditingController searchController = TextEditingController();
   final User? currentUser = FirebaseAuth.instance.currentUser;
 
@@ -119,8 +118,8 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                         borderRadius: BorderRadius.circular(10),
                         gradient: LinearGradient(
                           colors: [
-                            Colors.deepPurple,
-                            Colors.deepPurple.shade200,
+                            Colors.blue,
+                            Colors.blueAccent.shade200,
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,

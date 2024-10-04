@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:servtol/main%20login.dart';
 import 'package:servtol/startscreen.dart';
 import 'package:servtol/tester%20file.dart';
+import 'package:servtol/util/theme.dart';
 import 'firebase_options.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -27,9 +28,8 @@ Future <void> main() async {
 
   NotificationService().requestNotificationPermission();
    NotificationService().initLocalNotification();
-  runApp(const MaterialApp(
+  runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-
     // theme: AppTheme.lightTheme,
     // darkTheme: AppTheme.darkTheme,
     // themeMode: ThemeMode.system,
@@ -42,9 +42,9 @@ Future <void> main() async {
     // SplashScreen(),
       // ExerciseList(),
     // myapptesting(),
-    //   startingscreen(),
+    // startingscreen(),
     //     tester(),
-         mainlogin(),
+         const mainlogin(),
     //   BookServiceScreen(service: widget.service),
   ));
 }

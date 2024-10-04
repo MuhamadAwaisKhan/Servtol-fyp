@@ -6,8 +6,10 @@ import 'package:servtol/paymentprovider.dart';
 import 'package:servtol/profileprovider.dart';
 import 'package:servtol/servicescreenprovider.dart';
 import 'package:servtol/util/AppColors.dart';
+
 class ProviderMainLayout extends StatefulWidget {
-   Function onBackPress;
+  Function onBackPress;
+
   ProviderMainLayout({super.key, required this.onBackPress});
 
   @override
@@ -43,7 +45,7 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout> {
           setState(() {
             myindex = 0;
           });
-          return false;  // Intercept the back action
+          return false; // Intercept the back action
         }
       },
       child: Scaffold(

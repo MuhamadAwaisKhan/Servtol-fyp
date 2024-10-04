@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -18,39 +20,112 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
 
   // Declare these variables in the state class
   double taxRate = 0.05; // Default value
-  double bookingFee = 0.0; // Default value
+  double bookingFee = 0.0;// Default value
+  final _stopWatchTimer = StopWatchTimer(
+    mode: StopWatchMode.countUp,
+  );
+  @override
+  void dispose() async {
+    super.dispose();
+    await _stopWatchTimer.dispose(); // Dispose of the StopWatchTimer
+  }
+
 
   @override
   void initState() {
     super.initState();
     fetchTaxRate();
     fetchBookingFee();
+    // _timer?.cancel();
   }
 
+  // StopWatchTimer _stopWatchTimer = StopWatchTimer(
+  //   mode: StopWatchMode.countUp,
+  // );
+  // Stopwatch _stopwatch = Stopwatch();
+  Timer? _timer;
+  String _elapsedTime = '00:00:00';
+  bool _isStopwatchRunning = false; // Track if the stopwatch is active
+
+  // void _startStopwatch() {
+  //   if (!_isStopwatchRunning) {
+  //     _stopwatch.start();
+  //     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+  //       setState(() {
+  //         _elapsedTime = _formatTime(_stopwatch.elapsed);
+  //       });
+  //     });
+  //     setState(() {
+  //       _isStopwatchRunning = true;
+  //     });
+  //   }
+  // }
+  //
+  // void _stopStopwatch() async {
+  //   if (_isStopwatchRunning) {
+  //     _stopwatch.stop();
+  //     _timer
+  //         ?.cancel(); // Ensure the timer is canceled when stopping the stopwatch.
+  //
+  //     // Update the booking with the elapsed time
+  //     try {
+  //       String bookingId = widget.bookings.id;
+  //       await _firestore.collection('bookings').doc(bookingId).update({
+  //         'elapsedTime': _elapsedTime,
+  //       });
+  //
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Elapsed time recorded: $_elapsedTime')),
+  //       );
+  //     } catch (e) {
+  //       print('Error updating booking with elapsed time: $e');
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Failed to record elapsed time')),
+  //       );
+  //     }
+  //
+  //     setState(() {
+  //       _elapsedTime = _formatTime(_stopwatch.elapsed);
+  //       _isStopwatchRunning = false;
+  //     });
+  //   }
+  // }
+  //
+  // void _resetStopwatch() {
+  //   if (!_isStopwatchRunning) {
+  //     _stopwatch.reset();
+  //     setState(() {
+  //       _elapsedTime = _formatTime(_stopwatch.elapsed);
+  //     });
+  //   }
+  // }
+
+  String _formatTime(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  // Updating booking status and managing the stopwatch
   void updateBookingStatus(String newStatus, String notificationMessage,
       String notificationMessage1) async {
     try {
       String bookingId = widget.bookings.id;
-      String providerId = widget.bookings['providerId'];
-      String customerId = widget.bookings['customerId'];
-      String serviceNameLower =
-      (widget.bookings['ServiceName'] ?? '').toString().toLowerCase();
-      String formattedBookingId = bookingId; // Add any formatting logic if needed
-
-      String bookingStatus = widget.bookings['status']; // Assuming this is where the current booking status is stored
-      String paymentStatus = widget.bookings['paymentstatus']; // Assuming this is where the payment status is stored
+      String bookingStatus = widget.bookings['status'];
+      String paymentStatus = widget.bookings['paymentstatus'];
 
       WriteBatch batch = _firestore.batch();
 
-      // 1. Update the booking status and timestamp
+      // Update the booking status
       DocumentReference bookingRef =
-      _firestore.collection(bookingsCollection).doc(bookingId);
+          _firestore.collection(bookingsCollection).doc(bookingId);
       batch.update(bookingRef, {
         'status': newStatus,
-        // 'timestamp': FieldValue.serverTimestamp(), // Update timestamp
       });
 
-      // 2. Find the corresponding notification using bookingId
+      // Update notification if it exists
       QuerySnapshot notificationSnapshot = await _firestore
           .collection(notificationsCollection)
           .where('bookingId', isEqualTo: bookingId)
@@ -58,53 +133,30 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
 
       if (notificationSnapshot.docs.isNotEmpty) {
         DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
-
-        // 3. Update the notification status, messages, and timestamp
-        DocumentReference notificationRef =
-        _firestore.collection(notificationsCollection).doc(notificationDoc.id);
+        DocumentReference notificationRef = _firestore
+            .collection(notificationsCollection)
+            .doc(notificationDoc.id);
         batch.update(notificationRef, {
           'status': newStatus,
           'message': notificationMessage,
           'message1': notificationMessage1,
-          // 'timestamp': FieldValue.serverTimestamp(), // Update timestamp
-        });
-      } else {
-        print('No notification found for booking ID: $bookingId');
-      }
-
-      // 4. Conditionally create a new document in the paymentnotification collection
-      if ((bookingStatus == 'Accepted' || bookingStatus == 'In Process') &&
-          paymentStatus == "Pending") {
-        DocumentReference paymentNotificationRef =
-        _firestore.collection('paymentnotification').doc();
-        batch.set(paymentNotificationRef, {
-          'providerId': providerId,
-          'customerId': customerId,
-          'bookingId': formattedBookingId,
-          'message': notificationMessage,
-          'message1': notificationMessage1,
-          'isRead': false,
-          'isRead1': false,
-          'paymentstatus': 'Pending',
-          'timestamp': FieldValue.serverTimestamp(), // Add timestamp here too
         });
       }
 
-      // Commit all batch operations
-      await batch.commit().catchError((error) {
-        print('Error committing batch: $error');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Failed to update booking and notification. Please try again.')),
-        );
-        return;
-      });
+      // Manage the stopwatch based on booking status
+      // if (newStatus == 'In Progress') {
+      //   _startStopwatch();
+      // } else if (newStatus == 'Complete' || newStatus == 'Cancelled') {
+      //   _stopStopwatch();
+      // }
+
+      // Commit changes
+      await batch.commit();
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Booking status updated to $newStatus')),
       );
-      Navigator.pop(context);
+      setState(() {});
     } catch (e) {
       print('Error updating booking status: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -112,9 +164,6 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
       );
     }
   }
-
-
-
 
   void fetchTaxRate() async {
     try {
@@ -232,14 +281,13 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
 
       case 'Waiting':
         return Colors.blueGrey[
-        800]!; // Dark blue-grey to suggest a paused or waiting state.
+            800]!; // Dark blue-grey to suggest a paused or waiting state.
 
       case 'Complete':
-        return Colors
-            .green[900]!;
+        return Colors.green[900]!;
       case 'Payment Pending':
-        return Colors
-            .deepPurple[900]!; // A dark green to represent finality and success.
+        return Colors.deepPurple[
+            900]!; // A dark green to represent finality and success.
 
       case 'On going':
         return Colors.blue[800]!;
@@ -254,7 +302,6 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
             .grey[800]!; // Dark grey for any unknown or undefined statuses.
     }
   }
-
 
   Color _getPaymentStatusColor(String status) {
     switch (status) {
@@ -271,6 +318,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
         return Colors.grey;
     }
   }
+
   void updateBookingStatus1(String cancellationReason) async {
     try {
       String bookingId = widget.bookings.id;
@@ -292,9 +340,9 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
         DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
 
         // 3. Update the notification with the reason (if provided)
-        String providerMessage =
-            'You have cancelled the service booking.';
-        String customerMessage = 'Your booking has been cancelled by the service provder.';
+        String providerMessage = 'You have cancelled the service booking.';
+        String customerMessage =
+            'Your booking has been cancelled by the service provider.';
 
         // if (cancellationReason.isNotEmpty) {
         //   providerMessage += ' Reason: $cancellationReason';
@@ -323,6 +371,63 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
       print('Error updating booking status: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to cancel booking')),
+      );
+    }
+  }
+
+  void updateBookingStatus2() async {
+    try {
+      String bookingId = widget.bookings.id;
+
+      // 1. Update the booking status and include cancellation reason
+      await _firestore.collection('bookings').doc(bookingId).update({
+        'status': 'Complete',
+        // 'cancellationReason': cancellationReason,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // 2. Find the corresponding notification
+      QuerySnapshot notificationSnapshot = await _firestore
+          .collection('notifications')
+          .where('bookingId', isEqualTo: bookingId)
+          .get();
+
+      if (notificationSnapshot.docs.isNotEmpty) {
+        DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
+
+        // 3. Update the notification with the reason (if provided)
+        String providerMessage = 'You have complete the service booking.';
+        String customerMessage =
+            'Your booking has been complete by the service provider.';
+        // _stopStopwatch();
+
+        // if (cancellationReason.isNotEmpty) {
+        //   providerMessage += ' Reason: $cancellationReason';
+        //   customerMessage += ' Reason: $cancellationReason';
+        // }
+
+        await _firestore
+            .collection('notifications')
+            .doc(notificationDoc.id)
+            .update({
+          'message': providerMessage,
+          'message1': customerMessage,
+          'status': 'Complete',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      } else {
+        print('No notification found for booking ID: $bookingId');
+      }
+
+      // 4. Show success message and navigate back
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Booking has been Complete')),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      print('Error updating booking status: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to Complete booking')),
       );
     }
   }
@@ -374,8 +479,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
             return Center(child: Text('Error fetching booking details'));
           }
           var data = snapshot.data!;
-          var bookingStatus = widget.bookings['status'] as String? ??
-              '';
+          var bookingStatus = widget.bookings['status'] as String? ?? '';
           var paymentstatus = widget.bookings['paymentstatus'] as String? ??
               ''; // Get the booking status
 
@@ -426,15 +530,21 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                               fontSize: 14,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold,
-                              color: _getPaymentStatusColor(widget.bookings['paymentstatus'] as String? ?? 'No payments'),
+                              color: _getPaymentStatusColor(
+                                  widget.bookings['paymentstatus'] as String? ??
+                                      'No payments'),
                             ),
                           ),
                         ],
                       ),
 
-                      SizedBox(height: 10,),
+                      SizedBox(
+                        height: 10,
+                      ),
                       Divider(),
-                      SizedBox(height: 10,),
+                      SizedBox(
+                        height: 10,
+                      ),
 
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -864,7 +974,9 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                           ),
                         )
                       ],
-                      if ((bookingStatus == 'Accepted' || bookingStatus == 'In Process' ) && paymentstatus == "Pending" ) ...[
+                      if ((bookingStatus == 'Accepted' ||
+                              bookingStatus == 'In Process') &&
+                          paymentstatus == "Pending") ...[
                         Center(
                           child: Column(
                             children: [
@@ -892,7 +1004,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                     onPressed: () {
                                       // Controller for the cancellation reason text field
                                       TextEditingController reasonController =
-                                      TextEditingController();
+                                          TextEditingController();
 
                                       showDialog(
                                         context: context,
@@ -910,7 +1022,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                                   controller: reasonController,
                                                   decoration: InputDecoration(
                                                     labelText:
-                                                    'Reason for Cancellation (Optional)',
+                                                        'Reason for Cancellation (Optional)',
                                                   ),
                                                 ),
                                               ],
@@ -927,8 +1039,8 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                                   Navigator.of(context).pop();
 
                                                   String cancellationReason =
-                                                  reasonController.text
-                                                      .trim();
+                                                      reasonController.text
+                                                          .trim();
                                                   updateBookingStatus1(
                                                       cancellationReason);
                                                 },
@@ -945,7 +1057,6 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                     ),
                                     child: Text('Cancel'),
                                   ),
-
                                 ],
                               ),
                               SizedBox(height: 5),
@@ -954,13 +1065,12 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                   updateBookingStatus(
                                       'Payment Pending',
                                       'You have updated the booking to "Payment Pending" status. Please wait for the customer to complete the payment to proceed further.',
-                                      'Your booking is currently in "Payment Pending" status. Please complete the payment to continue with the service. Thank you for your cooperation!'
-);
+                                      'Your booking is currently in "Payment Pending" status. Please complete the payment to continue with the service. Thank you for your cooperation!');
                                 },
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.white,
                                   backgroundColor:
-                                  Colors.green, // Red for Reject
+                                      Colors.green, // Red for Reject
                                 ),
                                 child: Text('Ask Customer to Pay'),
                               ),
@@ -968,7 +1078,8 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                           ),
                         )
                       ],
-                      if ((bookingStatus == 'Payment Pending' ) && paymentstatus == "Pending" ) ...[
+                      if ((bookingStatus == 'Payment Pending') &&
+                          paymentstatus == "Pending") ...[
                         Center(
                           child: Column(
                             children: [
@@ -996,7 +1107,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                     onPressed: () {
                                       // Controller for the cancellation reason text field
                                       TextEditingController reasonController =
-                                      TextEditingController();
+                                          TextEditingController();
 
                                       showDialog(
                                         context: context,
@@ -1014,7 +1125,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                                   controller: reasonController,
                                                   decoration: InputDecoration(
                                                     labelText:
-                                                    'Reason for Cancellation (Optional)',
+                                                        'Reason for Cancellation (Optional)',
                                                   ),
                                                 ),
                                               ],
@@ -1031,8 +1142,8 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                                   Navigator.of(context).pop();
 
                                                   String cancellationReason =
-                                                  reasonController.text
-                                                      .trim();
+                                                      reasonController.text
+                                                          .trim();
                                                   updateBookingStatus1(
                                                       cancellationReason);
                                                 },
@@ -1049,13 +1160,214 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                     ),
                                     child: Text('Cancel'),
                                   ),
-
                                 ],
                               ),
-
                             ],
                           ),
                         )
+                      ],
+                      if ((bookingStatus == 'Ready to Service') &&
+                          (paymentstatus == "OnCash" ||
+                              paymentstatus == "Paid by Card")) ...[
+                        Center(
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      // Start the timer and update the status to 'In Progress'
+                                      _stopWatchTimer.onStartTimer();
+                                      // Correct method to start the timer
+                                      updateBookingStatus(
+                                        'In Progress',
+                                        'You have just started working on the booking.',
+                                        'Your booking for service is now in progress.',
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors
+                                          .blue, // Color for "Start" button
+                                    ),
+                                    child: Text('Start'),
+                                  ),
+                                ],
+                              ),
+
+                              // // Display the elapsed time if the stopwatch is running
+                              // if (_isStopwatchRunning)
+                              //   Text(
+                              //     'Elapsed Time: $_elapsedTime',
+                              //     style: TextStyle(fontSize: 16),
+                              //   ),
+                              // Display the StopWatchTimer only when 'Ready to Service'
+                              SizedBox(height: 10),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 0),
+                                child: StreamBuilder<int>(
+                                  stream: _stopWatchTimer.rawTime,
+                                  initialData: 0,
+                                  builder: (context, snap) {
+                                    final value = snap.data;
+                                    final displayTime =
+                                        StopWatchTimer.getDisplayTime(value!,
+                                            hours: true, milliSecond: false);
+                                    return Column(
+                                      children: <Widget>[
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Text(
+                                            displayTime,
+                                            style: const TextStyle(
+                                                fontSize: 40,
+                                                fontFamily: 'Helvetica',
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+
+                      if ((bookingStatus == 'In Progress') &&
+                          (paymentstatus == "OnCash" ||
+                              paymentstatus == "Paid by Card")) ...[
+                        Center(
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      // Show confirmation dialog to complete the booking
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('Complete Booking'),
+                                            content: Text(
+                                                'Are you sure you want to complete this booking and stop the timer?'),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context)
+                                                      .pop(); // Close the dialog
+                                                },
+                                                child: Text('No'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () async {
+                                                  Navigator.of(context)
+                                                      .pop(); // Close the dialog
+
+                                                  // Stop the StopWatchTimer
+                                                  _stopWatchTimer
+                                                      .onStopTimer(); // Correct method to stop the timer
+                                                  int elapsedMilliseconds =
+                                                      _stopWatchTimer
+                                                          .rawTime.value;
+                                                  Duration elapsedDuration =
+                                                      Duration(
+                                                          milliseconds:
+                                                              elapsedMilliseconds);
+                                                  String formattedElapsedTime =
+                                                      _formatTime(
+                                                          elapsedDuration);
+
+                                                  // Update the booking with the elapsed time from StopWatchTimer
+                                                  try {
+                                                    String bookingId =
+                                                        widget.bookings.id;
+                                                    await _firestore
+                                                        .collection('bookings')
+                                                        .doc(bookingId)
+                                                        .update({
+                                                      'elapsedTime':
+                                                          formattedElapsedTime,
+                                                    });
+
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                          content: Text(
+                                                              'Elapsed time recorded: $formattedElapsedTime')),
+                                                    );
+                                                  } catch (e) {
+                                                    print(
+                                                        'Error updating booking with elapsed time: $e');
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                          content: Text(
+                                                              'Failed to record elapsed time')),
+                                                    );
+                                                  }
+
+                                                  updateBookingStatus2(); // End the booking process
+                                                },
+                                                child: Text('Yes'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors
+                                          .greenAccent, // Color for "End" button
+                                    ),
+                                    child: Text('End'),
+                                  ),
+                                ],
+                              ),
+
+                              // Display the elapsed time while the stopwatch is running
+                              // Text(
+                              //   'Elapsed Time: $_elapsedTime',
+                              //   style: TextStyle(fontSize: 16),
+                              // ),
+                              SizedBox(height: 10),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 0),
+                                child: StreamBuilder<int>(
+                                  stream: _stopWatchTimer.rawTime,
+                                  initialData: 0,
+                                  builder: (context, snap) {
+                                    final value = snap.data;
+                                    final displayTime =
+                                        StopWatchTimer.getDisplayTime(value!,
+                                            hours: true, milliSecond: false);
+                                    return Column(
+                                      children: <Widget>[
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Text(
+                                            displayTime,
+                                            style: const TextStyle(
+                                                fontSize: 40,
+                                                fontFamily: 'Helvetica',
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
 
                       // if (bookingStatus == 'Accepted') ...[
