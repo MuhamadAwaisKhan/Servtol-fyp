@@ -582,9 +582,9 @@ class _editserviceState extends State<editservice> {
             ),
             uihelper.CustomTextField(context,
                 areacontroller, "Area", Icons.area_chart, false),
-            uihelper.CustomNumberField(
+            uihelper.CustomNumberField(context,
                 pricecontroller, "Price", Icons.money_outlined, false),
-            uihelper.CustomNumberField(
+            uihelper.CustomNumberField(context,
                 discountcontroller, "Discount  ", Icons.percent_rounded, false),
             uihelper.CustomTimeDuration(timecontroller, "Time Duration",
                 Icons.timer, "hour:min==00:00"),

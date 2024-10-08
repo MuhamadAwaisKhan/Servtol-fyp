@@ -30,7 +30,26 @@ Future <void> main() async {
    NotificationService().initLocalNotification();
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    // theme: AppTheme.lightTheme,
+    theme:
+    // ThemeData(
+    //   primarySwatch: Colors.blue,
+    //   primaryColor: Colors.blue,
+    //   progressIndicatorTheme: ProgressIndicatorThemeData(
+    //     color: Colors.blue, // Customize the color of progress indicators
+    //     linearMinHeight: 4.0, // Customize the height for linear progress indicators
+    //   ),
+    //   // primaryTextTheme: TextTheme(
+    //   //   titleLarge: TextStyle(color: Colors.blue), // Customize text for titles
+    //   //   bodyMedium: TextStyle(color: Colors.blue), // Customize text for body
+    //   // ),
+    //   primaryIconTheme: IconThemeData(
+    //     color: Colors.blue, // Customize the color of icons in the primary theme
+    //     size: 24.0, // Customize the size of icons
+    //   ),
+    //
+    //
+    // ),
+    AppTheme.lightTheme,
     // darkTheme: AppTheme.darkTheme,
     // themeMode: ThemeMode.system,
     home:
@@ -44,7 +63,7 @@ Future <void> main() async {
     // myapptesting(),
     // startingscreen(),
     //     tester(),
-         const mainlogin(),
+          mainlogin(),
     //   BookServiceScreen(service: widget.service),
   ));
 }

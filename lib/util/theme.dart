@@ -8,7 +8,7 @@ class AppTheme {
   static const Color errorColor = Color(0xFFDC3545); // Example red
 
   // Fonts
-  static const String fontFamily = 'Roboto'; // Or your preferred font
+  static const String fontFamily = 'Poppins'; // Or your preferred font
 
   // Text Styles
   static const TextStyle headline1 = TextStyle(
@@ -26,6 +26,7 @@ class AppTheme {
   // Theme Data
   static ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
+    primarySwatch: Colors.blue ,
     primaryColor: primaryColor,
     colorScheme: ColorScheme.light(
       primary: primaryColor,

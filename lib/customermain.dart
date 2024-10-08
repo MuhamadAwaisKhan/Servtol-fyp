@@ -92,6 +92,30 @@ class _customermainscreenState extends State<customermainscreen> {
                   backgroundColor: Colors.red,
                 ),
               ]),
-        ));
+        )
+    );
+  }
+
+  Future<bool> _showLogoutDialog() async {
+    return await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout Confirmation'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+              // Perform logout or any other action here
+            },
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    ) ?? false;
   }
 }

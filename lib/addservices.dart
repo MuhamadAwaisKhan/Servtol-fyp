@@ -251,9 +251,10 @@ class _ServicesAdditionState extends State<ServicesAddition> {
                   DropdownFields(), // Implement DropdownFields as shown earlier
                   uihelper.CustomTextField(context,
                       areaController, "Area", Icons.map, false),
-                  uihelper.CustomNumberField(
+                  uihelper.CustomNumberField(context,
                       priceController, "Price", Icons.money, false),
                   uihelper.CustomNumberField(
+                    context,
                       discountController, "Discount %", Icons.percent, false),
                   // uihelper.CustomTextField(durationController, "Time Slot",
                   //     Icons.data_usage_rounded,false ),

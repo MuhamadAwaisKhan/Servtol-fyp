@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class uihelper {
-  static customPhoneField(TextEditingController controller, String text,
+  static customPhoneField(
+      BuildContext context,
+      TextEditingController controller, String text,
       IconData iconData, Function(PhoneNumber) mobileCallBack) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 11),
@@ -20,18 +21,31 @@ class uihelper {
         initialValue: PhoneNumber(isoCode: 'PK'),
         inputDecoration: InputDecoration(
           labelText: text,
-          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
+          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17,color: Colors.blue),
           border: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue),
             borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(),
           ),
-          suffixIcon: Icon(iconData),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            // Blue border when focused
+            borderRadius: BorderRadius.circular(25),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue),
+            // Grey border when not focused
+            borderRadius: BorderRadius.circular(25),
+          ),
+          suffixIcon: Icon(iconData,
+            color: Theme.of(context).primaryColorDark,
+          ),
         ),
       ),
     );
   }
 
   static CustomNumberField(
+      BuildContext context,
     TextEditingController controller,
     String text,
     IconData iconData,
@@ -45,13 +59,22 @@ class uihelper {
         obscureText: tohide,
         decoration: InputDecoration(
           labelText: text,
-          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
-          suffixIcon: Icon(iconData),
+          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17,color: Colors.blue),
+          suffixIcon: Icon(iconData,
+            color: Theme.of(context).primaryColorDark,
+          ),
           border: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            // Blue border when focused
             borderRadius: BorderRadius.circular(25),
           ),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.black),
+            borderSide: BorderSide(color: Colors.blue),
+            // Grey border when not focused
             borderRadius: BorderRadius.circular(25),
           ),
         ),
@@ -125,6 +148,7 @@ class uihelper {
   }
 
   static CustomTextButton(
+
     VoidCallback voidCallback,
     String text,
     IconData iconData,
@@ -149,7 +173,7 @@ class uihelper {
           children: [
             Icon(
               iconData,
-              color: Colors.white,
+              color: Colors.blue,
             ),
             SizedBox(width: 8),
             Text(
@@ -197,12 +221,21 @@ class uihelper {
           labelText: text,
           hintText: hinttext,
           labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
-          suffixIcon: Icon(iconData),
+          suffixIcon: Icon(iconData,
+          color: Colors.blue,
+          ),
           border: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            // Blue border when focused
             borderRadius: BorderRadius.circular(25),
           ),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.black),
+            borderSide: BorderSide(color: Colors.blue),
+            // Grey border when not focused
             borderRadius: BorderRadius.circular(25),
           ),
         ),
@@ -316,10 +349,17 @@ class uihelper {
             InputDecoration(
               labelText: labelText,
               border: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.blue),
+                borderRadius: BorderRadius.circular(25),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                // Blue border when focused
                 borderRadius: BorderRadius.circular(25),
               ),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
+                borderSide: BorderSide(color: Colors.blue),
+                // Grey border when not focused
                 borderRadius: BorderRadius.circular(25),
               ),
               filled: true,
@@ -357,7 +397,7 @@ class uihelper {
 
           ),
           border: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.black),
+            borderSide: BorderSide(color: Colors.blue),
             borderRadius: BorderRadius.circular(25),
           ),
           focusedBorder: OutlineInputBorder(
@@ -367,6 +407,7 @@ class uihelper {
           ),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.blue),
+            // Grey border when not focused
             borderRadius: BorderRadius.circular(25),
           ),
         ),
@@ -389,16 +430,19 @@ class uihelper {
           labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 17),
           // suffixIcon: Icon(iconData),
           border: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            // Blue border when focused
             borderRadius: BorderRadius.circular(25),
           ),
           enabledBorder: OutlineInputBorder(
-            // borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            borderSide: BorderSide(color: Colors.blue),
+            // Grey border when not focused
             borderRadius: BorderRadius.circular(25),
           ),
-          // enabledBorder: UnderlineInputBorder(
-          //   borderSide: BorderSide(color: Colors.grey),
-          //   borderRadius: BorderRadius.circular(25),
-          // ),
           errorBorder: UnderlineInputBorder(
             borderSide: BorderSide(
                 color: Colors.orange,
@@ -435,17 +479,19 @@ class uihelper {
           labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 17),
           // suffixIcon: Icon(iconData),
           border: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            // Blue border when focused
             borderRadius: BorderRadius.circular(25),
           ),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            borderSide: BorderSide(color: Colors.blue),
+            // Grey border when not focused
             borderRadius: BorderRadius.circular(25),
           ),
-          //  enabledBorder: UnderlineInputBorder(
-          // borderSide: BorderSide(color: Colors.blue, width: 2.0),
-          //
-          //   borderRadius: BorderRadius.circular(25),
-          // ),
           errorBorder: UnderlineInputBorder(
             borderSide: BorderSide(
                 color: Colors.orange,

@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -114,6 +115,7 @@ class _SignupCustomerState extends State<SignupCustomer> {
                 const Text(
                   "Hello Customer !",
                   style: TextStyle(
+                    fontFamily: "Poppins",
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                     color: AppColors.heading,
@@ -122,8 +124,11 @@ class _SignupCustomerState extends State<SignupCustomer> {
                 const SizedBox(height: 12),
                 const Text(
                   "Create Your Account for Better Experience",
+
                   style: TextStyle(
                     fontSize: 17,
+                    fontFamily: "Poppins",
+
                     color: AppColors.heading,
                   ),
                 ),
@@ -151,7 +156,7 @@ class _SignupCustomerState extends State<SignupCustomer> {
                   Icons.email,
                   false,
                 ),
-                uihelper.CustomNumberField(
+                uihelper.CustomNumberField(context,
                     numberController, "Contact Number", Icons.phone, false),
                 uihelper.CustomTextfieldpassword(
                   context,
@@ -164,20 +169,66 @@ class _SignupCustomerState extends State<SignupCustomer> {
                     });
                   },
                 ),
-                CheckboxListTile(
-                  value: _rememberMe,
-                  onChanged: (bool? newValue) {
-                    setState(() {
-                      _rememberMe = newValue!;
-                    });
-                  },
-                  title: const Text("Agree to Terms and Conditions"),
-                  controlAffinity: ListTileControlAffinity.leading,
+                Padding(
+                  padding: const EdgeInsets.only(right: 58.0),
+                  child: Row( mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Checkbox(
+                        value: _rememberMe,
+                        onChanged: (bool? newValue) {
+                          setState(() {
+                            _rememberMe = newValue!;
+                          });
+                        },
+                      ),
+                      SizedBox(width: 8), // Adds some space between the checkbox and the text
+                      RichText(
+                        text: TextSpan(
+                          text: 'Agree to ', // First part of the text
+                          style: TextStyle(color: Colors.black), // Default style for the first part
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: 'Terms', // Clickable text "Terms"
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                              ),
+                              recognizer: TapGestureRecognizer()..onTap = () {
+                                // Handle tap for both "Terms & Conditions"
+                                print("Terms & Conditions tapped");
+                              },
+                            ),
+                            TextSpan(
+                              text: ' & ', // Non-clickable text "&"
+                              style: TextStyle(color: Colors.black), // Color stays black
+                            ),
+                            TextSpan(
+                              text: 'Conditions', // Clickable text "Conditions"
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                              ),
+                              recognizer: TapGestureRecognizer()..onTap = () {
+                                // Handle tap for both "Terms & Conditions"
+                                print("Terms & Conditions tapped");
+                              },
+                            ),
+                          ],
+                        ),
+                      )
+
+                    ],
+                  ),
                 ),
                 if (_isLoading)
                   const CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                   ),
+                SizedBox(
+                  height: 15,
+                ),
                 uihelper.CustomButton(() {
                   print("Signup button tapped");
                   _signup();

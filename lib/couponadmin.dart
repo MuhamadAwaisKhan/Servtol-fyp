@@ -36,7 +36,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
               children: <Widget>[
                 uihelper.CustomTextField(context,
                     _editCodeController, "Code", Icons.code, false),
-                uihelper.CustomNumberField(
+                uihelper.CustomNumberField(context,
                     _editDiscountController, "Discount", Icons.percent, false),
                 Container(
                   margin: EdgeInsets.only(top: 8),
@@ -169,6 +169,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
           uihelper.CustomTextField(context,
               _codeController, "Code", Icons.discount, false),
           uihelper.CustomNumberField(
+            context,
               _discountController, "Discount", Icons.numbers_sharp, false),
           Container(
             width: 360,
