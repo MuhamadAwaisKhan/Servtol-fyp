@@ -152,6 +152,7 @@ class _loginproviderState extends State<loginprovider> {
                 height: 12,
               ),
               uihelper.CustomTextField(
+                context,
                   emailcontroller, "Email Address", Icons.email_rounded, false),
               uihelper.CustomTextfieldpassword(
                 context,
@@ -255,7 +256,10 @@ class _loginproviderState extends State<loginprovider> {
                   //  ),
                 ],
               ),
-              if (_isLoading == true) Center(child: CircularProgressIndicator()),
+              if (_isLoading == true) Center(child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    Colors.blue),
+              )),
               SizedBox(
                 height: 30,
               ),

@@ -101,105 +101,134 @@ class _SignupCustomerState extends State<SignupCustomer> {
         ),
         backgroundColor: AppColors.background,
         body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Lottie.asset(
-                'assets/images/ab2.json', // Ensure this path is correct
-                height: 200,
-                fit: BoxFit.cover,
-              ),
-              const SizedBox(height: 22),
-              const Text(
-                "Hello Customer !",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: AppColors.heading,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                Lottie.asset(
+                  'assets/images/ab2.json', // Ensure this path is correct
+                  height: 200,
+                  fit: BoxFit.cover,
                 ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                "Create Your Account for Better Experience",
-                style: TextStyle(
-                  fontSize: 17,
-                  color: AppColors.heading,
+                const SizedBox(height: 22),
+                const Text(
+                  "Hello Customer !",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: AppColors.heading,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              uihelper.CustomTextField(
-                firstController,
-                "First Name",
-                Icons.account_circle,
-                false,
-              ),
-              uihelper.CustomTextField(
-                  lastController, "Last Name", Icons.account_circle, false),
-              uihelper.CustomTextField(
-                usernameController,
-                "User Name",
-                Icons.account_circle,
-                false,
-              ),
-              uihelper.CustomTextField(
-                emailController,
-                "Email Address",
-                Icons.email,
-                false,
-              ),
-              uihelper.CustomNumberField(
-                  numberController, "Contact Number", Icons.phone, false),
-              uihelper.CustomTextfieldpassword(
-                context,
-                passwordController,
-                'Password',
-                _hidePassword,
-                (bool value) {
-                  setState(() {
-                    _hidePassword = value;
-                  });
-                },
-              ),
-              CheckboxListTile(
-                value: _rememberMe,
-                onChanged: (bool? newValue) {
-                  setState(() {
-                    _rememberMe = newValue!;
-                  });
-                },
-                title: const Text("Agree to Terms and Conditions"),
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-              if (_isLoading) const CircularProgressIndicator(),
-              uihelper.CustomButton(() {
-                print("Signup button tapped");
-                _signup();
+                const SizedBox(height: 12),
+                const Text(
+                  "Create Your Account for Better Experience",
+                  style: TextStyle(
+                    fontSize: 17,
+                    color: AppColors.heading,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                uihelper.CustomTextField(
+                  context,
+                  firstController,
+                  "First Name",
+                  Icons.account_circle,
+                  false,
+                ),
+                uihelper.CustomTextField(context, lastController, "Last Name",
+                    Icons.account_circle, false),
+                uihelper.CustomTextField(
+                  context,
+                  usernameController,
+                  "User Name",
+                  Icons.account_circle,
+                  false,
+                ),
+                uihelper.CustomTextField(
+                  context,
+                  emailController,
+                  "Email Address",
+                  Icons.email,
+                  false,
+                ),
+                uihelper.CustomNumberField(
+                    numberController, "Contact Number", Icons.phone, false),
+                uihelper.CustomTextfieldpassword(
+                  context,
+                  passwordController,
+                  'Password',
+                  _hidePassword,
+                  (bool value) {
+                    setState(() {
+                      _hidePassword = value;
+                    });
+                  },
+                ),
+                CheckboxListTile(
+                  value: _rememberMe,
+                  onChanged: (bool? newValue) {
+                    setState(() {
+                      _rememberMe = newValue!;
+                    });
+                  },
+                  title: const Text("Agree to Terms and Conditions"),
+                  controlAffinity: ListTileControlAffinity.leading,
+                ),
+                if (_isLoading)
+                  const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                  ),
+                uihelper.CustomButton(() {
+                  print("Signup button tapped");
+                  _signup();
 
-                // print("Entered phone number: ${numbercontroller.text}");
-              }, "Sign Up", 50, 190),
-              SizedBox(height: 15),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Already have an Account?"),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => logincustomer()));
-                    },
-                    child: const Text(
-                      'Sign In',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+                  // print("Entered phone number: ${numbercontroller.text}");
+                }, "Sign Up", 50, 190),
+                SizedBox(height: 15),
+                Row(
+                  // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 28.0),
+                      child: Text(
+                        "Already have an Account?",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: 'Poppins',
+                          fontSize: 17,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 35),
-            ],
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          // Replace the below line with your navigation logic
+                          print(
+                              "Sign Up tapped"); // Placeholder action, you can replace this line
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      logincustomer())); // Replace this with your navigation logic
+                        },
+                        child: Text(
+                          'Sign In',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Colors.indigo,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 35),
+              ],
+            ),
           ),
         ));
   }

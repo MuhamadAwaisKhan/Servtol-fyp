@@ -47,7 +47,9 @@ class _forgetpasswordState extends State<forgetpassword> {
           SizedBox(
             height: 22,
           ),
-          uihelper.CustomTextField(emailcontroller, "Email", Icons.mail_outline, false),
+          uihelper.CustomTextField(
+            context,
+              emailcontroller, "Email", Icons.mail_outline, false),
           SizedBox(
             height: 20,
           ),

@@ -78,7 +78,7 @@ class _SubcategoryAddScreenState extends State<SubcategoryAddScreen> {
               ),
             ),
 
-            uihelper.CustomTextField(_nameController, "Enter Subcategory Name",
+            uihelper.CustomTextField(context,_nameController, "Enter Subcategory Name",
                 Icons.category, false),
 
             SizedBox(height: 20),

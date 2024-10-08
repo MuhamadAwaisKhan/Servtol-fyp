@@ -160,25 +160,68 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Payment ID: ${data['paymentId'] ?? 'N/A'}',
-              style: TextStyle(
-                  color: Colors.grey[300],
-                  fontFamily: 'Poppins'), // Using your font and a lighter grey
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Payment ID:',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Poppins'), // Using your font and a lighter grey
+                ),Text(
+                  '${data['paymentId'] ?? 'N/A'}',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Poppins'), // Using your font and a lighter grey
+                ),
+              ],
             ),
-            Text(
-              'Status: ${data['status'] ?? 'N/A'}',
-              style: TextStyle(
-                  color: Colors.grey[300], fontFamily: 'Poppins'), // Same as above
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+              children: [
+                Text(
+                  'Status:',
+                  style: TextStyle(
+                      color: Colors.black, fontFamily: 'Poppins'), // Same as above
+                ),
+                Text(
+                  '${data['status'] ?? 'N/A'}',
+                  style: TextStyle(
+                      color: Colors.black, fontFamily: 'Poppins'), // Same as above
+                ),
+              ],
             ),
-            Text(
-              'Method: ${data['method'] ?? 'N/A'}',
-              style: TextStyle(
-                  color: Colors.grey[300], fontFamily: 'Poppins'), // Same as above
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+              children: [
+                Text(
+                  'Method:',
+                  style: TextStyle(
+                      color: Colors.black, fontFamily: 'Poppins'), // Same as above
+                ), Text(
+                  '${data['method'] ?? 'N/A'}',
+                  style: TextStyle(
+                      color: Colors.black, fontFamily: 'Poppins'), // Same as above
+                ),
+              ],
             ),
-            Text(
-              'Amount: \$${data['amount'].toStringAsFixed(2) ?? '0.00'}',
-              style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+            SizedBox(height: 10,),
+            Center(
+              child: Column(
+                children: [
+                  Text(
+                    'Amount',
+                    style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+                  ),
+                  SizedBox(height: 10,),
+                  Text(
+                    ' \$${data['amount'].toStringAsFixed(2) ?? '0.00'}',
+                    style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

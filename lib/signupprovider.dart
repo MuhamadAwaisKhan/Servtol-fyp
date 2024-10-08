@@ -100,27 +100,41 @@ class _SignupProviderState extends State<SignupProvider> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: AppColors.background,
-          title: Text('Sign Up as Provider'),
         ),
         backgroundColor: AppColors.background,
         body: SingleChildScrollView(
           padding: EdgeInsets.all(20),
           child: Column(children: [
             Lottie.asset('assets/images/ab2.json', height: 200),
-            SizedBox(height: 20),
-            Text("Hello Provider!",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
-            SizedBox(height: 10),
-            Text("Create Your Account for a Better Experience",
-                textAlign: TextAlign.center),
-            SizedBox(height: 20),
+            const SizedBox(height: 22),
+            const Text(
+              "Hello Provider !",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: AppColors.heading,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "Create Your Account for Better Experience",
+              style: TextStyle(
+                fontSize: 17,
+                color: AppColors.heading,
+              ),
+            ),
+            const SizedBox(height: 12),
             uihelper.CustomTextField(
+              context,
                 firstController, "First Name", Icons.account_circle, false),
             uihelper.CustomTextField(
+              context,
                 lastController, "Last Name", Icons.account_circle, false),
             uihelper.CustomTextField(
+              context,
                 usernameController, "User Name", Icons.account_circle, false),
             uihelper.CustomTextField(
+              context,
                 emailController, "Email Address", Icons.email, false),
             uihelper.CustomNumberField(
                 numberController, "Contact", Icons.phone, false),
@@ -146,7 +160,10 @@ class _SignupProviderState extends State<SignupProvider> {
             ),
             if (_isLoading) // Show loading indicator
               Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.blue),
+                ),
               ),
             SizedBox(
               height: 25,

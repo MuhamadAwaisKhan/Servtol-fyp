@@ -79,7 +79,7 @@ class _CityAddState extends State<CityAdd> {
                   ),
                  ),
 
-                  uihelper.CustomTextField(_nameController, "Enter City Name",
+                  uihelper.CustomTextField(context,_nameController, "Enter City Name",
                       Icons.location_city, false),
 
                   SizedBox(height: 20),

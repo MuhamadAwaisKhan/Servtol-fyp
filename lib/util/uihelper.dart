@@ -73,7 +73,7 @@ class uihelper {
         obscureText: !passwordVisible,
         decoration: InputDecoration(
           labelText: text,
-          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
+          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17, color: Colors.blue),
           suffixIcon: GestureDetector(
             onTap: () {
               toggleVisibility(!passwordVisible);
@@ -84,6 +84,17 @@ class uihelper {
             ),
           ),
           border: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            // Blue border when focused
+            borderRadius: BorderRadius.circular(25),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue),
+            // Grey border when not focused
             borderRadius: BorderRadius.circular(25),
           ),
         ),
@@ -325,6 +336,7 @@ class uihelper {
   }
 
   static CustomTextField(
+      BuildContext context,
     TextEditingController controller,
     String text,
     IconData iconData,
@@ -337,14 +349,24 @@ class uihelper {
         obscureText: tohide,
         decoration: InputDecoration(
           labelText: text,
-          labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 17),
-          suffixIcon: Icon(iconData),
+          labelStyle: TextStyle(
+              fontFamily: 'Poppins', fontSize: 17, color: Colors.blue),
+          suffixIcon: Icon(
+            iconData,
+            color: Theme.of(context).primaryColorDark,
+
+          ),
           border: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.black),
             borderRadius: BorderRadius.circular(25),
           ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            // Blue border when focused
+            borderRadius: BorderRadius.circular(25),
+          ),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.black),
+            borderSide: BorderSide(color: Colors.blue),
             borderRadius: BorderRadius.circular(25),
           ),
         ),
@@ -384,7 +406,7 @@ class uihelper {
                     2.0), // Optional: Styling for when the TextField has an error
           ),
           floatingLabelBehavior: FloatingLabelBehavior.auto,
-          contentPadding: EdgeInsets.only(bottom: 12,left: 115),
+          contentPadding: EdgeInsets.only(bottom: 12, left: 115),
           // focusedBorder: UnderlineInputBorder(
           //   borderSide: BorderSide(color: Colors.red, width: 2.0),
           //   borderRadius: BorderRadius.circular(25),
@@ -397,11 +419,12 @@ class uihelper {
       ),
     );
   }
+
   static customDescriptionField1(
-      TextEditingController controller,
-      String labelText,
-      // IconData iconData
-      ) {
+    TextEditingController controller,
+    String labelText,
+    // IconData iconData
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
       child: TextField(
@@ -415,7 +438,7 @@ class uihelper {
             borderRadius: BorderRadius.circular(25),
           ),
           enabledBorder: OutlineInputBorder(
-             borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            borderSide: BorderSide(color: Colors.blue, width: 2.0),
             borderRadius: BorderRadius.circular(25),
           ),
           //  enabledBorder: UnderlineInputBorder(
@@ -427,10 +450,10 @@ class uihelper {
             borderSide: BorderSide(
                 color: Colors.orange,
                 width:
-                2.0), // Optional: Styling for when the TextField has an error
+                    2.0), // Optional: Styling for when the TextField has an error
           ),
           floatingLabelBehavior: FloatingLabelBehavior.auto,
-          contentPadding: EdgeInsets.only(bottom: 12,left: 115),
+          contentPadding: EdgeInsets.only(bottom: 12, left: 115),
           // focusedBorder: UnderlineInputBorder(
           //   borderSide: BorderSide(color: Colors.red, width: 2.0),
           //   borderRadius: BorderRadius.circular(25),
@@ -443,13 +466,14 @@ class uihelper {
       ),
     );
   }
+
   static Widget CustomButton1(
-      VoidCallback voidCallback,
-      String text,
-      double height,
-      double width, {
-         icon,
-      }) {
+    VoidCallback voidCallback,
+    String text,
+    double height,
+    double width, {
+    icon,
+  }) {
     return SizedBox(
       height: height,
       width: width,
@@ -473,5 +497,4 @@ class uihelper {
       ),
     );
   }
-
 }

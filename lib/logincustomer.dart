@@ -168,7 +168,9 @@ class _logincustomerState extends State<logincustomer> {
               SizedBox(
                 height: 12,
               ),
-              uihelper.CustomTextField(
+              uihelper.CustomTextField
+                (
+                context,
                   emailcontroller, "Email Address", Icons.email_rounded, false),
               uihelper.CustomTextfieldpassword(
                 context,
@@ -272,7 +274,10 @@ class _logincustomerState extends State<logincustomer> {
                   //  ),
                 ],
               ),
-              if (_isLoading == true) Center(child: CircularProgressIndicator()),
+              if (_isLoading == true) Center(child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    Colors.blue),
+              )),
               SizedBox(
                 height: 30,
               ),

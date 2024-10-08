@@ -34,7 +34,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                uihelper.CustomTextField(
+                uihelper.CustomTextField(context,
                     _editCodeController, "Code", Icons.code, false),
                 uihelper.CustomNumberField(
                     _editDiscountController, "Discount", Icons.percent, false),
@@ -166,7 +166,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-          uihelper.CustomTextField(
+          uihelper.CustomTextField(context,
               _codeController, "Code", Icons.discount, false),
           uihelper.CustomNumberField(
               _discountController, "Discount", Icons.numbers_sharp, false),

@@ -245,10 +245,11 @@ class _ServicesAdditionState extends State<ServicesAddition> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  uihelper.CustomTextField(nameController, "Service Name",
+                  uihelper.CustomTextField(context,
+                      nameController, "Service Name",
                       Icons.home_repair_service, false),
                   DropdownFields(), // Implement DropdownFields as shown earlier
-                  uihelper.CustomTextField(
+                  uihelper.CustomTextField(context,
                       areaController, "Area", Icons.map, false),
                   uihelper.CustomNumberField(
                       priceController, "Price", Icons.money, false),

@@ -44,7 +44,7 @@ class _categoryaddState extends State<categoryadd> {
               fit: BoxFit.fill,
             ),
             SizedBox(height: 20),
-            uihelper.CustomTextField(_nameController, "Enter Category Name", Icons.warehouse, false),
+            uihelper.CustomTextField(context,_nameController, "Enter Category Name", Icons.warehouse, false),
             SizedBox(height: 20),
             uihelper.CustomButton(() {
               if (!_isLoading) {  // Prevent multiple submissions

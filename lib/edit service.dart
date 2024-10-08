@@ -455,7 +455,7 @@ class _editserviceState extends State<editservice> {
             SizedBox(
               height: 12,
             ),
-            uihelper.CustomTextField(snanmecontroller, "Service Name",
+            uihelper.CustomTextField(context,snanmecontroller, "Service Name",
                 Icons.home_repair_service, false),
             SizedBox(height: 10.0),
             Container(
@@ -580,7 +580,7 @@ class _editserviceState extends State<editservice> {
                 ),
               ),
             ),
-            uihelper.CustomTextField(
+            uihelper.CustomTextField(context,
                 areacontroller, "Area", Icons.area_chart, false),
             uihelper.CustomNumberField(
                 pricecontroller, "Price", Icons.money_outlined, false),
