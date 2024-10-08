@@ -60,7 +60,7 @@ class _logincustomerState extends State<logincustomer> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => customermainscreen(onBackPress: () {
+          MaterialPageRoute(builder: (_) => CustomerMainScreen(onBackPress: () {
             Navigator.of(context).pop();
           })),
         );

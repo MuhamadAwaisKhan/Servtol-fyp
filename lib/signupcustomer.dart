@@ -54,7 +54,7 @@ class _SignupCustomerState extends State<SignupCustomer> {
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (context) => customermainscreen(onBackPress: () {
+              builder: (context) => CustomerMainScreen(onBackPress: () {
                     Navigator.of(context).pop();
                   })));
     } catch (e) {

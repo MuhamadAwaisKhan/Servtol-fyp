@@ -13,7 +13,7 @@ import 'package:servtol/util/AppColors.dart';
 class profilecustomer extends StatefulWidget {
   Function onBackPress; // Making this final and required
 
-   profilecustomer({super.key,required this.onBackPress});
+  profilecustomer({super.key, required this.onBackPress});
 
   @override
   State<profilecustomer> createState() => _profilecustomerState();
@@ -30,16 +30,29 @@ class _profilecustomerState extends State<profilecustomer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
-        title: Text("Profile Section"),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+        backgroundColor: AppColors.background,
+        title: Text(
+          "Profile Section",
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            fontSize: 17,
+            color: AppColors.heading,
+          ),
         ),
+        centerTitle: true,
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back, color: Colors.white),
+        //   onPressed: () => Navigator.of(context).pop(),
+        // ),
       ),
+      backgroundColor: AppColors.background,
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(
+              child: CircularProgressIndicator(
+              valueColor:
+                  AlwaysStoppedAnimation<Color>(Colors.blue), // Blue loader
+            ))
           : buildProfileScreen(),
     );
   }
@@ -52,7 +65,11 @@ class _profilecustomerState extends State<profilecustomer> {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(
+                child: CircularProgressIndicator(
+              valueColor:
+                  AlwaysStoppedAnimation<Color>(Colors.blue), // Blue loader
+            ));
           }
           if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
@@ -81,14 +98,14 @@ class _profilecustomerState extends State<profilecustomer> {
                                 ? NetworkImage(data['ProfilePic'] as String)
                                     as ImageProvider<Object>?
                                 : null,
-                        backgroundColor: Colors.deepPurple[200],
+                        backgroundColor: Colors.blueGrey[200],
                       ),
                       Positioned(
                         bottom: 0,
                         right: 0,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.deepPurple,
+                            color: Colors.blue,
                             // Match the CircleAvatar background or choose another contrasting color
                             shape: BoxShape.circle,
                             border: Border.all(
@@ -145,11 +162,14 @@ class _profilecustomerState extends State<profilecustomer> {
                 ElevatedButton(
                   onPressed: () => showEditProfileDialog(data, docId),
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
+                      backgroundColor: AppColors.customButton,
                       padding:
                           EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
                   child: Text('Edit Profile',
-                      style: TextStyle(fontSize: 18, color: Colors.white)),
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: 'Poppins',
+                          color: Colors.white)),
                 ),
                 SizedBox(height: 10),
                 ElevatedButton(
@@ -159,7 +179,11 @@ class _profilecustomerState extends State<profilecustomer> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
                   child: Text('Logout',
-                      style: TextStyle(fontSize: 18, color: Colors.white)),
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontFamily: 'Poppins',
+                      )),
                 ),
               ],
             ),
@@ -175,9 +199,11 @@ class _profilecustomerState extends State<profilecustomer> {
         children: [
           Text(label,
               style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple)),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.lightBlue,
+                fontFamily: 'Poppins',
+              )),
           Text(value ?? 'Not provided',
               style: TextStyle(fontSize: 16, color: Colors.grey[600])),
         ],
@@ -277,7 +303,9 @@ class _profilecustomerState extends State<profilecustomer> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text("Edit Profile"),
+              title: Text("Edit Profile",
+                  style: TextStyle(
+                      fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
@@ -316,7 +344,9 @@ class _profilecustomerState extends State<profilecustomer> {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: Text('Cancel', style: TextStyle(color: Colors.red)),
+                  child: Text('Cancel',
+                      style:
+                          TextStyle(fontFamily: 'Poppins', color: Colors.red)),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 TextButton(
@@ -324,12 +354,17 @@ class _profilecustomerState extends State<profilecustomer> {
                       ? Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            CircularProgressIndicator(),
+                            CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.blue),
+                            ),
                             SizedBox(width: 10),
                             Text('Saving...'),
                           ],
                         )
-                      : Text('Save', style: TextStyle(color: Colors.green)),
+                      : Text('Save',
+                          style: TextStyle(
+                              fontFamily: 'Poppins', color: Colors.green)),
                   onPressed: _isLoading
                       ? null
                       : () async {

@@ -34,7 +34,7 @@ class _checkcustomerState extends State<checkcustomer> {
   void checkUser() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => customermainscreen(onBackPress: onBackPress)));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CustomerMainScreen(onBackPress: onBackPress)));
     } else {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => logincustomer()));
     }
