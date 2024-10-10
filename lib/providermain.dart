@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:motion_tab_bar/MotionTabBarController.dart';
 import 'package:motion_tab_bar/motiontabbar.dart';
 
 import 'package:servtol/bookingprovider.dart';
@@ -21,19 +22,26 @@ class ProviderMainLayout extends StatefulWidget {
 
 class _ProviderMainLayoutState extends State<ProviderMainLayout>
     with TickerProviderStateMixin {
-  late TabController _tabController;
+  // late TabController _tabController;
+  late MotionTabBarController _motionTabBarController;
   bool _isBackPressedOnce = false;
   Timer? _backPressTimer;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    // _tabController = TabController(length: 5, vsync: this);
+    _motionTabBarController = MotionTabBarController(
+      initialIndex: 1,
+      length: 5,
+      vsync: this,
+    );
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    // _tabController.dispose();
+    _motionTabBarController.dispose();
     _backPressTimer?.cancel();
     super.dispose();
   }
@@ -43,7 +51,7 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout>
     return WillPopScope(
       onWillPop: () async {
         // Handle back button
-        if (_tabController.index == 0) {
+        if (_motionTabBarController.index == 0) {
           // If on the first tab
           if (_isBackPressedOnce) {
             _backPressTimer?.cancel();
@@ -64,14 +72,17 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout>
           }
         } else {
           // Navigate back to the first tab
-          _tabController.animateTo(0);
+          // _tabController.animateTo(0);
+          setState(() {
+            _motionTabBarController.index=0;
+          });
           return false; // Prevent default back navigation
         }
       },
       child: Scaffold(
         backgroundColor: AppColors.background,
         body: TabBarView(
-          controller: _tabController,
+          controller: _motionTabBarController,
           children: [
             HomeProvider(onBackPress: widget.onBackPress),
             BookingScreenWidget(onBackPress: widget.onBackPress),
@@ -83,13 +94,17 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout>
         bottomNavigationBar: MotionTabBar(
           labels: const ["Home", "Booking", "Payment", "Service", "Profile"],
           initialSelectedTab: "Home",
+          controller: _motionTabBarController,
           tabIconColor: Colors.blueGrey,
           tabSelectedColor: Colors.blue,
           tabSize: 50,
           tabBarHeight: 55,
           onTabItemSelected: (int value) {
             // Update the tab controller index
-            _tabController.animateTo(value);
+            setState(() {
+              _motionTabBarController.index = value;
+              // _tabController.animateTo(value);
+            });
           },
           icons: const [
             FontAwesomeIcons.home,
