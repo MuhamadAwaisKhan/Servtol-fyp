@@ -383,7 +383,10 @@ class _HomeCustomerState extends State<HomeCustomer> {
                           .get(),
                       builder: (context, providerSnapshot) {
                         if (!providerSnapshot.hasData) {
-                          return Center(child: CircularProgressIndicator());
+                          return Center(child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+
+                          ));
                         }
                         return buildServiceCard(
                             context, serviceDoc, providerSnapshot.data!);

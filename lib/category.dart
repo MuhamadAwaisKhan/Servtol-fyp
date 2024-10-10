@@ -25,9 +25,11 @@ class _categoryscreenState extends State<categoryscreen> {
   void _onSearchChanged() {
     if (searchController.text.isNotEmpty) {
       setState(() {
-        categoriesStream = _db.collection('Category')
+        categoriesStream = _db
+            .collection('Category')
             .where('Name', isGreaterThanOrEqualTo: searchController.text)
-            .where('Name', isLessThanOrEqualTo: searchController.text + '\uf8ff')
+            .where('Name',
+                isLessThanOrEqualTo: searchController.text + '\uf8ff')
             .snapshots();
       });
     } else {
@@ -66,12 +68,12 @@ class _categoryscreenState extends State<categoryscreen> {
                 prefixIcon: Icon(Icons.search, color: Colors.grey),
                 suffixIcon: searchController.text.isNotEmpty
                     ? GestureDetector(
-                  child: Icon(Icons.clear, color: Colors.grey),
-                  onTap: () {
-                    searchController.clear();
-                    _onSearchChanged(); // Refresh the search
-                  },
-                )
+                        child: Icon(Icons.clear, color: Colors.grey),
+                        onTap: () {
+                          searchController.clear();
+                          _onSearchChanged(); // Refresh the search
+                        },
+                      )
                     : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
@@ -79,7 +81,8 @@ class _categoryscreenState extends State<categoryscreen> {
                 ),
                 filled: true,
                 fillColor: Colors.white,
-                contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 0, horizontal: 20),
               ),
               onChanged: (value) {
                 _onSearchChanged(); // Trigger rebuild with every change
@@ -91,17 +94,25 @@ class _categoryscreenState extends State<categoryscreen> {
               stream: categoriesStream,
               builder: (context, snapshot) {
                 if (snapshot.hasError) return Text('Something went wrong');
-                if (snapshot.connectionState == ConnectionState.waiting) return CircularProgressIndicator();
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  return CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+
+                  );
                 final data = snapshot.requireData;
                 return ListView.separated(
                   itemCount: data.size,
-                  separatorBuilder: (context, index) => Divider(color: Colors.grey),
+                  separatorBuilder: (context, index) =>
+                      Divider(color: Colors.grey),
                   itemBuilder: (context, index) {
                     var category = data.docs[index];
                     return Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Colors.purpleAccent, Colors.deepPurpleAccent],
+                          colors: [
+                            Colors.blue,
+                            Colors.lightBlueAccent
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -110,19 +121,25 @@ class _categoryscreenState extends State<categoryscreen> {
                         leading: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.blue,
+                            color: Colors.blueGrey,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Text('${index + 1}', style: TextStyle(color: Colors.white)),
+                          child: Text('${index + 1}',
+                              style: TextStyle(color: Colors.white)),
                         ),
-                        title: Text(category['Name'], textAlign: TextAlign.center,
-                            style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.white)),
+                        title: Text(category['Name'],
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white)),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () => _showEditDialog(context, category.id, category['Name']),
+                              icon: Icon(Icons.edit, color: AppColors.customButton),
+                              onPressed: () => _showEditDialog(
+                                  context, category.id, category['Name']),
                             ),
                             IconButton(
                               icon: Icon(Icons.delete, color: Colors.red),
@@ -141,11 +158,12 @@ class _categoryscreenState extends State<categoryscreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => categoryadd()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => categoryadd()));
         },
         label: Text('Add Category', style: TextStyle(color: Colors.white)),
         icon: Icon(Icons.add, color: AppColors.secondaryColor),
-        backgroundColor: AppColors.primaryColor,
+        backgroundColor: AppColors.customButton,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -156,7 +174,8 @@ class _categoryscreenState extends State<categoryscreen> {
   }
 
   void _showEditDialog(BuildContext context, String id, String currentName) {
-    TextEditingController nameController = TextEditingController(text: currentName);
+    TextEditingController nameController =
+        TextEditingController(text: currentName);
     showDialog(
       context: context,
       barrierDismissible: false,

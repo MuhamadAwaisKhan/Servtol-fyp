@@ -94,7 +94,10 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
                     return Center(child: Text('Something went wrong'));
                   }
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+
+                    ));
                   }
                   final data = snapshot.requireData;
                   return ListView.separated(
@@ -105,7 +108,7 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
                       return Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Colors.purpleAccent, Colors.deepPurpleAccent],
+                            colors: [Colors.blue, Colors.lightBlueAccent],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -114,7 +117,7 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
                           leading: Container(
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.blue,
+                              color: Colors.blueGrey,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text('${index + 1}', style: TextStyle(color: Colors.white)),
@@ -128,7 +131,7 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               IconButton(
-                                icon: Icon(Icons.edit, color: Colors.blue),
+                                icon: Icon(Icons.edit, color: AppColors.customButton),
                                 onPressed: () => _showEditDialog(
                                     context, wageType.id, wageType['Name']),
                               ),
@@ -160,7 +163,7 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
           Icons.add,
           color: AppColors.secondaryColor, // Set your icon color here
         ),
-        backgroundColor: AppColors.primaryColor,
+        backgroundColor: AppColors.customButton,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

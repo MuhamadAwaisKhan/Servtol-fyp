@@ -94,7 +94,9 @@ class _provinceState extends State<province> {
                     return Text('Something went wrong');
                   }
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    );
                   }
                   final data = snapshot.requireData;
                   return ListView.separated(
@@ -105,7 +107,7 @@ class _provinceState extends State<province> {
                       return Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Colors.purpleAccent, Colors.deepPurpleAccent],
+                            colors: [Colors.blue, Colors.lightBlueAccent],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -114,7 +116,7 @@ class _provinceState extends State<province> {
                           leading: Container(
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.blue,
+                              color: Colors.blueGrey,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text('${index + 1}', style: TextStyle(color: Colors.white)),
@@ -128,7 +130,7 @@ class _provinceState extends State<province> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               IconButton(
-                                icon: Icon(Icons.edit, color: Colors.blue),
+                                icon: Icon(Icons.edit, color: AppColors.customButton),
                                 onPressed: () => _showEditDialog(
                                     context, province.id, province['Name']),
                               ),
@@ -154,13 +156,13 @@ class _provinceState extends State<province> {
         },
         label: Text(
           'Add Province',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white,fontFamily: "Poppins"),
         ),
         icon: Icon(
           Icons.add,
           color: AppColors.secondaryColor,
         ),
-        backgroundColor: AppColors.primaryColor,
+        backgroundColor: AppColors.customButton,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

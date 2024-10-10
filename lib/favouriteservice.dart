@@ -52,7 +52,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         future: favoritesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
+            return CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+
+            );
           } else if (snapshot.hasError) {
             return Text("Error: ${snapshot.error}");
           } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
@@ -69,7 +72,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         margin: EdgeInsets.all(8),
                         height: 100,
                         alignment: Alignment.center,
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+
+                        ),
                       );
                     } else if (serviceSnapshot.hasError) {
                       return ListTile(
@@ -93,7 +99,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
                           gradient: LinearGradient(
-                            colors: [Colors.deepPurple, Colors.deepPurple.shade200],
+                            colors: [Colors.blue, Colors.lightBlueAccent],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),

@@ -33,7 +33,7 @@ class AppTheme {
       secondary: secondaryColor,
       error: errorColor,
     ),
-    fontFamily: fontFamily,
+    // fontFamily: fontFamily,
     textTheme: const TextTheme(
       displayLarge: headline1,
       bodyLarge: bodyText1,

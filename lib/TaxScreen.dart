@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:servtol/util/AppColors.dart';
 
 class TaxScreen extends StatefulWidget {
   @override
@@ -38,9 +40,15 @@ class _TaxScreenState extends State<TaxScreen> {
   //   );
   // }
 
-  void showEntryDialog({BuildContext? context, Map<String, dynamic>? entryData, String? documentId, required bool isTax}) {
-    TextEditingController nameController = TextEditingController(text: entryData?['name'] ?? '');
-    TextEditingController rateController = TextEditingController(text: entryData?['rate'].toString() ?? '');
+  void showEntryDialog(
+      {BuildContext? context,
+      Map<String, dynamic>? entryData,
+      String? documentId,
+      required bool isTax}) {
+    TextEditingController nameController =
+        TextEditingController(text: entryData?['name'] ?? '');
+    TextEditingController rateController =
+        TextEditingController(text: entryData?['rate'].toString() ?? '');
 
     showDialog(
       context: context!,
@@ -56,7 +64,8 @@ class _TaxScreenState extends State<TaxScreen> {
                 // ),
                 TextField(
                   controller: rateController,
-                  decoration: InputDecoration(labelText: isTax ? 'Tax Rate (%)' : 'Booking Fee (\$)'),
+                  decoration: InputDecoration(
+                      labelText: isTax ? 'Tax Rate (%)' : 'Booking Fee (\$)'),
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                 ),
               ],
@@ -80,7 +89,9 @@ class _TaxScreenState extends State<TaxScreen> {
                 try {
                   DocumentReference ref;
                   if (documentId == null) {
-                    ref = await _firestore.collection(collectionPath).add(updatedEntry);
+                    ref = await _firestore
+                        .collection(collectionPath)
+                        .add(updatedEntry);
                     // Update the document to include its own ID
                     await ref.update({'id': ref.id});
                     print("Added new entry with ID: ${ref.id}");
@@ -107,32 +118,49 @@ class _TaxScreenState extends State<TaxScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text(title,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ),
           StreamBuilder<QuerySnapshot>(
             stream: _firestore.collection(collectionPath).snapshots(),
-            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            builder:
+                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               }
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
-                  return CircularProgressIndicator();
+                  return CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                  );
                 default:
                   return ListView(
                     shrinkWrap: true,
-                    children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                      Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+                    children:
+                        snapshot.data!.docs.map((DocumentSnapshot document) {
+                      Map<String, dynamic> data =
+                          document.data()! as Map<String, dynamic>;
                       return Card(
-                        color: Colors.blue[100],
+                        // color: Colors.blue[100],
+                        color: Theme.of(context).colorScheme.primary,
                         child: ListTile(
                           title: Text(data['name']),
-                          subtitle: Text('${data['rate']}${isTax ? '%' : '\$'}'),
+                          subtitle:
+                              Row(
+                                children: [
+                                  Text('${data['rate']}',style: TextStyle(fontSize: 17),
+                                  ),
+                                  Text('${isTax ? '%' : '\$'}',style:TextStyle(
+                                    color: Colors.white,
+                                  ) ,),
+
+                                ],
+                              ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               IconButton(
-                                icon: Icon(Icons.edit),
+                                icon: FaIcon(FontAwesomeIcons.edit),color: Colors.white,
                                 onPressed: () => showEntryDialog(
                                   context: context,
                                   entryData: data,
@@ -164,9 +192,19 @@ class _TaxScreenState extends State<TaxScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Fee Management'),
-        backgroundColor: Colors.deepPurple,
+        title: Text(
+          'Fee Management',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            fontSize: 17,
+            color: AppColors.heading,
+          ),
+        ),
+        backgroundColor: AppColors.background,
       ),
+      backgroundColor: AppColors.background,
+
       body: Column(
         children: [
           buildList('Tax Rates', 'taxRates', true),

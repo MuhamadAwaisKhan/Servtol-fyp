@@ -41,10 +41,12 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
                 Container(
                   margin: EdgeInsets.only(top: 8),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.deepPurple),
+                    border: Border.all(color: Colors.blue),
                     borderRadius: BorderRadius.circular(25),
                   ),
-                  child: TextButton(
+                  child:Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 35),
+                    child:  TextButton(
                     onPressed: () async {
                       final DateTime? picked = await showDatePicker(
                         context: context,
@@ -62,11 +64,11 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
                       _editSelectedDate == null
                           ? 'Select Date'
                           : '${_editSelectedDate!.day.toString().padLeft(2, '0')}/${_editSelectedDate!.month.toString().padLeft(2, '0')}/${_editSelectedDate!.year}',
-                      style: TextStyle(color: Colors.deepPurple),
+                      style: TextStyle(color: Colors.blue),
                     ),
                   ),
                 )
-              ],
+                )  ],
             ),
           ),
           actions: <Widget>[
@@ -159,7 +161,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
       appBar: AppBar(
         title: Text(
           "Manage Coupons",
-          style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17,color: AppColors.heading, fontFamily: 'Poppins'),
         ),
         backgroundColor: AppColors.background,
       ),
@@ -176,7 +178,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
             height: 60,
             margin: EdgeInsets.all(8),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
+              border: Border.all(color: Colors.blue),
               borderRadius: BorderRadius.circular(25),
             ),
             child: TextButton(
@@ -208,9 +210,16 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
                         margin: EdgeInsets.all(8),
                         child: ListTile(
                           title: Text(doc['code'], style: TextStyle(fontFamily: 'Poppins')),
-                          subtitle: Text(
-                            'Discount: ${doc['discount']}% Valid until: ${doc['expiryDate']}',
-                            style: TextStyle(fontFamily: 'Poppins', fontSize: 14),
+                          subtitle: Column(
+                            children: [
+                              Text(
+                                'Discount: ${doc['discount']}%',
+                                style: TextStyle(fontFamily: 'Poppins', fontSize: 14),
+                              ),Text(
+                                'Valid until: ${doc['expiryDate']}',
+                                style: TextStyle(fontFamily: 'Poppins', fontSize: 14),
+                              ),
+                            ],
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -230,7 +239,10 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
                     },
                   );
                 } else {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+
+                  ));
                 }
               },
             ),

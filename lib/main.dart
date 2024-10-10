@@ -49,6 +49,9 @@ Future <void> main() async {
     //
     //
     // ),
+  //    ThemeData(
+  //   fontFamily: 'Poppins',
+  // ),
     AppTheme.lightTheme,
     // darkTheme: AppTheme.darkTheme,
     // themeMode: ThemeMode.system,
