@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:servtol/bookservice.dart';
+import 'package:servtol/util/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Servicecustomerdetail extends StatefulWidget {
@@ -141,10 +142,13 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
           ),
           SliverToBoxAdapter(
               child: buildServiceDetails(
-                  context, serviceData, providerId, primaryColor)),
+                  context, serviceData, providerId
+                  , primaryColor
+              )),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+
         onPressed: () {
           Navigator.push(
             context,
@@ -155,7 +159,7 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
         },
         label: Text('Book Now'),
         icon: Icon(Icons.check),
-        backgroundColor: primaryColor,
+        backgroundColor: AppColors.customButton,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -193,6 +197,7 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
               Divider(),
               SizedBox(height: 10),
               Wrap(
+
                 spacing: 8,
                 children: buildAttributeChips(serviceData),
               ),
@@ -218,7 +223,7 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
                         providerData['Bio'] ?? 'No additional information',
-                        style: TextStyle(color: Colors.grey[700])),
+                        style: TextStyle(color: Colors.blue[700])),
 
                     onTap: (){
 
@@ -296,7 +301,7 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
     return attributes
         .map((attribute) => Chip(
               label: Text('${attribute}: ${serviceData[attribute]}'),
-              backgroundColor: Colors.deepPurple[100],
+              backgroundColor: Colors.lightBlueAccent,
             ))
         .toList();
   }

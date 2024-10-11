@@ -19,8 +19,7 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
   Stream<QuerySnapshot> _paymentStream() {
     return FirebaseFirestore.instance
         .collection('payments')
-        .where('providerId',
-            isEqualTo: currentUser?.uid) // Filter by providerId
+        .where('providerId', isEqualTo: currentUser?.uid) // Filter by providerId
         .snapshots();
   }
 
@@ -75,18 +74,34 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                       child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.blue), // Blue loader
-                  ));
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.blue), // Blue loader
+                      ));
                 }
 
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text('No payments found.'));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+
+                        const Text(
+                          'No payment records found.',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 }
 
                 return ListView(
                   children:
-                      snapshot.data!.docs.map((DocumentSnapshot document) {
+                  snapshot.data!.docs.map((DocumentSnapshot document) {
                     return FutureBuilder<Map<String, dynamic>>(
                       future: fetchPaymentDetails(
                           document.data() as Map<String, dynamic>),
@@ -95,10 +110,9 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
                             ConnectionState.waiting) {
                           return const Center(
                               child: CircularProgressIndicator(
-                            valueColor:
+                                valueColor:
                                 AlwaysStoppedAnimation<Color>(Colors.blue),
-                            // Blue loader
-                          ));
+                              ));
                         }
                         if (detailsSnapshot.hasError ||
                             detailsSnapshot.data == null) {
@@ -125,18 +139,18 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
 
       // Fetch booking details
       var bookingData =
-          await fetchDocument('bookings', paymentData['bookingId']);
+      await fetchDocument('bookings', paymentData['bookingId']);
 
       // Fetch customer details
       var customerData =
-          await fetchDocument('customer', bookingData!['customerId']);
+      await fetchDocument('customer', bookingData!['customerId']);
 
       result['paymentId'] = paymentData['paymentId'];
       result['status'] = paymentData['paymentstatus'];
       result['method'] = paymentData['Method'];
       result['amount'] = bookingData['total']; // Amount from booking
       result['customerName'] =
-          "${customerData!['FirstName']} ${customerData['LastName']}";
+      "${customerData!['FirstName']} ${customerData['LastName']}";
 
       return result;
     } catch (e) {
@@ -144,7 +158,6 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
       return {};
     }
   }
-
 
   Widget paymentCard(Map<String, dynamic> data) {
     return Card(
@@ -168,7 +181,8 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
                   style: TextStyle(
                       color: Colors.black,
                       fontFamily: 'Poppins'), // Using your font and a lighter grey
-                ),Text(
+                ),
+                Text(
                   '${data['paymentId'] ?? 'N/A'}',
                   style: TextStyle(
                       color: Colors.black,
@@ -178,7 +192,6 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
               children: [
                 Text(
                   'Status:',
@@ -194,20 +207,20 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
               children: [
                 Text(
                   'Method:',
                   style: TextStyle(
                       color: Colors.black, fontFamily: 'Poppins'), // Same as above
-                ), Text(
+                ),
+                Text(
                   '${data['method'] ?? 'N/A'}',
                   style: TextStyle(
                       color: Colors.black, fontFamily: 'Poppins'), // Same as above
                 ),
               ],
             ),
-            SizedBox(height: 10,),
+            SizedBox(height: 10),
             Center(
               child: Column(
                 children: [
@@ -215,9 +228,9 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
                     'Amount',
                     style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
                   ),
-                  SizedBox(height: 10,),
+                  SizedBox(height: 10),
                   Text(
-                    ' \$${data['amount'].toStringAsFixed(2) ?? '0.00'}',
+                    ' \$${(data['amount'] != null ? data['amount'].toStringAsFixed(2) : '0.00')}',
                     style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
                   ),
                 ],

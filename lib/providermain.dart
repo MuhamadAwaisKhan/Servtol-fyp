@@ -32,7 +32,7 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout>
     super.initState();
     // _tabController = TabController(length: 5, vsync: this);
     _motionTabBarController = MotionTabBarController(
-      initialIndex: 1,
+      initialIndex: 0,
       length: 5,
       vsync: this,
     );
@@ -122,24 +122,25 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout>
   // Function to show a logout confirmation dialog
   Future<bool> _showLogoutDialog() async {
     return await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
+          context: context,
+          builder: (context) => AlertDialog(
             title: const Text('Logout Confirmation'),
             content: const Text('Are you sure you want to log out?'),
             actions: [
-            TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-    child: const Text('Cancel'),
-    ),
-    TextButton(
-    onPressed: () {
-    Navigator.of(context).pop(true);
-    // Perform logout or any other action here
-    },
-    child: const Text('Logout'),
-  )
-  ],
-  ),
-  ) ?? false;
-}
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                  // Perform logout or any other action here
+                },
+                child: const Text('Logout'),
+              )
+            ],
+          ),
+        ) ??
+        false;
+  }
 }

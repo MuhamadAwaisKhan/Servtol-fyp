@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,6 +31,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
     super.initState();
     fetchTaxRate();
     fetchBookingFee();
+    _listenToProviderReadiness(widget.bookings.id);
   }
 
   Future<void> updatePaymentNotificationStatus(
@@ -208,14 +210,31 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
     try {
       String bookingId = widget.bookings.id;
 
-      // 1. Update the booking status and include cancellation reason
-      await _firestore.collection('bookings').doc(bookingId).update({
+      // Fetch the booking document to get the current statusHistory
+      DocumentSnapshot bookingSnapshot =
+          await _firestore.collection('bookings').doc(bookingId).get();
+      List<dynamic> statusHistory = bookingSnapshot.get('statusHistory') ?? [];
+
+      // Add the new status to the history
+      statusHistory.add({
         'status': 'Cancelled',
-        'cancellationReason': cancellationReason,
-        'timestamp': FieldValue.serverTimestamp(), // Add the reason
+        'timestamp': FieldValue.serverTimestamp(),
       });
 
-      // 2. Find the corresponding notification
+      WriteBatch batch = _firestore.batch();
+
+      // Update the booking status and include cancellation reason
+      DocumentReference bookingRef =
+          _firestore.collection('bookings').doc(bookingId);
+      batch.update(bookingRef, {
+        'status': 'Cancelled',
+        'cancellationReason': cancellationReason,
+        'statusHistory': statusHistory,
+        // Update the status history in Firestore
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Find the corresponding notification
       QuerySnapshot notificationSnapshot = await _firestore
           .collection('notifications')
           .where('bookingId', isEqualTo: bookingId)
@@ -223,21 +242,14 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
 
       if (notificationSnapshot.docs.isNotEmpty) {
         DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
+        DocumentReference notificationRef =
+            _firestore.collection('notifications').doc(notificationDoc.id);
 
-        // 3. Update the notification with the reason (if provided)
+        // Update the notification with the reason (if provided)
         String providerMessage =
             'Your booking has been cancelled by the customer.';
         String customerMessage = 'You have cancelled the service booking.';
-
-        // if (cancellationReason.isNotEmpty) {
-        //   providerMessage += ' Reason: $cancellationReason';
-        //   customerMessage += ' Reason: $cancellationReason';
-        // }
-
-        await _firestore
-            .collection('notifications')
-            .doc(notificationDoc.id)
-            .update({
+        batch.update(notificationRef, {
           'message': providerMessage,
           'message1': customerMessage,
           'status': 'Cancelled',
@@ -247,7 +259,9 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         print('No notification found for booking ID: $bookingId');
       }
 
-      // 4. Show success message and navigate back
+      // Commit changes
+      await batch.commit();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Booking has been cancelled')),
       );
@@ -340,6 +354,63 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
   }
 
   // PaymentMethod? _selectedMethod = null;
+  void _showBookingStatusStepper(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Booking Status'),
+          content: FutureBuilder<DocumentSnapshot>(
+            future:
+                _firestore.collection('bookings').doc(widget.bookings.id).get(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError || !snapshot.hasData) {
+                return Center(child: Text('Error fetching booking status'));
+              }
+
+              var bookingData = snapshot.data!.data() as Map<String, dynamic>;
+              List<dynamic> statusHistory = bookingData['statusHistory'] ?? [];
+
+              List<Step> steps = [];
+              for (var i = 0; i < statusHistory.length; i++) {
+                var statusData = statusHistory[i];
+                String status = statusData['status'];
+                Timestamp timestamp = statusData['timestamp'];
+                DateTime dateTime = timestamp.toDate();
+
+                steps.add(
+                  Step(
+                    title: Text(status),
+                    content: Text(
+                        '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}'),
+                    isActive:
+                        i == statusHistory.length - 1, // Last step is active
+                  ),
+                );
+              }
+
+              return Container(
+                height: 300, // Adjust height as needed
+                width: 300, // Adjust width as needed
+                child: Stepper(
+                  currentStep: steps.length - 1,
+                  // Always show the last step
+                  physics: NeverScrollableScrollPhysics(),
+                  // Disable scrolling
+                  controlsBuilder: (context, details) => SizedBox.shrink(),
+                  // Hide the controls
+                  steps: steps,
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -349,7 +420,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             color: _getStatusColor(
-                widget.bookings['status'] as String? ?? 'pending'),
+                widget.bookings['status'] as String? ?? 'Pending'),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
@@ -365,7 +436,9 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         backgroundColor: AppColors.background,
         actions: [
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              _showBookingStatusStepper(context);
+            },
             child: Text(
               "Check Status",
               style: TextStyle(
@@ -622,11 +695,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                                         generateUniquePaymentId(),
                                                     'transactionId':
                                                         generateUniqueTransactionId(),
-                                                    'paymentstatus':
-                                                        'Paid',
-                                                    'Method':
-                                                        paymentStatus,
-
+                                                    'paymentstatus': 'Paid',
+                                                    'Method': paymentStatus,
                                                   });
 
                                                   // 4. Update Booking Status in Firestore
@@ -1207,17 +1277,22 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         Map<String, dynamic> bookingData =
             snapshot.data() as Map<String, dynamic>;
 
-        if (bookingData['status'] == 'Ready to Service') {
-          // Perform actions when the service provider is ready
-          // For example, navigate the customer to the service start page
+        if (bookingData['status'] == 'Ready to Service' && mounted) {
+          // Check if the widget is still mounted
+          // Show a SnackBar to inform the customer
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content:
-                    Text('Service provider is ready to start the service')),
+            SnackBar(content: Text('Service provider is ready!')),
           );
 
-          // Navigate to a new screen or perform any other necessary actions
-          // Navigator.push(context, MaterialPageRoute(...));
+          // Navigate to the service start page after a short delay
+          // Timer(Duration(seconds: 2), () { // Adjust delay as needed
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //       builder: (context) => ServiceStartPage(booking: widget.bookings), // Replace with your actual service start page
+          //     ),
+          //   );
+          // });
         }
       }
     });

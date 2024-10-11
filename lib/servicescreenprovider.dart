@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lottie/lottie.dart';
 import 'package:servtol/ServiceScreenDetail.dart';
 import 'package:servtol/addservices.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -117,6 +118,70 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                   itemCount: data.docs.length,
                   itemBuilder: (context, index) {
                     var doc = data.docs[index];
+                    String category = doc['Category'] ?? 'No category';
+                    String lottieAnimationPath;
+                    switch (category) {
+                      case 'Online Services':
+                        lottieAnimationPath = 'assets/images/onlineservice.json';
+                        break;
+                      case 'Development':
+                        lottieAnimationPath = 'assets/images/development.json';
+                        break;
+                      case 'Healthcare':
+                        lottieAnimationPath = 'assets/images/healthcare.json';
+                        break;
+                      case 'Design & Multimedia':
+                        lottieAnimationPath = 'assets/images/designmulti.json';
+                        break;
+                      case 'Telemedicine':
+                        lottieAnimationPath = 'assets/images/Telemedicine.json';
+                        break;
+                      case 'Education':
+                        lottieAnimationPath = 'assets/images/education.json';
+                        break;
+                      case 'Retail':
+                        lottieAnimationPath = 'assets/images/Retail.json';
+                        break;
+                      case 'Online Consultation':
+                        lottieAnimationPath = 'assets/images/Online Consultation.json';
+                        break;
+                      case 'Digital Marketing':
+                        lottieAnimationPath = 'assets/images/nail_care.json';
+                        break;
+                      case 'Online Training':
+                        lottieAnimationPath = 'assets/images/Digital Marketing.json';
+                        break;
+                      case 'Event Management':
+                        lottieAnimationPath = 'assets/images/Event Management.json';
+                        break;
+                      case 'Video Editing':
+                        lottieAnimationPath = 'assets/images/nail_care.json';
+                        break;
+                      case 'Home & Maintenance':
+                        lottieAnimationPath = 'assets/images/Home & Maintenance.json';
+                        break;
+                      case 'Hospitality':
+                        lottieAnimationPath = 'assets/images/Hospitality.json';
+                        break;
+                      case 'Social Media Management':
+                        lottieAnimationPath = 'assets/images/Social Media Management.json';
+                        break;
+                      case 'IT Support':
+                        lottieAnimationPath = 'assets/images/IT Support.json';
+                        break;
+                      case 'Personal & Lifestyle':
+                        lottieAnimationPath = 'assets/images/Personal & Lifestyle.json';
+                        break;
+                      case 'Graphic Design':
+                        lottieAnimationPath = 'assets/images/Graphic Design.json';
+                        break;
+                      case 'Finance':
+                        lottieAnimationPath = 'assets/images/Finance.json';
+                        break;
+                      default:
+                        lottieAnimationPath = 'assets/images/default.json';
+                    }
+
                     return Container(
                       margin: EdgeInsets.all(8),
                       decoration: BoxDecoration(
@@ -138,18 +203,14 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                           ),
                         ],
                       ),
-                      child: ListTile(
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                        leading: doc['ImageUrl'] != null
-                            ? CircleAvatar(
-                                backgroundImage: NetworkImage(doc['ImageUrl']),
-                                radius: 25,
-                              )
-                            : CircleAvatar(
-                                child: Icon(Icons.image_not_supported_rounded,
-                                    size: 50),
-                              ),
+                      child:ListTile(
+                        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                        leading: Lottie.asset(
+                          lottieAnimationPath,
+                          height: 100,
+                          width: 100,
+                          fit: BoxFit.fill,
+                        ),
                         title: Text(doc['ServiceName'] ?? 'No name',
                             style: TextStyle(
                                 fontFamily: 'Poppins',

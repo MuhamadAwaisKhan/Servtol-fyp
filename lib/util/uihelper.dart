@@ -291,12 +291,13 @@ class uihelper {
     );
   }
 
+
   static Widget actionButton(
       String label, Color color, IconData icon, VoidCallback onPressed) {
     return ElevatedButton.icon(
       icon: Icon(icon, color: Colors.white),
       // Icon color is white to contrast with button color
-      label: Text(label, style: TextStyle(fontFamily: 'Poppins')),
+      label: Text(label, style: TextStyle(fontFamily: 'Poppins',color: Colors.white)),
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: color,

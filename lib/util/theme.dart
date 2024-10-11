@@ -26,7 +26,7 @@ class AppTheme {
   // Theme Data
   static ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
-    primarySwatch: Colors.blue ,
+    // primarySwatch: Colors.blue ,
     primaryColor: primaryColor,
     colorScheme: ColorScheme.light(
       primary: primaryColor,

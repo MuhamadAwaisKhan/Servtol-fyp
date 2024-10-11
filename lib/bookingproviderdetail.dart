@@ -20,16 +20,16 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
 
   // Declare these variables in the state class
   double taxRate = 0.05; // Default value
-  double bookingFee = 0.0;// Default value
+  double bookingFee = 0.0; // Default value
   final _stopWatchTimer = StopWatchTimer(
     mode: StopWatchMode.countUp,
   );
+
   @override
   void dispose() async {
     super.dispose();
     await _stopWatchTimer.dispose(); // Dispose of the StopWatchTimer
   }
-
 
   @override
   void initState() {
@@ -39,131 +39,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
     // _timer?.cancel();
   }
 
-  // StopWatchTimer _stopWatchTimer = StopWatchTimer(
-  //   mode: StopWatchMode.countUp,
-  // );
-  // Stopwatch _stopwatch = Stopwatch();
-  Timer? _timer;
-  String _elapsedTime = '00:00:00';
-  bool _isStopwatchRunning = false; // Track if the stopwatch is active
 
-  // void _startStopwatch() {
-  //   if (!_isStopwatchRunning) {
-  //     _stopwatch.start();
-  //     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-  //       setState(() {
-  //         _elapsedTime = _formatTime(_stopwatch.elapsed);
-  //       });
-  //     });
-  //     setState(() {
-  //       _isStopwatchRunning = true;
-  //     });
-  //   }
-  // }
-  //
-  // void _stopStopwatch() async {
-  //   if (_isStopwatchRunning) {
-  //     _stopwatch.stop();
-  //     _timer
-  //         ?.cancel(); // Ensure the timer is canceled when stopping the stopwatch.
-  //
-  //     // Update the booking with the elapsed time
-  //     try {
-  //       String bookingId = widget.bookings.id;
-  //       await _firestore.collection('bookings').doc(bookingId).update({
-  //         'elapsedTime': _elapsedTime,
-  //       });
-  //
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('Elapsed time recorded: $_elapsedTime')),
-  //       );
-  //     } catch (e) {
-  //       print('Error updating booking with elapsed time: $e');
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('Failed to record elapsed time')),
-  //       );
-  //     }
-  //
-  //     setState(() {
-  //       _elapsedTime = _formatTime(_stopwatch.elapsed);
-  //       _isStopwatchRunning = false;
-  //     });
-  //   }
-  // }
-  //
-  // void _resetStopwatch() {
-  //   if (!_isStopwatchRunning) {
-  //     _stopwatch.reset();
-  //     setState(() {
-  //       _elapsedTime = _formatTime(_stopwatch.elapsed);
-  //     });
-  //   }
-  // }
-
-  String _formatTime(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
-  }
-
-  // Updating booking status and managing the stopwatch
-  void updateBookingStatus(String newStatus, String notificationMessage,
-      String notificationMessage1) async {
-    try {
-      String bookingId = widget.bookings.id;
-      String bookingStatus = widget.bookings['status'];
-      String paymentStatus = widget.bookings['paymentstatus'];
-
-      WriteBatch batch = _firestore.batch();
-
-      // Update the booking status
-      DocumentReference bookingRef =
-          _firestore.collection(bookingsCollection).doc(bookingId);
-      batch.update(bookingRef, {
-        'status': newStatus,
-      });
-
-      // Update notification if it exists
-      QuerySnapshot notificationSnapshot = await _firestore
-          .collection(notificationsCollection)
-          .where('bookingId', isEqualTo: bookingId)
-          .get();
-
-      if (notificationSnapshot.docs.isNotEmpty) {
-        DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
-        DocumentReference notificationRef = _firestore
-            .collection(notificationsCollection)
-            .doc(notificationDoc.id);
-        batch.update(notificationRef, {
-          'status': newStatus,
-          'message': notificationMessage,
-          'message1': notificationMessage1,
-        });
-      }
-
-      // Manage the stopwatch based on booking status
-      // if (newStatus == 'In Progress') {
-      //   _startStopwatch();
-      // } else if (newStatus == 'Complete' || newStatus == 'Cancelled') {
-      //   _stopStopwatch();
-      // }
-
-      // Commit changes
-      await batch.commit();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Booking status updated to $newStatus')),
-      );
-      setState(() {});
-    } catch (e) {
-      print('Error updating booking status: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred. Please try again later.')),
-      );
-    }
-  }
 
   void fetchTaxRate() async {
     try {
@@ -178,7 +54,6 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
         setState(() {
           taxRate = double.tryParse(doc['rate'].toString()) ?? 0.05;
         });
-        // print('Fetched Tax Rate: ${taxRate}');
       } else {
         print('No documents found for ServiceTax.');
       }
@@ -200,7 +75,6 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
         setState(() {
           bookingFee = double.tryParse(doc['rate'].toString()) ?? 0.0;
         });
-        // print('Fetched Booking Fee: \$${bookingFee}');
       } else {
         print('No documents found for BookingFee.');
       }
@@ -319,18 +193,140 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
     }
   }
 
+  void _showBookingStatusStepper(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Booking Status'),
+          content: FutureBuilder<DocumentSnapshot>(
+            future: _firestore.collection('bookings').doc(widget.bookings.id).get(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError || !snapshot.hasData) {
+                return Center(child: Text('Error fetching booking status'));
+              }
+
+              var bookingData = snapshot.data!.data() as Map<String, dynamic>;
+              List<dynamic> statusHistory = bookingData['statusHistory'] ?? [];
+
+              List<Step> steps = [];
+              for (var i = 0; i < statusHistory.length; i++) {
+                var statusData = statusHistory[i];
+                String status = statusData['status'];
+                Timestamp timestamp = statusData['timestamp'];
+                DateTime dateTime = timestamp.toDate();
+
+                steps.add(
+                  Step(
+                    title: Text(status),
+                    content: Text(
+                        '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}'),
+                    isActive: i == statusHistory.length - 1, // Last step is active
+                  ),
+                );
+              }
+
+              return Container(
+                height: 300, // Adjust height as needed
+                width: 300, // Adjust width as needed
+                child: Stepper(
+                  currentStep: steps.length - 1, // Always show the last step
+                  physics: NeverScrollableScrollPhysics(), // Disable scrolling
+                  controlsBuilder: (context, details) => SizedBox.shrink(), // Hide the controls
+                  steps: steps,
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+  void updateBookingStatus(String newStatus, String notificationMessage,
+      String notificationMessage1) async {
+    try {
+      String bookingId = widget.bookings.id;
+      WriteBatch batch = _firestore.batch();
+
+      // Fetch the booking document to get the current statusHistory
+      DocumentSnapshot bookingSnapshot = await _firestore.collection('bookings').doc(bookingId).get();
+      List<dynamic> statusHistory = bookingSnapshot.get('statusHistory') ?? [];
+
+      // Add the new status to the history
+      statusHistory.add({
+        'status': newStatus,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Update notification if it exists
+      QuerySnapshot notificationSnapshot = await _firestore
+          .collection(notificationsCollection)
+          .where('bookingId', isEqualTo: bookingId)
+          .get();
+
+      if (notificationSnapshot.docs.isNotEmpty) {
+        DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
+        DocumentReference notificationRef = _firestore
+            .collection(notificationsCollection)
+            .doc(notificationDoc.id);
+        batch.update(notificationRef, {
+          'status': newStatus,
+          'message': notificationMessage,
+          'message1': notificationMessage1,
+        });
+
+        DocumentReference bookingRef =
+        _firestore.collection(bookingsCollection).doc(bookingId);
+        batch.update(bookingRef, {
+          'status': newStatus,
+          'statusHistory': statusHistory, // Update the status history in Firestore
+        });
+      }
+
+      // Commit changes
+      await batch.commit();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Booking status updated to $newStatus')),
+      );
+      setState(() {});
+    } catch (e) {
+      print('Error updating booking status: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred. Please try again later.')),
+      );
+    }
+  }
+
   void updateBookingStatus1(String cancellationReason) async {
     try {
       String bookingId = widget.bookings.id;
 
-      // 1. Update the booking status and include cancellation reason
-      await _firestore.collection('bookings').doc(bookingId).update({
+      // Fetch the booking document to get the current statusHistory
+      DocumentSnapshot bookingSnapshot = await _firestore.collection('bookings').doc(bookingId).get();
+      List<dynamic> statusHistory = bookingSnapshot.get('statusHistory') ?? [];
+
+      // Add the new status to the history
+      statusHistory.add({
         'status': 'Cancelled',
-        'cancellationReason': cancellationReason,
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      // 2. Find the corresponding notification
+      WriteBatch batch = _firestore.batch();
+
+      // Update the booking status and include cancellation reason
+      DocumentReference bookingRef = _firestore.collection('bookings').doc(bookingId);
+      batch.update(bookingRef, {
+        'status': 'Cancelled',
+        'cancellationReason': cancellationReason,
+        'statusHistory': statusHistory, // Update the status history in Firestore
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Find the corresponding notification
       QuerySnapshot notificationSnapshot = await _firestore
           .collection('notifications')
           .where('bookingId', isEqualTo: bookingId)
@@ -338,21 +334,16 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
 
       if (notificationSnapshot.docs.isNotEmpty) {
         DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
+        DocumentReference notificationRef = _firestore
+            .collection('notifications')
+            .doc(notificationDoc.id);
 
-        // 3. Update the notification with the reason (if provided)
+        // Update the notification with the reason (if provided)
         String providerMessage = 'You have cancelled the service booking.';
         String customerMessage =
             'Your booking has been cancelled by the service provider.';
 
-        // if (cancellationReason.isNotEmpty) {
-        //   providerMessage += ' Reason: $cancellationReason';
-        //   customerMessage += ' Reason: $cancellationReason';
-        // }
-
-        await _firestore
-            .collection('notifications')
-            .doc(notificationDoc.id)
-            .update({
+        batch.update(notificationRef, {
           'message': providerMessage,
           'message1': customerMessage,
           'status': 'Cancelled',
@@ -362,7 +353,9 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
         print('No notification found for booking ID: $bookingId');
       }
 
-      // 4. Show success message and navigate back
+      // Commit changes
+      await batch.commit();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Booking has been cancelled')),
       );
@@ -379,14 +372,27 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
     try {
       String bookingId = widget.bookings.id;
 
-      // 1. Update the booking status and include cancellation reason
-      await _firestore.collection('bookings').doc(bookingId).update({
+      // Fetch the booking document to get the current statusHistory
+      DocumentSnapshot bookingSnapshot = await _firestore.collection('bookings').doc(bookingId).get();
+      List<dynamic> statusHistory = bookingSnapshot.get('statusHistory') ?? [];
+
+      // Add the new status to the history
+      statusHistory.add({
         'status': 'Complete',
-        // 'cancellationReason': cancellationReason,
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      // 2. Find the corresponding notification
+      WriteBatch batch = _firestore.batch();
+
+      // Update the booking status
+      DocumentReference bookingRef = _firestore.collection('bookings').doc(bookingId);
+      batch.update(bookingRef, {
+        'status': 'Complete',
+        'statusHistory': statusHistory, // Update the status history in Firestore
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Find the corresponding notification
       QuerySnapshot notificationSnapshot = await _firestore
           .collection('notifications')
           .where('bookingId', isEqualTo: bookingId)
@@ -394,22 +400,16 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
 
       if (notificationSnapshot.docs.isNotEmpty) {
         DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
+        DocumentReference notificationRef = _firestore
+            .collection('notifications')
+            .doc(notificationDoc.id);
 
-        // 3. Update the notification with the reason (if provided)
+        // Update the notification
         String providerMessage = 'You have complete the service booking.';
         String customerMessage =
             'Your booking has been complete by the service provider.';
-        // _stopStopwatch();
 
-        // if (cancellationReason.isNotEmpty) {
-        //   providerMessage += ' Reason: $cancellationReason';
-        //   customerMessage += ' Reason: $cancellationReason';
-        // }
-
-        await _firestore
-            .collection('notifications')
-            .doc(notificationDoc.id)
-            .update({
+        batch.update(notificationRef, {
           'message': providerMessage,
           'message1': customerMessage,
           'status': 'Complete',
@@ -419,7 +419,9 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
         print('No notification found for booking ID: $bookingId');
       }
 
-      // 4. Show success message and navigate back
+      // Commit changes
+      await batch.commit();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Booking has been Complete')),
       );
@@ -431,7 +433,6 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -456,7 +457,9 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
         backgroundColor: AppColors.background,
         actions: [
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              _showBookingStatusStepper(context);
+            },
             child: Text(
               "Check Status",
               style: TextStyle(
@@ -1203,34 +1206,6 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                               //     style: TextStyle(fontSize: 16),
                               //   ),
                               // Display the StopWatchTimer only when 'Ready to Service'
-                              SizedBox(height: 10),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 0),
-                                child: StreamBuilder<int>(
-                                  stream: _stopWatchTimer.rawTime,
-                                  initialData: 0,
-                                  builder: (context, snap) {
-                                    final value = snap.data;
-                                    final displayTime =
-                                        StopWatchTimer.getDisplayTime(value!,
-                                            hours: true, milliSecond: false);
-                                    return Column(
-                                      children: <Widget>[
-                                        Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Text(
-                                            displayTime,
-                                            style: const TextStyle(
-                                                fontSize: 40,
-                                                fontFamily: 'Helvetica',
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ),
                             ],
                           ),
                         ),
@@ -1269,49 +1244,49 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                                       .pop(); // Close the dialog
 
                                                   // Stop the StopWatchTimer
-                                                  _stopWatchTimer
-                                                      .onStopTimer(); // Correct method to stop the timer
-                                                  int elapsedMilliseconds =
-                                                      _stopWatchTimer
-                                                          .rawTime.value;
-                                                  Duration elapsedDuration =
-                                                      Duration(
-                                                          milliseconds:
-                                                              elapsedMilliseconds);
-                                                  String formattedElapsedTime =
-                                                      _formatTime(
-                                                          elapsedDuration);
+                                                  // _stopWatchTimer
+                                                  //     .onStopTimer(); // Correct method to stop the timer
+                                                  // int elapsedMilliseconds =
+                                                  //     _stopWatchTimer
+                                                  //         .rawTime.value;
+                                                  // // Duration elapsedDuration =
+                                                  //     Duration(
+                                                  //         milliseconds:
+                                                  //             elapsedMilliseconds);
+                                                  // // String formattedElapsedTime =
+                                                  //     _formatTime(
+                                                  //         elapsedDuration);
 
-                                                  // Update the booking with the elapsed time from StopWatchTimer
-                                                  try {
-                                                    String bookingId =
-                                                        widget.bookings.id;
-                                                    await _firestore
-                                                        .collection('bookings')
-                                                        .doc(bookingId)
-                                                        .update({
-                                                      'elapsedTime':
-                                                          formattedElapsedTime,
-                                                    });
+                                                  // // Update the booking with the elapsed time from StopWatchTimer
+                                                  // try {
+                                                  //   String bookingId =
+                                                  //       widget.bookings.id;
+                                                  //   await _firestore
+                                                  //       .collection('bookings')
+                                                  //       .doc(bookingId)
+                                                  //       .update({
+                                                  //     'elapsedTime':
+                                                  //         formattedElapsedTime,
+                                                  //   });
 
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                          content: Text(
-                                                              'Elapsed time recorded: $formattedElapsedTime')),
-                                                    );
-                                                  } catch (e) {
-                                                    print(
-                                                        'Error updating booking with elapsed time: $e');
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                          content: Text(
-                                                              'Failed to record elapsed time')),
-                                                    );
-                                                  }
+                                                  // ScaffoldMessenger.of(
+                                                  //         context)
+                                                  //     .showSnackBar(
+                                                  //   SnackBar(
+                                                  //       content: Text(
+                                                  //           'Elapsed time recorded: $formattedElapsedTime')),
+                                                  // );
+                                                  // } catch (e) {
+                                                  //   print(
+                                                  //       'Error updating booking with elapsed time: $e');
+                                                  //   ScaffoldMessenger.of(
+                                                  //           context)
+                                                  //       .showSnackBar(
+                                                  //     SnackBar(
+                                                  //         content: Text(
+                                                  //             'Failed to record elapsed time')),
+                                                  //   );
+                                                  // }
 
                                                   updateBookingStatus2(); // End the booking process
                                                 },
@@ -1337,34 +1312,6 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                               //   'Elapsed Time: $_elapsedTime',
                               //   style: TextStyle(fontSize: 16),
                               // ),
-                              SizedBox(height: 10),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 0),
-                                child: StreamBuilder<int>(
-                                  stream: _stopWatchTimer.rawTime,
-                                  initialData: 0,
-                                  builder: (context, snap) {
-                                    final value = snap.data;
-                                    final displayTime =
-                                        StopWatchTimer.getDisplayTime(value!,
-                                            hours: true, milliSecond: false);
-                                    return Column(
-                                      children: <Widget>[
-                                        Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Text(
-                                            displayTime,
-                                            style: const TextStyle(
-                                                fontSize: 40,
-                                                fontFamily: 'Helvetica',
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ),
                             ],
                           ),
                         ),

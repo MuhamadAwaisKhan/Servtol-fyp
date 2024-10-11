@@ -48,11 +48,14 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   }
 
   void initializeControllers() {
-    Map<String, dynamic>? serviceData = widget.service.data() as Map<String, dynamic>?;
+    Map<String, dynamic>? serviceData =
+        widget.service.data() as Map<String, dynamic>?;
 
     // Use a local function to simplify null checking and default values
     String safeGet(String field, {String defaultValue = ''}) {
-      return serviceData != null && serviceData.containsKey(field) ? serviceData[field] ?? defaultValue : defaultValue;
+      return serviceData != null && serviceData.containsKey(field)
+          ? serviceData[field] ?? defaultValue
+          : defaultValue;
     }
 
     nameController.text = safeGet('ServiceName');
@@ -63,16 +66,34 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     descriptionController.text = safeGet('Description');
 
     // Initialize ID fields; consider using null if the field is missing
-    selectedCategoryId = serviceData != null && serviceData.containsKey('CategoryId') ? serviceData['CategoryId'] : null;
-    selectedSubcategoryId = serviceData != null && serviceData.containsKey('SubcategoryId') ? serviceData['SubcategoryId'] : null;
-    selectedProvinceId = serviceData != null && serviceData.containsKey('ProvinceId') ? serviceData['ProvinceId'] : null;
-    selectedCityId = serviceData != null && serviceData.containsKey('CityId') ? serviceData['CityId'] : null;
-    selectedServiceTypeId = serviceData != null && serviceData.containsKey('ServiceTypeId') ? serviceData['ServiceTypeId'] : null;
-    selectedWageTypeId = serviceData != null && serviceData.containsKey('WageTypeId') ? serviceData['WageTypeId'] : null;
+    selectedCategoryId =
+        serviceData != null && serviceData.containsKey('CategoryId')
+            ? serviceData['CategoryId']
+            : null;
+    selectedSubcategoryId =
+        serviceData != null && serviceData.containsKey('SubcategoryId')
+            ? serviceData['SubcategoryId']
+            : null;
+    selectedProvinceId =
+        serviceData != null && serviceData.containsKey('ProvinceId')
+            ? serviceData['ProvinceId']
+            : null;
+    selectedCityId = serviceData != null && serviceData.containsKey('CityId')
+        ? serviceData['CityId']
+        : null;
+    selectedServiceTypeId =
+        serviceData != null && serviceData.containsKey('ServiceTypeId')
+            ? serviceData['ServiceTypeId']
+            : null;
+    selectedWageTypeId =
+        serviceData != null && serviceData.containsKey('WageTypeId')
+            ? serviceData['WageTypeId']
+            : null;
 
     // Fetch related data if IDs are available
     if (selectedCategoryId != null) {
-      fetchRelatedData('Subcategory', 'categoryId', selectedCategoryId!, subcategoryItems);
+      fetchRelatedData(
+          'Subcategory', 'categoryId', selectedCategoryId!, subcategoryItems);
     }
     if (selectedProvinceId != null) {
       fetchRelatedData('City', 'provinceId', selectedProvinceId!, cityItems);
@@ -324,7 +345,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                         if (selectedImage != null) {
                           setState(() {
                             profilePic = File(selectedImage.path);
-                             _errorMessage = null;
+                            _errorMessage = null;
                           });
                         }
                       },
@@ -513,23 +534,21 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                   TextButton(
                     child: Text('Save', style: TextStyle(color: Colors.green)),
                     onPressed: () {
-            setState(() {  // Update the local state of the dialog to trigger re-render
-            if (!validateFields()) {
-            // The error message is updated inside validateFields()
-            } else {
-            _updateData().then((_) => Navigator.of(context).pop()); // Close the dialog on successful update
-            }
-            Future.delayed(Duration(seconds: 3), () {
-            setState(() {
-            _errorMessage = null;
-
-            });  // Reset the error message after 2 to 3 seconds
-
-
-
+                      setState(() {
+                        // Update the local state of the dialog to trigger re-render
+                        if (!validateFields()) {
+                          // The error message is updated inside validateFields()
+                        } else {
+                          _updateData().then((_) => Navigator.of(context)
+                              .pop()); // Close the dialog on successful update
+                        }
+                        Future.delayed(Duration(seconds: 3), () {
+                          setState(() {
+                            _errorMessage = null;
+                          }); // Reset the error message after 2 to 3 seconds
                         });
-                      }
-            );  },
+                      });
+                    },
                   ),
               ],
             );
@@ -575,7 +594,10 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Service Details",
-            style: TextStyle(fontFamily: 'Poppins',fontWeight: FontWeight.bold, color: Colors.white)),
+            style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.bold,
+                color: Colors.white)),
         backgroundColor: Colors.teal,
         centerTitle: true,
       ),

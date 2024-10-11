@@ -150,100 +150,6 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
     }
   }
 
-  // Future<void> saveBooking() async {
-  //   if (!mounted) return;
-  //
-  //   if (!isCouponApplied || couponId == null) {
-  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //       content: Text('Please apply a coupon first.'),
-  //       backgroundColor: Colors.red,
-  //     ));
-  //     return;
-  //   }
-  //
-  //   if (selectedDate == null ||
-  //       selectedTime == null ||
-  //       descriptionController.text.isEmpty ||
-  //       (!isRemoteService && addressController.text.isEmpty)) {
-  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //       content: Text('Please fill all required fields'),
-  //       backgroundColor: Colors.red,
-  //     ));
-  //     return;
-  //   }
-  //
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-  //
-  //   String formattedDate =
-  //       "${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}";
-  //
-  //   try {
-  //     var user = FirebaseAuth.instance.currentUser;
-  //     var currentUserId = user?.uid ?? 'no-user-id';
-  //     DocumentReference counterRef =
-  //         FirebaseFirestore.instance.collection('counters').doc('bookingIds');
-  //
-  //     await FirebaseFirestore.instance.runTransaction((transaction) async {
-  //       DocumentSnapshot counterSnapshot = await transaction.get(counterRef);
-  //       int lastId = (counterSnapshot.data() as Map<String, dynamic>? ??
-  //               {})['current'] as int? ??
-  //           0;
-  //       int newId = lastId + 1;
-  //       String formattedBookingId = newId.toString().padLeft(2, '0');
-  //       transaction.set(
-  //           counterRef, {'current': newId}, SetOptions(merge: true));
-  //
-  //       // Use discountedTotal if the coupon is applied, otherwise use the normal total
-  //       double finalTotal = isCouponApplied ? discountedTotal : total;
-  //
-  //       Map<String, dynamic> bookingData = {
-  //         'serviceId': widget.service.id,
-  //         'customerId': currentUserId,
-  //         'providerId': widget.service['providerId'],
-  //         'date': formattedDate,
-  //         'time': selectedTime?.format(context),
-  //         'quantity': quantity,
-  //         'description': descriptionController.text,
-  //         'total': finalTotal, // Save the discounted or normal total here
-  //         'status': 'Pending',
-  //         'bookingId': formattedBookingId,
-  //         'couponId': couponId,
-  //         'address': isRemoteService ? 'Remote' : addressController.text,
-  //         'tax': tax,
-  //         'taxRateId': taxRateId,
-  //         'bookingFeeId': bookingFeeId,
-  //         'ServiceName': widget.service['ServiceName'], // Original service name
-  //         'serviceNameLower': (widget.service['ServiceName'] ?? '').toString().toLowerCase(), // Lowercase version for searching
-  //
-  //
-  //       };
-  //
-  //       transaction.set(
-  //           FirebaseFirestore.instance
-  //               .collection('bookings')
-  //               .doc(formattedBookingId),
-  //           bookingData);
-  //     });
-  //
-  //     ScaffoldMessenger.of(context)
-  //         .showSnackBar(SnackBar(content: Text('Booking saved successfully.'),
-  //     backgroundColor: Colors.green,));
-  //     Navigator.of(context).pop();
-  //   } catch (e, stackTrace) {
-  //     print("Error saving booking: $e");
-  //     print("Stack trace: $stackTrace");
-  //     ScaffoldMessenger.of(context)
-  //         .showSnackBar(SnackBar(content: Text('Failed to book service: $e'),
-  //       backgroundColor: Colors.red,
-  //     ));
-  //   } finally {
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
   Future<void> saveBooking() async {
     if (!mounted) return;
 
@@ -303,6 +209,12 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           'total': finalTotal, // Save the discounted or normal total here
           'status': 'Pending',
           'paymentstatus': 'Pending',
+          'statusHistory': [
+            {
+              'status': 'Pending',
+              'timestamp': FieldValue.serverTimestamp(),
+            }
+          ],
           'bookingId': formattedBookingId,
           'couponId': couponId,
           'address': isRemoteService ? 'Remote' : addressController.text,
@@ -334,7 +246,6 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           'isRead1': false,
           'status': 'Pending',
           'paymentstatus': 'Pending',
-
           'timestamp': FieldValue.serverTimestamp(),
         };
 
@@ -529,7 +440,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           height: 60,
           margin: EdgeInsets.all(8),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.deepPurple),
+            border: Border.all(color: Colors.blue),
             borderRadius: BorderRadius.circular(10),
           ),
           child: TextButton(
@@ -544,7 +455,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           height: 60,
           margin: EdgeInsets.all(8),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.deepPurple),
+            border: Border.all(color: Colors.blue),
             borderRadius: BorderRadius.circular(10),
           ),
           child: TextButton(
@@ -558,7 +469,8 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           padding: EdgeInsets.all(16),
           margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.lightBlue[200],
+                // .withOpacity(0.3),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
@@ -567,7 +479,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
               Text(
                 'Apply Coupon',
                 style: TextStyle(
-                  color: Colors.greenAccent,
+                  color: Colors.white,
                   fontSize: 16,
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
@@ -608,7 +520,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
             decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.deepPurpleAccent)),
+                border: Border.all(color: Colors.blue)),
             padding: EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -756,7 +668,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
             child: Text('Confirm Booking'),
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
-              backgroundColor: Colors.deepPurple,
+              backgroundColor: AppColors.customButton,
             ),
           ),
         )

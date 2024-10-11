@@ -10,6 +10,7 @@ import 'package:servtol/util/AppColors.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:servtol/notificationcustomer.dart';
 import 'package:rxdart/rxdart.dart';
+
 class HomeCustomer extends StatefulWidget {
   Function onBackPress; // Making this final and required
 
@@ -70,7 +71,8 @@ class _HomeCustomerState extends State<HomeCustomer> {
 
         // Combine unread counts and update state
         setState(() {
-          unreadCount = notificationUnreadCount + paymentNotificationUnreadCount;
+          unreadCount =
+              notificationUnreadCount + paymentNotificationUnreadCount;
         });
       });
     });
@@ -98,7 +100,8 @@ class _HomeCustomerState extends State<HomeCustomer> {
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
               FirebaseFirestore.instance
-                  .collection('paymentnotification') // Corrected collection name
+                  .collection(
+                      'paymentnotification') // Corrected collection name
                   .where('customerId', isEqualTo: currentUser?.uid)
                   .where('isRead1', isEqualTo: false)
                   .orderBy('timestamp', descending: true)
@@ -109,7 +112,8 @@ class _HomeCustomerState extends State<HomeCustomer> {
 
               if (snapshot.hasData) {
                 // Combine unread counts from both collections
-                unreadCount = snapshot.data![0].docs.length + snapshot.data![1].docs.length;
+                unreadCount = snapshot.data![0].docs.length +
+                    snapshot.data![1].docs.length;
               }
 
               return Stack(
@@ -246,7 +250,11 @@ class _HomeCustomerState extends State<HomeCustomer> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text('Categories',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            style: TextStyle(
+                fontSize: 17,
+                color: AppColors.heading,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.bold)),
         GestureDetector(
           onTap: () => Navigator.push(
               context,
@@ -255,7 +263,11 @@ class _HomeCustomerState extends State<HomeCustomer> {
                         onBackPress: widget.onBackPress,
                       ))),
           child: const Text('View All',
-              style: TextStyle(color: Colors.blue, fontSize: 16)),
+              style: TextStyle(
+                  color: AppColors.customButton,
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
         ),
       ],
     );
@@ -326,31 +338,33 @@ class _HomeCustomerState extends State<HomeCustomer> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 26.0),
+          padding: const EdgeInsets.symmetric(horizontal: 23.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 "Services",
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple[800],
-                  fontSize: 18,
+                  color: AppColors.heading,
+                  fontSize: 17,
                 ),
               ),
-              GestureDetector(
-                onTap: () {},
-                child: Text(
-                  'View All',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple[800],
-                    fontSize: 16,
-                  ),
-                ),
-              ),
+              // GestureDetector(
+              //   onTap: () {
+              //
+              //   },
+              //   child: Text(
+              //     'View All',
+              //     style: TextStyle(
+              //       fontFamily: 'Poppins',
+              //       fontWeight: FontWeight.bold,
+              //       color: AppColors.customButton,
+              //       fontSize: 16,
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -383,9 +397,10 @@ class _HomeCustomerState extends State<HomeCustomer> {
                           .get(),
                       builder: (context, providerSnapshot) {
                         if (!providerSnapshot.hasData) {
-                          return Center(child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-
+                          return Center(
+                              child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.blue),
                           ));
                         }
                         return buildServiceCard(
@@ -426,7 +441,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
       },
       child: Card(
         elevation: 8,
-        shadowColor: Colors.deepPurple[200],
+        shadowColor: Colors.blue[200],
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -449,17 +464,29 @@ class _HomeCustomerState extends State<HomeCustomer> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    serviceName,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Colors.deepPurple[800]),
+                  Row(
+                    children: [
+                      Text(
+                        serviceName,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Colors.blue[800]),
+                      ),
+                      SizedBox(width: 65,),
+                      Text(
+                        "\$" + servicePrice,
+                        style: TextStyle(
+                            color: Colors.green[700],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 4),
                   Text(
                     subcategory,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold, color: Colors.blueGrey,),
                   ),
                 ],
               ),
@@ -467,22 +494,16 @@ class _HomeCustomerState extends State<HomeCustomer> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CircleAvatar(
                     backgroundImage: NetworkImage(providerPic),
                     radius: 15,
                   ),
+                  SizedBox(width: 20,),
                   Text(
                     providerName,
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  Text(
-                    "\$" + servicePrice,
-                    style: TextStyle(
-                        color: Colors.green[700],
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
                   ),
                 ],
               ),

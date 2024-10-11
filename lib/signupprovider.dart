@@ -156,6 +156,13 @@ class _SignupProviderState extends State<SignupProvider> {
               child: Row( mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Checkbox(
+                    fillColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                      if (states.contains(MaterialState.selected)) {
+                        return Colors.blue;
+                        // Color when checkbox is checked
+                      }
+                      return Colors.transparent; // Color when checkbox is unchecked
+                    }),
                     value: _rememberMe,
                     onChanged: (bool? newValue) {
                       setState(() {
