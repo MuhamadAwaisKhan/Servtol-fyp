@@ -245,8 +245,13 @@ class _HomeProviderState extends State<HomeProvider> {
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
               FirebaseFirestore.instance
-                  .collection(
-                  'paymentnotification') // Corrected collection name
+                  .collection('paymentnotification')
+                  .where('providerId', isEqualTo: currentUser?.uid)
+                  .where('isRead', isEqualTo: false)
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+              FirebaseFirestore.instance
+                  .collection('notification_review')
                   .where('providerId', isEqualTo: currentUser?.uid)
                   .where('isRead', isEqualTo: false)
                   .orderBy('timestamp', descending: true)
@@ -256,9 +261,10 @@ class _HomeProviderState extends State<HomeProvider> {
               int unreadCount = 0;
 
               if (snapshot.hasData) {
-                // Combine unread counts from both collections
-                unreadCount = snapshot.data![0].docs.length +
-                    snapshot.data![1].docs.length;
+                // Combine unread counts from all three collections
+                unreadCount = snapshot.data![0].docs.length + // notifications
+                    snapshot.data![1].docs.length + // payment notifications
+                    snapshot.data![2].docs.length;  // review notifications
               }
 
               return Stack(
@@ -304,6 +310,7 @@ class _HomeProviderState extends State<HomeProvider> {
               );
             },
           ),
+
         ],
       ),
       backgroundColor: AppColors.background,
@@ -936,11 +943,12 @@ class _HomeProviderState extends State<HomeProvider> {
                     child: Container(
                       margin: EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.blue,
+                        border: Border.all(color: Colors.blue), // Add this line
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.blueGrey[100]!.withOpacity(0.5),
+                            color: Colors.blue[100]!.withOpacity(0.5),
                             spreadRadius: 1,
                             blurRadius: 6,
                             offset: Offset(0, 3),
@@ -954,13 +962,23 @@ class _HomeProviderState extends State<HomeProvider> {
                             // Lottie animation centered in the container
                             Positioned.fill(
                               child: Container(
-                                color: Colors.grey[300],
+                                color: Colors.blueGrey, // Keep the overall container's color
                                 child: Center(
-                                  child: Lottie.asset(
-                                    lottieAnimationPath,
-                                    height: 130,
-                                    width: 130,
-                                    fit: BoxFit.fill,
+                                  child: Container(
+                                    height: 220, // Same as Lottie size
+                                    width: 200,  // Same as Lottie size
+                                    decoration: BoxDecoration(
+                                      color: Colors.indigoAccent, // Set the background of this smaller box to white
+                                      borderRadius: BorderRadius.circular(15), // Add some rounding if needed
+                                    ),
+                                    child: Center(
+                                      child: Lottie.asset(
+                                        lottieAnimationPath,
+                                        height: 130,
+                                        width: 130,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),

@@ -100,8 +100,13 @@ class _HomeCustomerState extends State<HomeCustomer> {
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
               FirebaseFirestore.instance
-                  .collection(
-                      'paymentnotification') // Corrected collection name
+                  .collection('paymentnotification')
+                  .where('customerId', isEqualTo: currentUser?.uid)
+                  .where('isRead1', isEqualTo: false)
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+              FirebaseFirestore.instance
+                  .collection('notification_review')
                   .where('customerId', isEqualTo: currentUser?.uid)
                   .where('isRead1', isEqualTo: false)
                   .orderBy('timestamp', descending: true)
@@ -111,9 +116,10 @@ class _HomeCustomerState extends State<HomeCustomer> {
               int unreadCount = 0;
 
               if (snapshot.hasData) {
-                // Combine unread counts from both collections
-                unreadCount = snapshot.data![0].docs.length +
-                    snapshot.data![1].docs.length;
+                // Combine unread counts from all three collections
+                unreadCount = snapshot.data![0].docs.length + // notifications
+                    snapshot.data![1].docs.length + // payment notifications
+                    snapshot.data![2].docs.length;  // review notifications
               }
 
               return Stack(

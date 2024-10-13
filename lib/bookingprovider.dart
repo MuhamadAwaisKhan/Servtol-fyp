@@ -183,7 +183,14 @@ class _BookingScreenWidgetState extends State<BookingScreenWidget> {
                   ));
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text('No bookings found.'));
+                  return const Center(child: Text('No bookings records found.',style: TextStyle(
+
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
+
+                      color: Colors.black,
+
+                  ),));
                 }
                 return ListView(
                   children:

@@ -90,7 +90,7 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
+
                             color: Colors.black,
                           ),
                         ),

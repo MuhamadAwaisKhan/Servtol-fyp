@@ -419,6 +419,18 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
         print('No notification found for booking ID: $bookingId');
       }
 
+      // Generate review/feedback notification for customer
+      DocumentReference newNotificationRef = _firestore.collection('notifications_review').doc();
+      batch.set(newNotificationRef, {
+        'bookingId': bookingId,
+        'customerId': widget.bookings['customerId'], // Assuming you have customerId in your booking document
+        'providerId': widget.bookings['providerId'], // Assuming you have providerId in your booking document
+        'status': 'Complete',
+        'message1': 'Your service booking is complete. Please leave a review!',
+        'timestamp': FieldValue.serverTimestamp(),
+        'type': 'review', // You can add a type to distinguish this notification
+      });
+
       // Commit changes
       await batch.commit();
 
@@ -432,8 +444,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
         SnackBar(content: Text('Failed to Complete booking')),
       );
     }
-  }
-  @override
+  }  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
