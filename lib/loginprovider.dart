@@ -20,8 +20,8 @@ class loginprovider extends StatefulWidget {
 }
 
 class _loginproviderState extends State<loginprovider> {
-  TextEditingController emailcontroller = TextEditingController();
-  TextEditingController passwordcontroller = TextEditingController();
+  TextEditingController emailcontroller = TextEditingController(text:'qwerty@123.com');
+  TextEditingController passwordcontroller = TextEditingController(text:'123456789');
   bool _hidePassword = false;
   bool _rememberMe = false;
   bool _isLoading = false;

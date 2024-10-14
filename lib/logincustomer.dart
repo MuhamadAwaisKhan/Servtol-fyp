@@ -24,8 +24,8 @@ class logincustomer extends StatefulWidget {
 
 class _logincustomerState extends State<logincustomer> {
 
-  TextEditingController emailcontroller = TextEditingController();
-  TextEditingController passwordcontroller = TextEditingController();
+  TextEditingController emailcontroller = TextEditingController(text:'qwerty@awais.com');
+  TextEditingController passwordcontroller = TextEditingController(text:'123456789');
   bool _hidePassword = false;
   bool _rememberMe = false;
   bool _isLoading = false;

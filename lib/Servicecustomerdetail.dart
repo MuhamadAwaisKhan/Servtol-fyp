@@ -69,66 +69,67 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 300.0,
-            pinned: true,
-            actions: [
-              IconButton(
-                icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
-                color: isFavorite ? Colors.red : Colors.white,
-          onPressed: () async {
-            // Assuming serviceData contains a proper 'id' field from Firestore document.
-            String? serviceId = widget.service.id;  // Using the document ID directly if not stored in serviceData.
+              expandedHeight: 300.0,
+              pinned: true,
+              actions: [
+                IconButton(
+                  icon:
+                      Icon(isFavorite ? Icons.favorite : Icons.favorite_border,size: 50,),
+                  color: isFavorite ? Colors.red : Colors.white,
+                  onPressed: () async {
+                    // Assuming serviceData contains a proper 'id' field from Firestore document.
+                    String? serviceId = widget.service
+                        .id; // Using the document ID directly if not stored in serviceData.
 
-            if (serviceId == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Unable to toggle favorite: Service ID is missing.'))
-              );
-              return;
-            }
+                    if (serviceId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              'Unable to toggle favorite: Service ID is missing.')));
+                      return;
+                    }
 
-            bool success = await toggleFavorite(serviceId, !isFavorite);
-            if (success) {
-              setState(() {
-                isFavorite = !isFavorite;  // Update the UI based on the new favorite status
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(isFavorite ? 'Added to favorites!' : 'Removed from favorites!'))
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to toggle favorite'))
-              );
-            }
-          },
-              ),
-
-
-
-            ],
-              flexibleSpace:FlexibleSpaceBar(
+                    bool success = await toggleFavorite(serviceId, !isFavorite);
+                    if (success) {
+                      setState(() {
+                        isFavorite =
+                            !isFavorite; // Update the UI based on the new favorite status
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(isFavorite
+                              ? 'Added to favorites!'
+                              : 'Removed from favorites!')));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to toggle favorite')));
+                    }
+                  },
+                ),
+              ],
+              flexibleSpace: FlexibleSpaceBar(
                 centerTitle: true,
                 title: Text(
                   serviceData['ServiceName'] ?? 'Service Details',
-                  style: theme.textTheme.titleLarge!.copyWith(
-                      color: Colors.white,
-                      shadows: [
-                        Shadow( // Bottom-left shadow
-                          offset: Offset(-1.5, -1.5),
-                          color: Colors.black,
-                          blurRadius: 2,
-                        ),
-                        Shadow( // Top-right shadow
-                          offset: Offset(1.5, 1.5),
-                          color: Colors.black,
-                          blurRadius: 2,
-                        ),
-                        Shadow( // Outline style shadow
-                          offset: Offset(0, 0),
-                          color: Colors.black,
-                          blurRadius: 8,
-                        ),
-                      ]
-                  ),
+                  style: theme.textTheme.titleLarge!
+                      .copyWith(color: Colors.white, shadows: [
+                    Shadow(
+                      // Bottom-left shadow
+                      offset: Offset(-1.5, -1.5),
+                      color: Colors.black,
+                      blurRadius: 2,
+                    ),
+                    Shadow(
+                      // Top-right shadow
+                      offset: Offset(1.5, 1.5),
+                      color: Colors.black,
+                      blurRadius: 2,
+                    ),
+                    Shadow(
+                      // Outline style shadow
+                      offset: Offset(0, 0),
+                      color: Colors.black,
+                      blurRadius: 8,
+                    ),
+                  ]),
                 ),
                 background: Hero(
                   tag: 'service_image_${serviceData['ServiceName']}',
@@ -137,18 +138,13 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                     fit: BoxFit.cover,
                   ),
                 ),
-              )
-
-          ),
+              )),
           SliverToBoxAdapter(
               child: buildServiceDetails(
-                  context, serviceData, providerId
-                  , primaryColor
-              )),
+                  context, serviceData, providerId, primaryColor)),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-
         onPressed: () {
           Navigator.push(
             context,
@@ -175,16 +171,16 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('\$${serviceData['Price']}',
                       style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: primaryColor)),
-
-                  Text(' ★ ${serviceData['Rating']}', style: TextStyle(color: Colors.green, fontSize: 20)),
-
+                  Text(' ★ ${serviceData['Rating']}',
+                      style: TextStyle(color: Colors.green, fontSize: 20)),
                 ],
               ),
               Divider(),
@@ -197,11 +193,9 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
               Divider(),
               SizedBox(height: 10),
               Wrap(
-
                 spacing: 8,
                 children: buildAttributeChips(serviceData),
               ),
-
               SizedBox(height: 20),
               Divider(),
               FutureBuilder<DocumentSnapshot>(
@@ -214,23 +208,18 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                   var providerData =
                       snapshot.data!.data() as Map<String, dynamic>;
                   return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(
-                          providerData['ProfilePic'] ??
-                              'default_profile_pic_url'),
-                    ),
-                    title: Text(providerData['FirstName'] ?? 'No Provider Name',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(
-                        providerData['Bio'] ?? 'No additional information',
-                        style: TextStyle(color: Colors.blue[700])),
-
-                    onTap: (){
-
-                    }
-
-
-                  );
+                      leading: CircleAvatar(
+                        backgroundImage: NetworkImage(
+                            providerData['ProfilePic'] ??
+                                'default_profile_pic_url'),
+                      ),
+                      title: Text(
+                          providerData['FirstName'] ?? 'No Provider Name',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(
+                          providerData['Bio'] ?? 'No additional information',
+                          style: TextStyle(color: Colors.blue[700])),
+                      onTap: () {});
                 },
               ),
               SizedBox(height: 10),
@@ -300,8 +289,12 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
     ];
     return attributes
         .map((attribute) => Chip(
-              label: Text('${attribute}: ${serviceData[attribute]}'),
-              backgroundColor: Colors.lightBlueAccent,
+              label: Text(
+                '${attribute}: ${serviceData[attribute]}',
+                style: TextStyle(
+                    color: Colors.white, fontSize: 14, fontFamily: 'Poppins'),
+              ),
+              backgroundColor: Colors.indigo,
             ))
         .toList();
   }

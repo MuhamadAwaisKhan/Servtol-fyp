@@ -153,6 +153,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
   Future<void> saveBooking() async {
     if (!mounted) return;
 
+    // Validate coupon
     if (!isCouponApplied || couponId == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Please apply a coupon first.'),
@@ -161,6 +162,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
       return;
     }
 
+    // Validate required fields
     if (selectedDate == null ||
         selectedTime == null ||
         descriptionController.text.isEmpty ||
@@ -179,98 +181,130 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
     String formattedDate =
         "${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}";
 
-    try {
+    // try {
       var user = FirebaseAuth.instance.currentUser;
       var currentUserId = user?.uid ?? 'no-user-id';
-      DocumentReference counterRef =
-          FirebaseFirestore.instance.collection('counters').doc('bookingIds');
 
-      await FirebaseFirestore.instance.runTransaction((transaction) async {
-        DocumentSnapshot counterSnapshot = await transaction.get(counterRef);
-        int lastId = (counterSnapshot.data() as Map<String, dynamic>? ??
-                {})['current'] as int? ??
-            0;
-        int newId = lastId + 1;
-        String formattedBookingId = newId.toString().padLeft(2, '0');
-        transaction.set(
-            counterRef, {'current': newId}, SetOptions(merge: true));
+      // try {
+        DocumentReference counterRef =
+        FirebaseFirestore.instance.collection('counters').doc('bookingIds');
 
-        // Use discountedTotal if the coupon is applied, otherwise use the normal total
-        double finalTotal = isCouponApplied ? discountedTotal : total;
+        await FirebaseFirestore.instance.runTransaction((transaction) async {
+          // try {
+            // Get the current booking ID and update it
+            DocumentSnapshot counterSnapshot = await transaction.get(counterRef);
+            int lastId = (counterSnapshot.data() as Map<String, dynamic>? ?? {})['current'] as int? ?? 0;
+            int newId = lastId + 1;
+            String formattedBookingId = newId.toString().padLeft(2, '0');
+            transaction.set(counterRef, {'current': newId}, SetOptions(merge: true));
 
-        Map<String, dynamic> bookingData = {
-          'serviceId': widget.service.id,
-          'customerId': currentUserId,
-          'providerId': widget.service['providerId'],
-          'date': formattedDate,
-          'time': selectedTime?.format(context),
-          'quantity': quantity,
-          'description': descriptionController.text,
-          'total': finalTotal, // Save the discounted or normal total here
-          'status': 'Pending',
-          'paymentstatus': 'Pending',
-          'statusHistory': [
-            {
+            // Determine the final total based on whether a coupon is applied
+            double finalTotal = isCouponApplied ? discountedTotal : total;
+
+            // Prepare booking data
+            Map<String, dynamic> bookingData = {
+              'serviceId': widget.service.id,
+              'customerId': currentUserId,
+              'providerId': widget.service['providerId'],
+              'date': formattedDate,
+              'time': selectedTime?.format(context),
+              'quantity': quantity,
+              'description': descriptionController.text,
+              'total': finalTotal,
               'status': 'Pending',
-              'timestamp': FieldValue.serverTimestamp(),
+              'paymentstatus': 'Pending',
+              'statusHistory': [
+                {
+                  'status': 'Pending',
+                  'timestamp': FieldValue.serverTimestamp(),
+                }
+              ],
+              'bookingId': formattedBookingId,
+              'couponId': couponId,
+              'address': isRemoteService ? 'Remote' : addressController.text,
+              'tax': tax,
+              'taxRateId': taxRateId,
+              'bookingFeeId': bookingFeeId,
+              'ServiceName': widget.service['ServiceName'],
+              'serviceNameLower': (widget.service['ServiceName'] ?? '').toString().toLowerCase(),
+              'ImageUrl': widget.service['ImageUrl'],
+            };
+
+            // Save booking
+            try {
+              transaction.set(
+                FirebaseFirestore.instance.collection('bookings').doc(
+                    formattedBookingId),
+                bookingData,
+              );
+            }catch(x,y){
+              print(x.toString());
+              print(y.toString());
             }
-          ],
-          'bookingId': formattedBookingId,
-          'couponId': couponId,
-          'address': isRemoteService ? 'Remote' : addressController.text,
-          'tax': tax,
-          'taxRateId': taxRateId,
-          'bookingFeeId': bookingFeeId,
-          'ServiceName': widget.service['ServiceName'], // Original service name
-          'serviceNameLower':
-              (widget.service['ServiceName'] ?? '').toString().toLowerCase(),
-          'ImageUrl': widget.service['ImageUrl'],
-        };
 
-        transaction.set(
-            FirebaseFirestore.instance
-                .collection('bookings')
-                .doc(formattedBookingId),
-            bookingData);
+            // try {
+              // Add notification for the provider
+              Map<String, dynamic> notificationData = {
+                'providerId': widget.service['providerId'],
+                'customerId': currentUserId,
+                'bookingId': formattedBookingId,
+                'message': 'You have a new booking.',
+                'message1': 'You have booked a service',
+                'date': formattedDate,
+                'time': selectedTime?.format(context),
+                'isRead': false,
+                'isRead1': false,
+                'status': 'Pending',
+                'paymentstatus': 'Pending',
+                'timestamp': FieldValue.serverTimestamp(),
+              };
 
-        // Add notification for provider
-        Map<String, dynamic> notificationData = {
-          'providerId': widget.service['providerId'],
-          'customerId': currentUserId,
-          'bookingId': formattedBookingId,
-          'message': 'You have a new booking.',
-          'message1': 'You have booked a service',
-          'date': formattedDate,
-          'time': selectedTime?.format(context),
-          'isRead': false,
-          'isRead1': false,
-          'status': 'Pending',
-          'paymentstatus': 'Pending',
-          'timestamp': FieldValue.serverTimestamp(),
-        };
+              transaction.set(FirebaseFirestore.instance.collection('notifications').doc(), notificationData);
 
-        transaction.set(
-            FirebaseFirestore.instance.collection('notifications').doc(),
-            notificationData);
-      });
+            // } catch (e) {
+            //   print("Error saving notification: $e");
+            //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            //     content: Text('Failed to save notification: $e'),
+            //     backgroundColor: Colors.red,
+            //   ));
+            // }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Booking saved successfully.'),
-        backgroundColor: Colors.green,
-      ));
-      Navigator.of(context).pop();
-    } catch (e, stackTrace) {
-      print("Error saving booking: $e");
-      print("Stack trace: $stackTrace");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to book service: $e'),
-        backgroundColor: Colors.red,
-      ));
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
+          // } catch (e) {
+          //   print("Error saving booking: $e");
+          //   throw e;  // Rethrow to catch higher up
+          // }
+
+        }).catchError((error) {
+          // Handle any errors that occurred during the transaction
+          print('Transaction failed: $error');
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Booking saved successfully.'),
+          backgroundColor: Colors.green,
+        ));
+        Navigator.of(context).pop();
+
+      // } catch (e) {
+      //   print("Error during transaction: $e");
+      //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //     content: Text('Transaction failed: $e'),
+      //     backgroundColor: Colors.red,
+      //   ));
+      // }
+
+    // } catch (e, stackTrace) {
+    //   print("Error saving booking: $e");
+    //   print("Stack trace: $stackTrace");
+    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //     content: Text('Failed to book service: $e'),
+    //     backgroundColor: Colors.red,
+    //   ));
+    // } finally {
+    //   setState(() {
+    //     isLoading = false;
+    //   });
+    // }
   }
 
   void incrementQuantity() {
@@ -518,7 +552,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Container(
             decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color:Colors.brown[150],
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: Colors.blue)),
             padding: EdgeInsets.all(8.0),

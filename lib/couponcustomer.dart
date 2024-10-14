@@ -66,7 +66,7 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                 var coupon = coupons[index];
                 double discount = double.parse(coupon['discount'].toString());
                 return Card(
-                  color: Colors.deepPurple[900],
+                  color: Colors.indigoAccent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),

@@ -740,10 +740,10 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                         padding: const EdgeInsets.all(16.0),
                         child: Container(
                           decoration: BoxDecoration(
-                              color: Colors.grey[200],
+                              color: Colors.brown[150],
                               borderRadius: BorderRadius.circular(10),
                               border:
-                                  Border.all(color: Colors.deepPurpleAccent)),
+                                  Border.all(color: Colors.blue)),
                           padding: EdgeInsets.all(8.0),
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
