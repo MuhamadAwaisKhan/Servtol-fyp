@@ -24,6 +24,8 @@ class ServicesAddition extends StatefulWidget {
 }
 
 class _ServicesAdditionState extends State<ServicesAddition> {
+  File? profilePic;  // This will store the image file
+
   TextEditingController nameController = TextEditingController();
   TextEditingController areaController = TextEditingController();
   TextEditingController priceController = TextEditingController();
@@ -31,7 +33,6 @@ class _ServicesAdditionState extends State<ServicesAddition> {
   // TextEditingController durationController = TextEditingController();
   TextEditingController discountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-  File? profilePic;
   String? selectedCategoryId,
       selectedSubcategoryId,
       selectedProvinceId,
@@ -197,6 +198,42 @@ class _ServicesAdditionState extends State<ServicesAddition> {
       });
     }
   }
+  File? tempImage;  // Temporary storage for the new image before confirmation
+
+  // Image picker method
+  Future<void> pickImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        setState(() {
+          tempImage = File(pickedFile.path);  // Store selected image in tempImage
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking image: $e')),
+      );
+    }
+  }
+
+  // Confirm the image selection
+  void confirmUpload() {
+    setState(() {
+      profilePic = tempImage;  // Save the tempImage to profilePic on confirmation
+      tempImage = null;  // Reset tempImage after confirmation
+    });
+  }
+
+  // Cancel the image selection
+  void cancelUpload() {
+    setState(() {
+      tempImage = null;  // Discard the selected image
+    });
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -219,31 +256,92 @@ class _ServicesAdditionState extends State<ServicesAddition> {
         children: [
           SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   GestureDetector(
-                    onTap: () async {
-                      XFile? selectedImage = await ImagePicker()
-                          .pickImage(source: ImageSource.gallery);
-                      if (selectedImage != null) {
-                        File convertedFile = File(selectedImage.path);
-                        setState(() {
-                          profilePic = convertedFile;
-                        });
-                      }
-                    },
-                    child: CircleAvatar(
-                      radius: 64,
-                      backgroundColor: Colors.grey[300],
-                      backgroundImage:
-                          profilePic != null ? FileImage(profilePic!) : null,
-                      child: profilePic == null
-                          ? Icon(FontAwesomeIcons.camera, size: 50)
-                          : null,
+                    onTap: pickImage,  // Trigger the image picker when tapped
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        CircleAvatar(
+                          radius: 60,
+                          backgroundImage: profilePic != null
+                              ? FileImage(profilePic!) as ImageProvider<Object>?
+                              : null,
+                          backgroundColor: Colors.blueGrey[200],  // Placeholder background color
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 120,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.blue,  // Blue background for the upload icon
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                  color: Colors.white, width: 2),  // White border
+                            ),
+                            child: Icon(Icons.add,
+                                color: Colors.white, size: 24),  // Add (+) icon
+                          ),
+                        ),
+                        // Show OK (check) and Cancel (close) buttons only if an image is selected in tempImage
+                        if (tempImage != null) ...[
+                          Positioned(
+                            right: 110,
+                            top: 10,
+                            child: GestureDetector(
+                              onTap: confirmUpload,  // Confirm image selection
+                              child: Container(
+                                padding: EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.green,  // Green background for OK button
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.check, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 110,
+                            top: 10,
+                            child: GestureDetector(
+                              onTap: cancelUpload,  // Cancel image selection
+                              child: Container(
+                                padding: EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,  // Red background for Cancel button
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.close, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
-                  ),
+                  ),                  // GestureDetector(
+                  //   onTap: () async {
+                  //     XFile? selectedImage = await ImagePicker()
+                  //         .pickImage(source: ImageSource.gallery);
+                  //     if (selectedImage != null) {
+                  //       File convertedFile = File(selectedImage.path);
+                  //       setState(() {
+                  //         profilePic = convertedFile;
+                  //       });
+                  //     }
+                  //   },
+                  //   child: CircleAvatar(
+                  //     radius: 64,
+                  //     backgroundColor: Colors.grey[300],
+                  //     backgroundImage:
+                  //         profilePic != null ? FileImage(profilePic!) : null,
+                  //     child: profilePic == null
+                  //         ? Icon(FontAwesomeIcons.camera, size: 50)
+                  //         : null,
+                  //   ),
+                  // ),
                   SizedBox(height: 20),
                   uihelper.CustomTextField(context,
                       nameController, "Service Name",
@@ -273,13 +371,13 @@ class _ServicesAdditionState extends State<ServicesAddition> {
               ),
             ),
           ),
-          if (_isLoading)
-            Positioned(
-              child: Container(
-                color: Colors.black45,
-                child: Center(child: CircularProgressIndicator()),
-              ),
-            ),
+          // if (_isLoading)
+          //   Positioned(
+          //     child: Container(
+          //       color: Colors.black45,
+          //       child: Center(child: CircularProgressIndicator()),
+          //     ),
+          //   ),
         ],
       ),
     );
@@ -440,6 +538,13 @@ class _ServicesAdditionState extends State<ServicesAddition> {
           },
           labelText: "Select Wage Type",
         ),
+        if (_isLoading)
+          Positioned(
+            child: Container(
+              color: Colors.black45,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ),
       ],
     );
   }

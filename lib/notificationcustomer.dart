@@ -127,7 +127,7 @@ class _customernotificationState extends State<customernotification> {
           ? Center(child: Text('No customer ID found'))
           : StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collectionGroup('notifications')
+            .collectionGroup('bookingnotifications')
             .where('customerId', isEqualTo: customerId)
             .orderBy('timestamp', descending: true)
             .snapshots(),

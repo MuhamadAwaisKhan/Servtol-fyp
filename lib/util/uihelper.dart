@@ -349,6 +349,7 @@ class uihelper {
         decoration: decoration ??
             InputDecoration(
               labelText: labelText,
+              labelStyle: TextStyle(color: Colors.blue,fontFamily: 'Poppins'),
               border: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.blue),
                 borderRadius: BorderRadius.circular(25),
@@ -366,6 +367,7 @@ class uihelper {
               filled: true,
               fillColor: AppColors.background,
             ),
+
         style:
             TextStyle(color: Colors.black, fontFamily: 'Poppins', fontSize: 17),
         icon: Icon(Icons.arrow_drop_down, color: Colors.grey),

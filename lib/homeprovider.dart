@@ -100,7 +100,7 @@ class _HomeProviderState extends State<HomeProvider> {
   void listenForUnreadNotifications() {
     // Listen to notifications collection
     FirebaseFirestore.instance
-        .collection('notifications')
+        .collection('bookingnotifications')
         .where('providerId', isEqualTo: currentUser?.uid)
         .where('isRead', isEqualTo: false)
         .orderBy('timestamp', descending: true) // Add orderBy clause

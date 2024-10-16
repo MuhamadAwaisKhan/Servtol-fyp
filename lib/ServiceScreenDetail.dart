@@ -45,7 +45,11 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     super.initState();
     initializeControllers();
     fetchDropdownData();
+
+
+
   }
+
 
   void initializeControllers() {
     Map<String, dynamic>? serviceData =
@@ -319,9 +323,10 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
               title: Text("Edit Service Details",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: Colors.indigoAccent,
-                      fontWeight: FontWeight.bold)),
+                    fontFamily: 'Poppins',
+                    color: Colors.indigoAccent,
+                    // fontWeight: FontWeight.bold
+                  )),
               content: SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
@@ -352,10 +357,18 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                       child: CircleAvatar(
                         radius: 64,
                         backgroundColor: Colors.grey,
-                        backgroundImage:
-                            profilePic != null ? FileImage(profilePic!) : null,
-                        child: profilePic == null
-                            ? Icon(FontAwesomeIcons.camera, size: 50)
+                        backgroundImage: profilePic != null
+                            ? FileImage(profilePic!)
+                            : NetworkImage(widget.service.get('ImageUrl'))
+                                as ImageProvider, // Show existing image
+                        // child: profilePic == null &&
+                        //     widget.service.get('ImageUrl') == null
+                        //     ? Icon(Icons.add_a_photo, size: 50) // Plus icon
+                        //     : null,
+                        child: profilePic == null &&
+                                widget.service.get('ImageUrl') ==
+                                    null // Updated condition
+                            ? Icon(Icons.add_a_photo, size: 50)
                             : null,
                       ),
                     ),

@@ -147,7 +147,7 @@ class _NotificationProviderState extends State<NotificationProvider> {
           : StreamBuilder<List<QuerySnapshot>>(
         stream: CombineLatestStream.list([
           FirebaseFirestore.instance
-              .collection('notifications')
+              .collection('bookingnotifications')
               .where('providerId', isEqualTo: providerId)
               .orderBy('timestamp', descending: true)
               .snapshots(),
