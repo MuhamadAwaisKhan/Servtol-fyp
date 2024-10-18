@@ -63,61 +63,61 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
     }
   }
 
-  void updateBookingStatus(String cancellationReason) async {
-    try {
-      String bookingId = widget.bookings.id;
-
-      // 1. Update the booking status and include cancellation reason
-      await _firestore.collection('bookings').doc(bookingId).update({
-        'status': 'Cancelled',
-        'cancellationReason': cancellationReason,
-        'timestamp': FieldValue.serverTimestamp(), // Add the reason
-      });
-
-      // 2. Find the corresponding notification
-      QuerySnapshot notificationSnapshot = await _firestore
-          .collection('notifications')
-          .where('bookingId', isEqualTo: bookingId)
-          .get();
-
-      if (notificationSnapshot.docs.isNotEmpty) {
-        DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
-
-        // 3. Update the notification with the reason (if provided)
-        String providerMessage =
-            'Your booking has been cancelled by the customer.';
-        String customerMessage = 'You have cancelled the service booking.';
-
-        // if (cancellationReason.isNotEmpty) {
-        //   providerMessage += ' Reason: $cancellationReason';
-        //   customerMessage += ' Reason: $cancellationReason';
-        // }
-
-        await _firestore
-            .collection('notifications')
-            .doc(notificationDoc.id)
-            .update({
-          'message': providerMessage,
-          'message1': customerMessage,
-          'status': 'Cancelled',
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-      } else {
-        print('No notification found for booking ID: $bookingId');
-      }
-
-      // 4. Show success message and navigate back
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Booking has been cancelled')),
-      );
-      Navigator.pop(context);
-    } catch (e) {
-      print('Error updating booking status: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to cancel booking')),
-      );
-    }
-  }
+  // void updateBookingStatus(String cancellationReason) async {
+  //   try {
+  //     String bookingId = widget.bookings.id;
+  //
+  //     // 1. Update the booking status and include cancellation reason
+  //     await _firestore.collection('bookings').doc(bookingId).update({
+  //       'status': 'Cancelled',
+  //       'cancellationReason': cancellationReason,
+  //       'timestamp': FieldValue.serverTimestamp(), // Add the reason
+  //     });
+  //
+  //     // 2. Find the corresponding notification
+  //     QuerySnapshot notificationSnapshot = await _firestore
+  //         .collection('notifications')
+  //         .where('bookingId', isEqualTo: bookingId)
+  //         .get();
+  //
+  //     if (notificationSnapshot.docs.isNotEmpty) {
+  //       DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
+  //
+  //       // 3. Update the notification with the reason (if provided)
+  //       String providerMessage =
+  //           'Your booking has been cancelled by the customer.';
+  //       String customerMessage = 'You have cancelled the service booking.';
+  //
+  //       // if (cancellationReason.isNotEmpty) {
+  //       //   providerMessage += ' Reason: $cancellationReason';
+  //       //   customerMessage += ' Reason: $cancellationReason';
+  //       // }
+  //
+  //       await _firestore
+  //           .collection('notifications')
+  //           .doc(notificationDoc.id)
+  //           .update({
+  //         'message': providerMessage,
+  //         'message1': customerMessage,
+  //         'status': 'Cancelled',
+  //         'timestamp': FieldValue.serverTimestamp(),
+  //       });
+  //     } else {
+  //       print('No notification found for booking ID: $bookingId');
+  //     }
+  //
+  //     // 4. Show success message and navigate back
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Booking has been cancelled')),
+  //     );
+  //     Navigator.pop(context);
+  //   } catch (e) {
+  //     print('Error updating booking status: $e');
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Failed to cancel booking')),
+  //     );
+  //   }
+  // }
 
   void fetchTaxRate() async {
     try {
@@ -215,10 +215,14 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
           await _firestore.collection('bookings').doc(bookingId).get();
       List<dynamic> statusHistory = bookingSnapshot.get('statusHistory') ?? [];
 
-      // Add the new status to the history
+      // Get the current client-side timestamp manually
+      final now = DateTime.now();
+
+      // Add the new status to the history with the client-side timestamp
       statusHistory.add({
         'status': 'Cancelled',
-        'timestamp': FieldValue.serverTimestamp(),
+        'timestamp': now,
+        // DateTime.now() is used instead of FieldValue.serverTimestamp()
       });
 
       WriteBatch batch = _firestore.batch();
@@ -231,19 +235,21 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         'cancellationReason': cancellationReason,
         'statusHistory': statusHistory,
         // Update the status history in Firestore
-        'timestamp': FieldValue.serverTimestamp(),
+        'timestamp': now,
+        // Server-side timestamp for the document field
       });
 
       // Find the corresponding notification
       QuerySnapshot notificationSnapshot = await _firestore
-          .collection('notifications')
+          .collection('bookingnotifications')
           .where('bookingId', isEqualTo: bookingId)
           .get();
 
       if (notificationSnapshot.docs.isNotEmpty) {
         DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
-        DocumentReference notificationRef =
-            _firestore.collection('notifications').doc(notificationDoc.id);
+        DocumentReference notificationRef = _firestore
+            .collection('bookingnotifications')
+            .doc(notificationDoc.id);
 
         // Update the notification with the reason (if provided)
         String providerMessage =
@@ -254,6 +260,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
           'message1': customerMessage,
           'status': 'Cancelled',
           'timestamp': FieldValue.serverTimestamp(),
+          // Server-side timestamp for the notification
         });
       } else {
         print('No notification found for booking ID: $bookingId');
@@ -378,14 +385,33 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
               for (var i = 0; i < statusHistory.length; i++) {
                 var statusData = statusHistory[i];
                 String status = statusData['status'];
-                Timestamp timestamp = statusData['timestamp'];
-                DateTime dateTime = timestamp.toDate();
+                dynamic timestamp = statusData['timestamp'];
 
+                DateTime dateTime;
+
+                // Check if timestamp is a Firestore Timestamp, String, or null
+                if (timestamp is Timestamp) {
+                  dateTime = timestamp.toDate();
+                } else if (timestamp is String) {
+                  try {
+                    dateTime = DateTime.parse(timestamp);
+                  } catch (e) {
+                    dateTime = DateTime.now();
+                  }
+                } else {
+                  dateTime = DateTime.now();
+                }
+
+                // Use the _getStatusColor method to set the color of the step title
                 steps.add(
                   Step(
-                    title: Text(status),
+                    title: Text(
+                      status,
+                      style: TextStyle(color: _getStatusColor(status)),
+                    ),
                     content: Text(
-                        '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}'),
+                      '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}',
+                    ),
                     isActive:
                         i == statusHistory.length - 1, // Last step is active
                   ),
@@ -476,7 +502,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                         Column(
                           children: [
                             Text(
-                              'Your booking request is accepted please select payment method for further processing',
+                              'Your booking request is $bookingStatus please select payment method for further processing',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontFamily: 'Poppins',
@@ -709,7 +735,10 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                                     'status':
                                                         'Ready to Service',
                                                   }).then((_) {
-                                                    Navigator.of(context).pop();
+                                                    Navigator.of(context)
+                                                      ..pop()
+                                                      ..pop();
+
                                                     // Trigger a reload of the data after the update
                                                     setState(() {
                                                       RefreshProgressIndicator();
@@ -826,7 +855,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
                               )),
-                          Text('# ${widget.bookings.id}',
+                          Text('${widget.bookings.id}',
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
                         ],
@@ -1139,8 +1168,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                                                     Colors
                                                                         .white,
                                                                 backgroundColor:
-                                                                    Colors
-                                                                        .redAccent),
+                                                                    AppColors
+                                                                        .customButton),
                                                       ),
                                                     ],
                                                   ),

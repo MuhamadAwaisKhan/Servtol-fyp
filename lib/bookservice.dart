@@ -186,22 +186,24 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
       var currentUserId = user?.uid ?? 'no-user-id';
 
       DocumentReference counterRef =
-      FirebaseFirestore.instance.collection('counters').doc('bookingIds');
+          FirebaseFirestore.instance.collection('counters').doc('bookingIds');
 
       await FirebaseFirestore.instance.runTransaction((transaction) async {
         try {
           // Get the current booking ID and update it
           DocumentSnapshot counterSnapshot = await transaction.get(counterRef);
-          int lastId = (counterSnapshot.data() as Map<String, dynamic>? ?? {})['current'] as int? ?? 0;
+          int lastId = (counterSnapshot.data() as Map<String, dynamic>? ??
+                  {})['current'] as int? ??
+              0;
           int newId = lastId + 1;
-          String formattedBookingId = newId.toString().padLeft(2, '0');
-          transaction.set(counterRef, {'current': newId}, SetOptions(merge: true));
-
+          String formattedBookingId = '#' + newId.toString().padLeft(5, '0');
+          transaction.set(
+              counterRef, {'current': newId}, SetOptions(merge: true));
+          //
           print("Booking ID: $formattedBookingId");
-
           // Determine the final total based on whether a coupon is applied
           double finalTotal = isCouponApplied ? discountedTotal : total;
-
+          final now = DateTime.now();
           // Prepare booking data
           Map<String, dynamic> bookingData = {
             'serviceId': widget.service.id,
@@ -217,7 +219,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
             'statusHistory': [
               {
                 'status': 'Pending',
-                'timestamp': FieldValue.serverTimestamp(),
+                'timestamp': now,
               }
             ],
             'bookingId': formattedBookingId,
@@ -227,7 +229,8 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
             'taxRateId': taxRateId,
             'bookingFeeId': bookingFeeId,
             'ServiceName': widget.service['ServiceName'],
-            'serviceNameLower': (widget.service['ServiceName'] ?? '').toString().toLowerCase(),
+            'serviceNameLower':
+                (widget.service['ServiceName'] ?? '').toString().toLowerCase(),
             'ImageUrl': widget.service['ImageUrl'],
           };
 
@@ -235,12 +238,14 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
 
           // Save booking
           transaction.set(
-            FirebaseFirestore.instance.collection('bookings').doc(formattedBookingId),
+            FirebaseFirestore.instance
+                .collection('bookings')
+                .doc(formattedBookingId),
             bookingData,
           );
 
           print("Booking saved successfully.");
-
+          //
           // Add notification for the provider
           Map<String, dynamic> notificationData = {
             'providerId': widget.service['providerId'],
@@ -280,7 +285,6 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
         backgroundColor: Colors.green,
       ));
       Navigator.of(context).pop();
-
     } catch (e, stackTrace) {
       print("Error during transaction: $e");
       print("Stack trace: $stackTrace");
@@ -492,7 +496,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.lightBlue[200],
-                // .withOpacity(0.3),
+            // .withOpacity(0.3),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
@@ -540,7 +544,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Container(
             decoration: BoxDecoration(
-                color:Colors.brown[150],
+                color: Colors.brown[150],
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: Colors.blue)),
             padding: EdgeInsets.all(8.0),

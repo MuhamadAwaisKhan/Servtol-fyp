@@ -276,7 +276,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                   ),
                 ),
                 Text(
-                  '#${data['bookingId'] as String? ?? 'Unknown'}',
+                  '${data['bookingId'] as String? ?? 'Unknown'}',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 16,

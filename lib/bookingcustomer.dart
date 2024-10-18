@@ -308,7 +308,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
                     ),
                   ),
                   Text(
-                    '#${data['bookingId'] as String? ?? 'Unknown'}',
+                    '${data['bookingId'] as String? ?? 'Unknown'}',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 16,

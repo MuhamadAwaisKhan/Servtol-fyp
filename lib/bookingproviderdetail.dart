@@ -16,7 +16,7 @@ class bookingproviderdetail extends StatefulWidget {
 class _bookingproviderdetailState extends State<bookingproviderdetail> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static const String bookingsCollection = 'bookings';
-  static const String notificationsCollection = 'notifications';
+  static const String notificationsCollection = 'bookingnotifications';
 
   // Declare these variables in the state class
   double taxRate = 0.05; // Default value
@@ -216,14 +216,33 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
               for (var i = 0; i < statusHistory.length; i++) {
                 var statusData = statusHistory[i];
                 String status = statusData['status'];
-                Timestamp timestamp = statusData['timestamp'];
-                DateTime dateTime = timestamp.toDate();
+                dynamic timestamp = statusData['timestamp'];
 
+                DateTime dateTime;
+
+                // Check if timestamp is a Firestore Timestamp, String, or null
+                if (timestamp is Timestamp) {
+                  dateTime = timestamp.toDate();
+                } else if (timestamp is String) {
+                  try {
+                    dateTime = DateTime.parse(timestamp);
+                  } catch (e) {
+                    dateTime = DateTime.now();
+                  }
+                } else {
+                  dateTime = DateTime.now();
+                }
+
+                // Use the _getStatusColor method to set the color of the step title
                 steps.add(
                   Step(
-                    title: Text(status),
+                    title: Text(
+                      status,
+                      style: TextStyle(color: _getStatusColor(status)),
+                    ),
                     content: Text(
-                        '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}'),
+                      '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}',
+                    ),
                     isActive: i == statusHistory.length - 1, // Last step is active
                   ),
                 );
@@ -245,62 +264,82 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
       },
     );
   }
-  void updateBookingStatus(String newStatus, String notificationMessage,
-      String notificationMessage1) async {
+  void updateBookingStatus2() async {
     try {
       String bookingId = widget.bookings.id;
-      WriteBatch batch = _firestore.batch();
 
       // Fetch the booking document to get the current statusHistory
       DocumentSnapshot bookingSnapshot = await _firestore.collection('bookings').doc(bookingId).get();
       List<dynamic> statusHistory = bookingSnapshot.get('statusHistory') ?? [];
-
-      // Add the new status to the history
+final now=DateTime.now();
+      // Add the 'Complete' status to the history
       statusHistory.add({
-        'status': newStatus,
-        'timestamp': FieldValue.serverTimestamp(),
+        'status': 'Complete',
+        'timestamp': now,
       });
 
-      // Update notification if it exists
+      WriteBatch batch = _firestore.batch();
+
+      // Update the booking status
+      DocumentReference bookingRef = _firestore.collection('bookings').doc(bookingId);
+      batch.update(bookingRef, {
+        'status': 'Complete',
+        'statusHistory': statusHistory,
+      });
+
+      // Find the corresponding notification
       QuerySnapshot notificationSnapshot = await _firestore
-          .collection(notificationsCollection)
+          .collection('bookingnotifications')
           .where('bookingId', isEqualTo: bookingId)
           .get();
 
       if (notificationSnapshot.docs.isNotEmpty) {
         DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
         DocumentReference notificationRef = _firestore
-            .collection(notificationsCollection)
+            .collection('bookingnotifications')
             .doc(notificationDoc.id);
-        batch.update(notificationRef, {
-          'status': newStatus,
-          'message': notificationMessage,
-          'message1': notificationMessage1,
-        });
 
-        DocumentReference bookingRef =
-        _firestore.collection(bookingsCollection).doc(bookingId);
-        batch.update(bookingRef, {
-          'status': newStatus,
-          'statusHistory': statusHistory, // Update the status history in Firestore
+        // Update the notification with completion message
+        String providerMessage = 'You have completed the service booking.';
+        String customerMessage = 'Your booking has been completed by the service provider.';
+
+        batch.update(notificationRef, {
+          'message': providerMessage,
+          'message1': customerMessage,
+          'status': 'Complete',
+          'timestamp': FieldValue.serverTimestamp(),
         });
+      } else {
+        print('No notification found for booking ID: $bookingId');
       }
 
-      // Commit changes
+      // Generate review/feedback notification for the customer
+      DocumentReference newNotificationRef = _firestore.collection('notifications_review').doc();
+      batch.set(newNotificationRef, {
+        'bookingId': bookingId,
+        'customerId': widget.bookings['customerId'],  // Assuming you have customerId in your booking document
+        'providerId': widget.bookings['providerId'],  // Assuming you have providerId in your booking document
+        'status': 'Complete',
+        'message1': 'Your service booking is complete. Please leave a review!',
+        'timestamp': now,
+        'isRead1': false,
+        'type': 'review',  // You can add a type to distinguish this notification
+      });
+
+      // Commit the batch operation
       await batch.commit();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Booking status updated to $newStatus')),
+        SnackBar(content: Text('Booking has been completed')),
       );
-      setState(() {});
+      Navigator.pop(context);
     } catch (e) {
       print('Error updating booking status: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred. Please try again later.')),
+        SnackBar(content: Text('Failed to complete booking')),
       );
     }
   }
-
   void updateBookingStatus1(String cancellationReason) async {
     try {
       String bookingId = widget.bookings.id;
@@ -309,10 +348,13 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
       DocumentSnapshot bookingSnapshot = await _firestore.collection('bookings').doc(bookingId).get();
       List<dynamic> statusHistory = bookingSnapshot.get('statusHistory') ?? [];
 
-      // Add the new status to the history
+      // Get the current client-side timestamp manually
+      final now = DateTime.now();
+
+      // Add the new status to the history with the client-side timestamp
       statusHistory.add({
         'status': 'Cancelled',
-        'timestamp': FieldValue.serverTimestamp(),
+        'timestamp': now,  // DateTime.now() is used instead of FieldValue.serverTimestamp()
       });
 
       WriteBatch batch = _firestore.batch();
@@ -322,32 +364,28 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
       batch.update(bookingRef, {
         'status': 'Cancelled',
         'cancellationReason': cancellationReason,
-        'statusHistory': statusHistory, // Update the status history in Firestore
-        'timestamp': FieldValue.serverTimestamp(),
+        'statusHistory': statusHistory,  // Update the status history in Firestore
+        'timestamp': now,  // Server-side timestamp for the document field
       });
 
       // Find the corresponding notification
       QuerySnapshot notificationSnapshot = await _firestore
-          .collection('notifications')
+          .collection('bookingnotifications')
           .where('bookingId', isEqualTo: bookingId)
           .get();
 
       if (notificationSnapshot.docs.isNotEmpty) {
         DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
-        DocumentReference notificationRef = _firestore
-            .collection('notifications')
-            .doc(notificationDoc.id);
+        DocumentReference notificationRef = _firestore.collection('bookingnotifications').doc(notificationDoc.id);
 
         // Update the notification with the reason (if provided)
         String providerMessage = 'You have cancelled the service booking.';
-        String customerMessage =
-            'Your booking has been cancelled by the service provider.';
-
+        String customerMessage = 'Your booking has been cancelled by the service provider.';
         batch.update(notificationRef, {
           'message': providerMessage,
           'message1': customerMessage,
           'status': 'Cancelled',
-          'timestamp': FieldValue.serverTimestamp(),
+          'timestamp': FieldValue.serverTimestamp(),  // Server-side timestamp for the notification
         });
       } else {
         print('No notification found for booking ID: $bookingId');
@@ -368,83 +406,83 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
     }
   }
 
-  void updateBookingStatus2() async {
+
+  void updateBookingStatus(String newStatus, String notificationMessage, String notificationMessage1) async {
     try {
-      String bookingId = widget.bookings.id;
-
-      // Fetch the booking document to get the current statusHistory
-      DocumentSnapshot bookingSnapshot = await _firestore.collection('bookings').doc(bookingId).get();
-      List<dynamic> statusHistory = bookingSnapshot.get('statusHistory') ?? [];
-
-      // Add the new status to the history
-      statusHistory.add({
-        'status': 'Complete',
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+      String bookingId = widget.bookings.id; // Ensure this is valid
+      print('Booking ID: $bookingId'); // Log the booking ID for debugging
 
       WriteBatch batch = _firestore.batch();
 
-      // Update the booking status
-      DocumentReference bookingRef = _firestore.collection('bookings').doc(bookingId);
-      batch.update(bookingRef, {
-        'status': 'Complete',
-        'statusHistory': statusHistory, // Update the status history in Firestore
-        'timestamp': FieldValue.serverTimestamp(),
+      // Fetch the booking document to get the current statusHistory
+      DocumentSnapshot bookingSnapshot = await _firestore.collection('bookings').doc(bookingId).get();
+      print('Booking Snapshot: ${bookingSnapshot.data()}'); // Log booking snapshot for debugging
+
+      // Check if the document exists
+      if (!bookingSnapshot.exists) {
+        print('No booking found with ID: $bookingId');
+        return;
+      }
+
+      List<dynamic> statusHistory = bookingSnapshot.get('statusHistory') ?? [];
+      final now = DateTime.now();
+      // Add the new status to the history
+      statusHistory.add({
+        'status': newStatus,
+        'timestamp': now, // Use local time for now
       });
 
-      // Find the corresponding notification
+      // Update notification if it exists
       QuerySnapshot notificationSnapshot = await _firestore
-          .collection('notifications')
+          .collection(notificationsCollection)
           .where('bookingId', isEqualTo: bookingId)
           .get();
+      print('Notification Snapshot: ${notificationSnapshot.docs.length} found'); // Log number of notifications found
 
       if (notificationSnapshot.docs.isNotEmpty) {
         DocumentSnapshot notificationDoc = notificationSnapshot.docs.first;
         DocumentReference notificationRef = _firestore
-            .collection('notifications')
+            .collection(notificationsCollection)
             .doc(notificationDoc.id);
 
-        // Update the notification
-        String providerMessage = 'You have complete the service booking.';
-        String customerMessage =
-            'Your booking has been complete by the service provider.';
-
         batch.update(notificationRef, {
-          'message': providerMessage,
-          'message1': customerMessage,
-          'status': 'Complete',
-          'timestamp': FieldValue.serverTimestamp(),
+          'status': newStatus,
+          'message': notificationMessage,
+          'message1': notificationMessage1,
         });
+        print('Updated notification: ${notificationDoc.id}'); // Log notification ID
       } else {
-        print('No notification found for booking ID: $bookingId');
+        print("No notification found for booking ID: $bookingId");
       }
 
-      // Generate review/feedback notification for customer
-      DocumentReference newNotificationRef = _firestore.collection('notifications_review').doc();
-      batch.set(newNotificationRef, {
-        'bookingId': bookingId,
-        'customerId': widget.bookings['customerId'], // Assuming you have customerId in your booking document
-        'providerId': widget.bookings['providerId'], // Assuming you have providerId in your booking document
-        'status': 'Complete',
-        'message1': 'Your service booking is complete. Please leave a review!',
-        'timestamp': FieldValue.serverTimestamp(),
-        'type': 'review', // You can add a type to distinguish this notification
+      // Update booking status regardless of notification existence
+      DocumentReference bookingRef = _firestore.collection(bookingsCollection).doc(bookingId);
+      batch.update(bookingRef, {
+        'status': newStatus,
+        'statusHistory': statusHistory, // Update the status history in Firestore
       });
+      print('Updated booking: $bookingId'); // Log booking ID
 
-      // Commit changes
+      // Commit the batch operation and wait for completion
       await batch.commit();
+      print('Batch commit successful'); // Log successful commit
 
+      // Log and display success message
+      print('Booking status updated to $newStatus');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Booking has been Complete')),
+        SnackBar(content: Text('Booking status updated to $newStatus')),
       );
       Navigator.pop(context);
     } catch (e) {
-      print('Error updating booking status: $e');
+      print('Error updating booking status: ${e.toString()}');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to Complete booking')),
+        SnackBar(content: Text('An error occurred. Please try again later.')),
       );
     }
-  }  @override
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -569,7 +607,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
                               )),
-                          Text('# ${widget.bookings.id}',
+                          Text('${widget.bookings.id}',
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
                         ],
@@ -878,6 +916,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                                         child: Text('Close'),
                                                         style: ElevatedButton
                                                             .styleFrom(
+                                                          foregroundColor: Colors.white,
                                                                 backgroundColor:
                                                                     Colors
                                                                         .redAccent),
@@ -1240,7 +1279,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                                           return AlertDialog(
                                             title: Text('Complete Booking'),
                                             content: Text(
-                                                'Are you sure you want to complete this booking and stop the timer?'),
+                                                'Are you sure you want to complete this booking?'),
                                             actions: <Widget>[
                                               TextButton(
                                                 onPressed: () {

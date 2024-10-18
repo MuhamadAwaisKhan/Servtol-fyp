@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:servtol/main%20login.dart';
 import 'package:servtol/startscreen.dart';
 import 'package:servtol/tester%20file.dart';
+import 'package:servtol/text.dart';
 import 'package:servtol/util/theme.dart';
 import 'firebase_options.dart';
 import 'package:flutter/foundation.dart';
@@ -64,9 +65,11 @@ Future <void> main() async {
     // SplashScreen(),
       // ExerciseList(),
     // myapptesting(),
-    // startingscreen(),
+      startingscreen(),
+    // MyApp(),
+    // FeedbackAndReview(),
     //     tester(),
-     mainlogin(),
+    //  mainlogin(),
     //   BookServiceScreen(service: widget.service),
   ));
 }

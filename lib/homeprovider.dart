@@ -239,7 +239,7 @@ class _HomeProviderState extends State<HomeProvider> {
           StreamBuilder<List<QuerySnapshot>>(
             stream: CombineLatestStream.list([
               FirebaseFirestore.instance
-                  .collection('notifications')
+                  .collection('bookingnotifications')
                   .where('providerId', isEqualTo: currentUser?.uid)
                   .where('isRead', isEqualTo: false)
                   .orderBy('timestamp', descending: true)
@@ -250,12 +250,12 @@ class _HomeProviderState extends State<HomeProvider> {
                   .where('isRead', isEqualTo: false)
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
-              FirebaseFirestore.instance
-                  .collection('notification_review')
-                  .where('providerId', isEqualTo: currentUser?.uid)
-                  .where('isRead', isEqualTo: false)
-                  .orderBy('timestamp', descending: true)
-                  .snapshots(),
+              // FirebaseFirestore.instance
+              //     .collection('notification_review')
+              //     .where('providerId', isEqualTo: currentUser?.uid)
+              //     .where('isRead', isEqualTo: false)
+              //     .orderBy('timestamp', descending: true)
+              //     .snapshots(),
             ]),
             builder: (context, snapshot) {
               int unreadCount = 0;
@@ -263,8 +263,8 @@ class _HomeProviderState extends State<HomeProvider> {
               if (snapshot.hasData) {
                 // Combine unread counts from all three collections
                 unreadCount = snapshot.data![0].docs.length + // notifications
-                    snapshot.data![1].docs.length + // payment notifications
-                    snapshot.data![2].docs.length;  // review notifications
+                    snapshot.data![1].docs.length;  // payment notifications
+                    //+ snapshot.data![2].docs.length;  // review notifications
               }
 
               return Stack(
@@ -635,7 +635,7 @@ class _HomeProviderState extends State<HomeProvider> {
                                         ),
                                       ),
                                       Text(
-                                        " #${bookingData['bookingId']}",
+                                        " ${bookingData['bookingId']}",
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 14,
