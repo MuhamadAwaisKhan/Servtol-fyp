@@ -233,17 +233,18 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                   dateTime = DateTime.now();
                 }
 
-                // Use the _getStatusColor method to set the color of the step title
                 steps.add(
                   Step(
                     title: Text(
                       status,
                       style: TextStyle(color: _getStatusColor(status)),
                     ),
-                    content: Text(
+                    // Show timestamp for each step
+                    subtitle: Text(
                       '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}',
                     ),
-                    isActive: i == statusHistory.length - 1, // Last step is active
+                    content: Text(''), // You might want to add some content here
+                    isActive: i == statusHistory.length - 1,
                   ),
                 );
               }
@@ -252,9 +253,9 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
                 height: 300, // Adjust height as needed
                 width: 300, // Adjust width as needed
                 child: Stepper(
-                  currentStep: steps.length - 1, // Always show the last step
-                  physics: NeverScrollableScrollPhysics(), // Disable scrolling
-                  controlsBuilder: (context, details) => SizedBox.shrink(), // Hide the controls
+                  currentStep: steps.length - 1,
+                  physics: ClampingScrollPhysics(), // Make it scrollable
+                  controlsBuilder: (context, details) => SizedBox.shrink(),
                   steps: steps,
                 ),
               );
@@ -264,6 +265,7 @@ class _bookingproviderdetailState extends State<bookingproviderdetail> {
       },
     );
   }
+
   void updateBookingStatus2() async {
     try {
       String bookingId = widget.bookings.id;

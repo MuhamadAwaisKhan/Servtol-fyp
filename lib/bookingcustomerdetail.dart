@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:servtol/bookingcustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 
 enum PaymentMethod { cash, card }
@@ -368,8 +367,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         return AlertDialog(
           title: Text('Booking Status'),
           content: FutureBuilder<DocumentSnapshot>(
-            future:
-                _firestore.collection('bookings').doc(widget.bookings.id).get(),
+            future: _firestore.collection('bookings').doc(widget.bookings.id).get(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
@@ -402,18 +400,18 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                   dateTime = DateTime.now();
                 }
 
-                // Use the _getStatusColor method to set the color of the step title
                 steps.add(
                   Step(
                     title: Text(
                       status,
                       style: TextStyle(color: _getStatusColor(status)),
                     ),
-                    content: Text(
+                    // Show timestamp for each step
+                    subtitle: Text(
                       '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}',
                     ),
-                    isActive:
-                        i == statusHistory.length - 1, // Last step is active
+                    content: Text(''), // You might want to add some content here
+                    isActive: i == statusHistory.length - 1,
                   ),
                 );
               }
@@ -423,11 +421,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                 width: 300, // Adjust width as needed
                 child: Stepper(
                   currentStep: steps.length - 1,
-                  // Always show the last step
-                  physics: NeverScrollableScrollPhysics(),
-                  // Disable scrolling
+                  physics: ClampingScrollPhysics(), // Make it scrollable
                   controlsBuilder: (context, details) => SizedBox.shrink(),
-                  // Hide the controls
                   steps: steps,
                 ),
               );
@@ -437,6 +432,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
