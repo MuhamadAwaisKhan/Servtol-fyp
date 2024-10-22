@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:servtol/bookservice.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -30,7 +31,7 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
     });
   }
 
-  Future<bool> toggleFavorite(String serviceId, bool shouldFavorite) async {
+  Future<bool> toggleFavorite(String serviceId, bool shouldFavorite, String customerId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       List<String> favorites = prefs.getStringList('favorites') ?? [];
@@ -48,7 +49,14 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
         }
       }
 
+      // Update the favorites locally in SharedPreferences
       await prefs.setStringList('favorites', favorites);
+
+      // Save customer-specific favorites to Firestore
+      await FirebaseFirestore.instance.collection('customers').doc(customerId).set({
+        'favorites': favorites,
+      }, SetOptions(merge: true)); // Merge to avoid overwriting other fields
+
       print("Updated Favorites: $favorites");
       return true;
     } catch (e) {
@@ -73,26 +81,27 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
               pinned: true,
               actions: [
                 IconButton(
-                  icon:
-                      Icon(isFavorite ? Icons.favorite : Icons.favorite_border,size: 50,),
+                  icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border, size: 50),
                   color: isFavorite ? Colors.red : Colors.white,
                   onPressed: () async {
                     // Assuming serviceData contains a proper 'id' field from Firestore document.
-                    String? serviceId = widget.service
-                        .id; // Using the document ID directly if not stored in serviceData.
+                    String? serviceId = widget.service.id; // Using the document ID directly if not stored in serviceData.
 
                     if (serviceId == null) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(
-                              'Unable to toggle favorite: Service ID is missing.')));
+                          content: Text('Unable to toggle favorite: Service ID is missing.')));
                       return;
                     }
 
-                    bool success = await toggleFavorite(serviceId, !isFavorite);
+                    // Assuming you have a method to get the current customer's ID
+                    final FirebaseAuth auth = FirebaseAuth.instance;
+                    final User? user = auth.currentUser;
+                    String customerId = user?.uid ?? ''; // Replace this with actual logic to fetch customer ID
+
+                    bool success = await toggleFavorite(serviceId, !isFavorite, customerId); // Pass the customerId here
                     if (success) {
                       setState(() {
-                        isFavorite =
-                            !isFavorite; // Update the UI based on the new favorite status
+                        isFavorite = !isFavorite; // Update the UI based on the new favorite status
                       });
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(isFavorite

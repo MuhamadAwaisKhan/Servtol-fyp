@@ -6,6 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'Servicecustomerdetail.dart'; // Correct path for your Servicecustomerdetail import
 
 class FavoritesScreen extends StatefulWidget {
+  final String customerId; // Pass the customer ID
+
+  FavoritesScreen({required this.customerId});
+
   @override
   _FavoritesScreenState createState() => _FavoritesScreenState();
 }
@@ -16,25 +20,68 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   void initState() {
     super.initState();
-    favoritesFuture = loadFavorites();
+    favoritesFuture = loadFavorites(widget.customerId); // Pass customerId here
   }
 
-  Future<List<String>> loadFavorites() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList('favorites') ?? [];
-  }
+  Future<List<String>> loadFavorites(String customerId) async {
+    try {
+      // Load favorites from Firestore
+      DocumentSnapshot customerSnapshot = await FirebaseFirestore.instance.collection('customers').doc(customerId).get();
 
-  void removeFavorite(String serviceId) async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> favorites = prefs.getStringList('favorites') ?? [];
-    if (favorites.contains(serviceId)) {
-      favorites.remove(serviceId);
-      await prefs.setStringList('favorites', favorites);
-      setState(() {
-        favoritesFuture = loadFavorites(); // Refresh the future to reload data
-      });
+      if (customerSnapshot.exists && customerSnapshot.data() != null) {
+        Map<String, dynamic>? data = customerSnapshot.data() as Map<String, dynamic>?;
+        List<String> favorites = List<String>.from(data?['favorites'] ?? []);
+
+        // Cache the favorites locally using SharedPreferences for quick access
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setStringList('favorites', favorites);
+
+        return favorites;
+      }
+
+      return [];
+    } catch (e) {
+      print("Error loading favorites: $e");
+      return [];
     }
   }
+
+
+  void removeFavorite(String serviceId) async {
+    try {
+      // Get the SharedPreferences instance and the current favorites list
+      final prefs = await SharedPreferences.getInstance();
+      List<String> favorites = prefs.getStringList('favorites') ?? [];
+
+      if (favorites.contains(serviceId)) {
+        // Remove the serviceId from the favorites list
+        favorites.remove(serviceId);
+
+        // Update the local cache in SharedPreferences
+        await prefs.setStringList('favorites', favorites);
+
+        // Update Firestore to remove the serviceId from the customer's favorites
+        await FirebaseFirestore.instance.collection('customers').doc(widget.customerId).update({
+          'favorites': FieldValue.arrayRemove([serviceId])
+        });
+
+        // Update the state to reflect the changes
+        setState(() {
+          favoritesFuture = loadFavorites(widget.customerId); // Refresh the future to reload data
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Removed from favorites!')),
+        );
+      }
+    } catch (e) {
+      print("Error removing favorite: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to remove favorite')),
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {

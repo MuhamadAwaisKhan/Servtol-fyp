@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:servtol/favouriteservice.dart';
 import 'package:servtol/logincustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 
@@ -166,6 +167,27 @@ class _profilecustomerState extends State<profilecustomer> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
                   child: Text('Edit Profile',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: 'Poppins',
+                          color: Colors.white)),
+                ),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FavoritesScreen(
+                          customerId: _auth.currentUser!.uid,
+                        ), // No need to pass customerId here
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.customButton,
+                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
+                  child: Text('Favourite Service',
                       style: TextStyle(
                           fontSize: 18,
                           fontFamily: 'Poppins',

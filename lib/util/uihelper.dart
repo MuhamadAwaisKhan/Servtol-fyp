@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:servtol/util/AppColors.dart';
 
@@ -395,6 +396,49 @@ class uihelper {
           labelStyle: TextStyle(
               fontFamily: 'Poppins', fontSize: 17, color: Colors.blue),
           suffixIcon: Icon(
+            iconData,
+            color: Theme.of(context).primaryColorDark,
+
+          ),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            // Blue border when focused
+            borderRadius: BorderRadius.circular(25),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue),
+            // Grey border when not focused
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+      ),
+    );
+  }
+  static CustomTextField1(
+      BuildContext context,
+      TextEditingController controller,
+      String text,
+      String hinttext,
+      IconData iconData,
+
+      ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
+      child: TextField(
+        controller: controller,
+        // obscureText: tohide,
+        decoration: InputDecoration(
+          hintText: hinttext,
+          hintStyle:  TextStyle(
+              fontFamily: 'Poppins', fontSize: 13, color: Colors.blueGrey),
+          labelText: text,
+          labelStyle: TextStyle(
+              fontFamily: 'Poppins', fontSize: 17, color: Colors.blue),
+          suffixIcon: FaIcon(
             iconData,
             color: Theme.of(context).primaryColorDark,
 

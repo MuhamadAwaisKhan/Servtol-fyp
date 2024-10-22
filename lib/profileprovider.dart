@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:servtol/loginprovider.dart';
+import 'package:servtol/timeslot.dart';
 import 'package:servtol/util/AppColors.dart'; // Ensure this is the correct import path.
 
 class ProfileScreenWidget extends StatefulWidget {
@@ -165,6 +166,27 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
                   child: Text('Edit Profile',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: 'Poppins', // Added font family
+                          color: Colors.white)),
+                ),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TimeSlotScreen(
+                          providerId: _auth.currentUser!.uid, // Pass the provider ID
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.customButton,
+                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
+                  child: Text('Time Slot',
                       style: TextStyle(
                           fontSize: 18,
                           fontFamily: 'Poppins', // Added font family

@@ -24,12 +24,16 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
   bool isLoading = false;
   bool isRemoteService = false;
   String? couponId;
-
+  String? providerId;
   double taxRate = 0.05; // 5% default tax rate
   double bookingFee = 0.0; // Default booking fee
   double discountedTotal = 0;
   double discountPercent = 0.0; // Discount percentage
-
+  // DocumentSnapshot serviceSnapshot = await FirebaseFirestore.instance
+  //     .collection('service')
+  //     .doc('serviceId')
+  //     .get();
+  // String providerId = serviceSnapshot['providerId'];
   // Calculate price from service data
   double get price {
     var data = widget.service.data() as Map<String, dynamic>;
@@ -52,6 +56,8 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
   bool isCouponApplied = false;
   String? taxRateId;
   String? bookingFeeId;
+  List<String> _availableTimeSlots = [];
+  String? _selectedTimeSlot;
 
   @override
   void initState() {
@@ -59,6 +65,15 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
     fetchTaxRate();
     fetchBookingFee();
     determineServiceType();
+    _fetchTimeSlots();
+    providerId = widget.service['providerId'];
+  }
+
+  Future<void> _fetchTimeSlots() async {
+    // Access providerId inside the function, after initState() has run
+    String providerId = widget.service['providerId'];
+    _availableTimeSlots = await fetchTimeSlots(providerId);
+    setState(() {});
   }
 
   @override
@@ -211,6 +226,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
             'providerId': widget.service['providerId'],
             'date': formattedDate,
             'time': selectedTime?.format(context),
+            'timeSlot': _selectedTimeSlot,
             'quantity': quantity,
             'description': descriptionController.text,
             'total': finalTotal,
@@ -343,6 +359,20 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
     }
   }
 
+  Future<List<String>> fetchTimeSlots(String providerId) async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('provider')
+          .doc(providerId)
+          .collection('timeSlots')
+          .get();
+      return snapshot.docs.map((doc) => doc['slot'] as String).toList();
+    } catch (e) {
+      print("Error fetching time slots: $e");
+      return [];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var serviceData = widget.service.data() as Map<String, dynamic>;
@@ -459,7 +489,11 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
               style: TextStyle(
                   color: Colors.black, fontFamily: 'Poppins', fontSize: 20)),
         ),
-        if (isLoading) Center(child: LinearProgressIndicator()),
+        if (isLoading)
+          Center(
+              child: LinearProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+          )),
 
         Container(
           width: 200,
@@ -491,6 +525,65 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                 : '${selectedTime!.format(context)}'),
           ),
         ),
+        SizedBox(
+          height: 20,
+        ),
+        IgnorePointer(
+          ignoring: _availableTimeSlots.isEmpty, // Ignore if no slots
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
+            child: DropdownButtonFormField<String>(
+              value: _selectedTimeSlot,
+              decoration: InputDecoration(
+                labelText: "Select Time Slot",
+
+                // labelText: labelText,
+                labelStyle: TextStyle(color: Colors.blue,fontFamily: 'Poppins'),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue),
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                  // Blue border when focused
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue),
+                  // Grey border when not focused
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                filled: true,
+                fillColor: AppColors.background,
+              ),
+              style:
+              TextStyle(color: Colors.black, fontFamily: 'Poppins', fontSize: 17),
+
+              items: _availableTimeSlots.isEmpty
+                  ? [
+                      DropdownMenuItem(
+                        value: null,
+                        child: Text("No time slots available"),
+                      )
+                    ]
+                  : _availableTimeSlots
+                      .map((slot) => DropdownMenuItem(
+                            value: slot,
+                            child: Text(slot),
+                          ))
+                      .toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedTimeSlot = newValue;
+                });
+              },
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+
         Container(
           padding: EdgeInsets.all(16),
           margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),

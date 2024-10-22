@@ -153,15 +153,15 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               ),
               uihelper.CustomButton(
                 () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => FavoritesScreen()));
-                  // setState(() {
-                  //   isSecondButtonClicked = false; // Reset second button state
-                  //   isFirstButtonClicked =
-                  //   !isFirstButtonClicked; // Toggle first button state
-                  // });
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: (context) => FavoritesScreen()));
+                  // // setState(() {
+                  // //   isSecondButtonClicked = false; // Reset second button state
+                  // //   isFirstButtonClicked =
+                  // //   !isFirstButtonClicked; // Toggle first button state
+                  // // });
                 },
                 "Favourite",
                 40,

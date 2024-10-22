@@ -642,6 +642,7 @@ final now=DateTime.now();
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.bold,
                                       )),
+                                  SizedBox(width: 70,),
                                   Text(
                                       ' ${widget.bookings['date'] as String? ?? 'No Date'}',
                                       style: TextStyle(
@@ -660,8 +661,29 @@ final now=DateTime.now();
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.bold,
                                       )),
+                                  SizedBox(width: 70,),
                                   Text(
                                       '${widget.bookings['time'] as String? ?? 'No time'}',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontFamily: 'Poppins',
+                                      )),
+                                ],
+                              ),
+                              SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  Text('Service Slot:',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 14,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                      )),
+                                  SizedBox(width: 20,),
+
+                                  Text(
+                                      '${widget.bookings['timeSlot'] as String? ?? 'No time'}',
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontFamily: 'Poppins',

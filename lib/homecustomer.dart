@@ -485,14 +485,14 @@ class _HomeCustomerState extends State<HomeCustomer> {
                         style: TextStyle(
                             color: Colors.green[700],
                             fontWeight: FontWeight.bold,
-                            fontSize: 16),
+                            fontSize: 14),
                       ),
                     ],
                   ),
                   SizedBox(height: 4),
                   Text(
                     subcategory,
-                    style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold, color: Colors.blueGrey,),
+                    style: TextStyle(fontSize: 12,fontFamily: 'Poppins',fontWeight: FontWeight.bold, color: Colors.blueGrey,),
                   ),
                 ],
               ),
