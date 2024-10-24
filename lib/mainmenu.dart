@@ -151,28 +151,28 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               SizedBox(
                 height: 20,
               ),
-              uihelper.CustomButton(
-                () {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (context) => FavoritesScreen()));
-                  // // setState(() {
-                  // //   isSecondButtonClicked = false; // Reset second button state
-                  // //   isFirstButtonClicked =
-                  // //   !isFirstButtonClicked; // Toggle first button state
-                  // // });
-                },
-                "Favourite",
-                40,
-                150,
-                // Icons.contacts_sharp,
-                // Colors.grey, // Specify the default color of the icon
-                // isFirstButtonClicked, // Pass the clicked state to the button
-              ),
-              SizedBox(
-                height: 20,
-              ),
+              // uihelper.CustomButton(
+              //   () {
+              //     Navigator.push(
+              //         context,
+              //         MaterialPageRoute(
+              //             builder: (context) => FavoritesScreen()));
+              //     // setState(() {
+              //     //   isSecondButtonClicked = false; // Reset second button state
+              //     //   isFirstButtonClicked =
+              //     //   !isFirstButtonClicked; // Toggle first button state
+              //     // });
+              //   },
+              //   "Favourite",
+              //   40,
+              //   150,
+              //   // Icons.contacts_sharp,
+              //   // Colors.grey, // Specify the default color of the icon
+              //   // isFirstButtonClicked, // Pass the clicked state to the button
+              // ),
+              // SizedBox(
+              //   height: 20,
+              // ),
               uihelper.CustomButton(
                 () {
                   Navigator.push(context,

@@ -519,11 +519,13 @@ class uihelper {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
       child: TextField(
+
         controller: controller,
         decoration: InputDecoration(
           labelText: labelText,
 
-          labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 17),
+          labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 17,),
+
           // suffixIcon: Icon(iconData),
           border: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.blue),
@@ -546,7 +548,7 @@ class uihelper {
                     2.0), // Optional: Styling for when the TextField has an error
           ),
           floatingLabelBehavior: FloatingLabelBehavior.auto,
-          contentPadding: EdgeInsets.only(bottom: 12, left: 115),
+          // contentPadding: EdgeInsets.only(bottom: 12, left: 115),
           // focusedBorder: UnderlineInputBorder(
           //   borderSide: BorderSide(color: Colors.red, width: 2.0),
           //   borderRadius: BorderRadius.circular(25),

@@ -26,7 +26,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Future<List<String>> loadFavorites(String customerId) async {
     try {
       // Load favorites from Firestore
-      DocumentSnapshot customerSnapshot = await FirebaseFirestore.instance.collection('customers').doc(customerId).get();
+      DocumentSnapshot customerSnapshot = await FirebaseFirestore.instance.collection('customer').doc(customerId).get();
 
       if (customerSnapshot.exists && customerSnapshot.data() != null) {
         Map<String, dynamic>? data = customerSnapshot.data() as Map<String, dynamic>?;
@@ -61,7 +61,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         await prefs.setStringList('favorites', favorites);
 
         // Update Firestore to remove the serviceId from the customer's favorites
-        await FirebaseFirestore.instance.collection('customers').doc(widget.customerId).update({
+        await FirebaseFirestore.instance.collection('customer').doc(widget.customerId).update({
           'favorites': FieldValue.arrayRemove([serviceId])
         });
 

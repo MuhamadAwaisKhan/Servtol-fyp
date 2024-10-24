@@ -256,15 +256,25 @@ class _customernotificationState extends State<customernotification> {
                                             notification['paymentstatus']),
                                       ),
                                     )
+                                  else if(isReviewNotification)
+                                    Text(
+                                      "Feedback Status: ${notification['status']}",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: _getStatusColor(
+                                            notification['status']),
+                                      ),
+                                    )
                                   else
                                     Text(
-                                      "Booking Status: ${notification['status']}",
+                                      "Payment Status: ${notification['status']}",
                                       style: TextStyle(
                                         fontSize: 14,
                                         color: _getStatusColor(
                                             notification['status']),
                                       ),
                                     ),
+
                                   SizedBox(height: 4),
                                   Text(
                                     timeago.format(
@@ -290,11 +300,13 @@ class _customernotificationState extends State<customernotification> {
 
                                 // Check if it's a review notification
                                 if (isReviewNotification) {
+                                  String bookingId = notification['bookingId'];
+
                                   // Navigate to the FeedbackScreen
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => FeedbackScreen(), // Assuming FeedbackScreen is imported
+                                      builder: (context) => FeedbackScreen(bookingId: bookingId), // Assuming FeedbackScreen is imported
                                     ),
                                   );
                                 } else {
