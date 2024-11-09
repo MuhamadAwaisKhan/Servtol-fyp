@@ -538,13 +538,13 @@ class _ServicesAdditionState extends State<ServicesAddition> {
           },
           labelText: "Select Wage Type",
         ),
-        if (_isLoading)
-          Positioned(
-            child: Container(
-              color: Colors.black45,
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          ),
+        // if (_isLoading)
+        //   Positioned(
+        //     child: Container(
+        //       color: Colors.black45,
+        //       child: Center(child: CircularProgressIndicator()),
+        //     ),
+        //   ),
       ],
     );
   }

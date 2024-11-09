@@ -71,10 +71,24 @@ class _CityAddState extends State<CityAdd> {
                     items: _provinceDropdownItems,
                     decoration: InputDecoration(
                       labelText: 'Select Province',
+                      labelStyle: TextStyle(color: Colors.blue,fontFamily: 'Poppins'),
                       suffixIcon: Icon(Icons.ac_unit_rounded),
                       border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue),
                         borderRadius: BorderRadius.circular(25),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                        // Blue border when focused
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue),
+                        // Grey border when not focused
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      filled: true,
+                      fillColor: AppColors.background,
                     ),
                   ),
                  ),

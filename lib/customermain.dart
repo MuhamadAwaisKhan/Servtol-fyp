@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:motion_tab_bar/MotionTabBar.dart';
@@ -24,9 +26,12 @@ class _CustomerMainScreenState extends State<CustomerMainScreen>
   late MotionTabBarController _motionTabBarController;
   bool _isBackPressedOnce = false;
   Timer? _backPressTimer;
+  String customerId = ''; // Variable to store customer ID
+
   @override
   void initState() {
     super.initState();
+    _fetchCustomerId();
     // _tabController = TabController(length: 5, vsync: this);
     _motionTabBarController = MotionTabBarController(
       initialIndex: 0,
@@ -85,7 +90,7 @@ class _CustomerMainScreenState extends State<CustomerMainScreen>
         HomeCustomer(onBackPress: widget.onBackPress),
           BookingCustomer(onBackPress: widget.onBackPress),
           CategoriesCustomer(onBackPress: widget.onBackPress),
-          chatcustomer(onBackPress: widget.onBackPress),
+          MessageLogCustomerScreen(onBackPress: widget.onBackPress,),
           profilecustomer(onBackPress: widget.onBackPress),
        ],
       ),
@@ -140,4 +145,29 @@ class _CustomerMainScreenState extends State<CustomerMainScreen>
       ),
     ) ?? false;
   }
+
+Future<void> _fetchCustomerId() async {
+  try {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('customer')
+
+          .where('customerId', isEqualTo: user.uid)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        setState(() {
+          customerId = snapshot.docs.first.id;
+        });
+      } else {
+        print('No customer found with the current user\'s email');
+      }
+    } else {
+      print('No user is currently logged in.');
+    }
+  } catch (e) {
+    print('Error fetching customer ID: $e');
+  }
+}
 }

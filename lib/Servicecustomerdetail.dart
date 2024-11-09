@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:servtol/bookservice.dart';
+import 'package:servtol/messagescreen.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,6 +24,18 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
     super.initState();
     checkFavoriteStatus();
   }
+  // Future<Map<String, dynamic>?> _getProviderDetails(String providerId) async {
+  //   final providerDoc = await FirebaseFirestore.instance
+  //       .collection('provider')
+  //       .doc(providerId)
+  //       .get();
+  //
+  //   return providerDoc.exists ? providerDoc.data() : null;
+  // }
+  // final providerData = providerSnapshot.data!;
+  //
+  // final providerName = providerData['FirstName'] ?? 'Unknown Provider';
+  // final profilePicUrl = providerData['ProfilePic'];
 
   void checkFavoriteStatus() async {
     final prefs = await SharedPreferences.getInstance();
@@ -259,23 +272,47 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                     return CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                     );
-                  var providerData =
-                      snapshot.data!.data() as Map<String, dynamic>;
+                  var providerData = snapshot.data!.data() as Map<String, dynamic>;
+                  final providerName = providerData['FirstName'] ?? 'Unknown Provider';
+                  final profilePicUrl = providerData['ProfilePic'];
+
                   return ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(
-                            providerData['ProfilePic'] ??
-                                'default_profile_pic_url'),
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(
+                        providerData['ProfilePic'] ?? 'default_profile_pic_url',
                       ),
-                      title: Text(
-                          providerData['FirstName'] ?? 'No Provider Name',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(
-                          providerData['Bio'] ?? 'No additional information',
-                          style: TextStyle(color: Colors.blue[700])),
-                      onTap: () {});
+                    ),
+                    title: Text(
+                      providerData['FirstName'] ?? 'No Provider Name',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      providerData['Bio'] ?? 'No additional information',
+                      style: TextStyle(color: Colors.blue[700]),
+                    ),
+                    trailing: IconButton(
+                      icon: FaIcon(FontAwesomeIcons.solidMessage, color: Colors.blue),
+                      onPressed: () {
+                        // Navigate to the message screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MessageScreen(
+                              chatWithId: providerId,                 // Pass the provider's ID here
+                              chatWithName: providerName,             // Pass the provider's name here
+                              chatWithPicUrl: profilePicUrl,          // Pass the provider's profile picture URL
+                            ),
+                          ),
+
+
+                        );
+                      },
+                    ),
+                  );
                 },
               ),
+
+
               SizedBox(height: 10),
               Divider(),
               SizedBox(height: 10),
@@ -406,10 +443,10 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                                                 Text(
                                                   '${review['emojiRating']}.0/ 5',
                                                   style: TextStyle(
-                                                      // color: Colors.green,
-                                                      fontFamily: 'Poppins',fontWeight:
-                                                          FontWeight.bold,
-                                                      ),
+                                                    // color: Colors.green,
+                                                    fontFamily: 'Poppins',
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
                                               ],
                                             ),
@@ -423,7 +460,7 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                                                 review['notes'] ??
                                                     'No notes provided',
                                                 style: TextStyle(
-                                                    color: Colors.white,
+                                                  color: Colors.white,
                                                   fontFamily: 'Poppins',
                                                 )),
                                           ],

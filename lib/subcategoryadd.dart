@@ -71,9 +71,24 @@ class _SubcategoryAddScreenState extends State<SubcategoryAddScreen> {
                 items: _categoryDropdownItems,
                 decoration: InputDecoration(
                   labelText: 'Select Category',
+                  labelStyle: TextStyle(color: Colors.blue,fontFamily: 'Poppins'),
+
                   border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue),
                     borderRadius: BorderRadius.circular(25),
                   ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                    // Blue border when focused
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue),
+                    // Grey border when not focused
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  filled: true,
+                  fillColor: AppColors.background,
                 ),
               ),
             ),

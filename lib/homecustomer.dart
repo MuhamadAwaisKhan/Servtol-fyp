@@ -1,9 +1,13 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:servtol/Categorybyservices.dart';
 import 'package:servtol/Servicecustomerdetail.dart';
+import 'package:servtol/allservicescustomers.dart';
 import 'package:servtol/categoriescustomer.dart';
 import 'package:servtol/searchcustomer.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -12,7 +16,7 @@ import 'package:servtol/notificationcustomer.dart';
 import 'package:rxdart/rxdart.dart';
 
 class HomeCustomer extends StatefulWidget {
-  Function onBackPress; // Making this final and required
+  final Function onBackPress;
 
   HomeCustomer({super.key, required this.onBackPress});
 
@@ -21,16 +25,26 @@ class HomeCustomer extends StatefulWidget {
 }
 
 class _HomeCustomerState extends State<HomeCustomer> {
-  final User? currentUser =
-      FirebaseAuth.instance.currentUser; // Initial loading text
+  final User? currentUser = FirebaseAuth.instance.currentUser;
   int _current = 0;
   CarouselSliderController _carouselController = CarouselSliderController();
   List<Map<String, dynamic>> _cloudImages = [];
+  List<String> categories = [];
+
+  // Mapping category names to Font Awesome icons
+  Map<String, IconData> categoryIcons = {
+    'Healthcare': FontAwesomeIcons.medkit,
+    'Design & Multimedia': FontAwesomeIcons.paintBrush,
+    'Telemedicine': FontAwesomeIcons.headset,
+    'Education': FontAwesomeIcons.graduationCap,
+    'Retail': FontAwesomeIcons.shoppingCart,
+  };
 
   @override
   void initState() {
     super.initState();
     fetchImages();
+    _fetchCategories();
   }
 
   void fetchImages() async {
@@ -43,36 +57,46 @@ class _HomeCustomerState extends State<HomeCustomer> {
     });
   }
 
+  Future<void> _fetchCategories() async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    CollectionReference categoriesRef = firestore.collection('Category');
+    try {
+      QuerySnapshot snapshot = await categoriesRef.get();
+      List<String> fetchedCategories = snapshot.docs.map((doc) {
+        return doc['Name'] as String;
+      }).toList();
+
+      setState(() {
+        categories = fetchedCategories;
+      });
+    } catch (e) {
+      print("Error fetching categories: $e");
+    }
+  }
+
   int unreadCount = 0;
 
-  // Function to listen for unread notifications
   void listenForUnreadNotifications() {
-    // Listen to notifications collection
     FirebaseFirestore.instance
         .collection('bookingnotifications')
         .where('customerId', isEqualTo: currentUser?.uid)
         .where('isRead1', isEqualTo: false)
-        .orderBy('timestamp', descending: true) // Add orderBy clause
+        .orderBy('timestamp', descending: true)
         .snapshots()
         .listen((snapshot) {
-      // Update unread count for notifications
       int notificationUnreadCount = snapshot.docs.length;
 
-      // Listen to paymentnotification collection
       FirebaseFirestore.instance
           .collection('paymentnotification')
           .where('customerId', isEqualTo: currentUser?.uid)
           .where('isRead1', isEqualTo: false)
-          .orderBy('timestamp', descending: true) // Add orderBy clause
+          .orderBy('timestamp', descending: true)
           .snapshots()
           .listen((snapshot) {
-        // Update unread count for payment notifications
         int paymentNotificationUnreadCount = snapshot.docs.length;
 
-        // Combine unread counts and update state
         setState(() {
-          unreadCount =
-              notificationUnreadCount + paymentNotificationUnreadCount;
+          unreadCount = notificationUnreadCount + paymentNotificationUnreadCount;
         });
       });
     });
@@ -105,21 +129,12 @@ class _HomeCustomerState extends State<HomeCustomer> {
                   .where('isRead1', isEqualTo: false)
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
-              FirebaseFirestore.instance
-                  .collection('notification_review')
-                  .where('customerId', isEqualTo: currentUser?.uid)
-                  .where('isRead1', isEqualTo: false)
-                  .orderBy('timestamp', descending: true)
-                  .snapshots(),
             ]),
             builder: (context, snapshot) {
               int unreadCount = 0;
 
               if (snapshot.hasData) {
-                // Combine unread counts from all three collections
-                unreadCount = snapshot.data![0].docs.length + // notifications
-                    snapshot.data![1].docs.length + // payment notifications
-                    snapshot.data![2].docs.length;  // review notifications
+                unreadCount = snapshot.data![0].docs.length + snapshot.data![1].docs.length;
               }
 
               return Stack(
@@ -167,76 +182,82 @@ class _HomeCustomerState extends State<HomeCustomer> {
           ),
           IconButton(
             icon: FaIcon(FontAwesomeIcons.magnifyingGlass),
-            onPressed: () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => searchcustomer())),
+            onPressed: () =>
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => searchcustomer())),
           ),
         ],
       ),
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
           child: Column(children: [
-        if (_cloudImages.isNotEmpty) ...[
-          servicesCarousel(),
-          const SizedBox(height: 20),
-          AnimatedSmoothIndicator(
-            activeIndex: _current,
-            count: _cloudImages.length,
-            effect: ExpandingDotsEffect(
-                dotWidth: 10,
-                dotHeight: 10,
-                dotColor: Colors.grey,
-                activeDotColor: Colors.blueAccent),
-            onDotClicked: (index) => _carouselController.animateToPage(index),
-          ),
-        ],
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: buildCategoriesHeader(),
-        ),
-        buildHorizontalCategoryList(),
-        servicesList(),
-      ])),
+            if (_cloudImages.isNotEmpty) ...[
+              servicesCarousel(),
+              const SizedBox(height: 20),
+              AnimatedSmoothIndicator(
+                activeIndex: _current,
+                count: _cloudImages.length,
+                effect: ExpandingDotsEffect(
+                    dotWidth: 10,
+                    dotHeight: 10,
+                    dotColor: Colors.grey,
+                    activeDotColor: Colors.blueAccent),
+                onDotClicked: (index) =>
+                    _carouselController.animateToPage(index),
+              ),
+            ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: buildCategoriesHeader(),
+            ),
+            buildHorizontalCategoryList(),
+            servicesList(),
+          ])),
     );
   }
 
   Widget servicesCarousel() {
     return CarouselSlider(
       items: _cloudImages
-          .map((item) => GestureDetector(
-                onTap: () {
-                  DocumentSnapshot serviceSnapshot;
-                  FirebaseFirestore.instance
-                      .collection('service')
-                      .doc(item['id'])
-                      .get()
-                      .then((doc) {
-                    if (doc.exists) {
-                      serviceSnapshot = doc;
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                Servicecustomerdetail(service: serviceSnapshot),
-                          ));
-                    } else {
-                      print("Document does not exist.");
-                    }
-                  });
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(item['url']),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+          .map((item) =>
+          GestureDetector(
+            onTap: () {
+              DocumentSnapshot serviceSnapshot;
+              FirebaseFirestore.instance
+                  .collection('service')
+                  .doc(item['id'])
+                  .get()
+                  .then((doc) {
+                if (doc.exists) {
+                  serviceSnapshot = doc;
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            Servicecustomerdetail(service: serviceSnapshot),
+                      ));
+                } else {
+                  print("Document does not exist.");
+                }
+              });
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
+                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(item['url']),
+                    fit: BoxFit.cover,
                   ),
                 ),
-              ))
+              ),
+            ),
+          ))
           .toList(),
       options: CarouselOptions(
           autoPlay: true,
@@ -250,7 +271,6 @@ class _HomeCustomerState extends State<HomeCustomer> {
       carouselController: _carouselController,
     );
   }
-
   Widget buildCategoriesHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -262,12 +282,14 @@ class _HomeCustomerState extends State<HomeCustomer> {
                 fontFamily: 'Poppins',
                 fontWeight: FontWeight.bold)),
         GestureDetector(
-          onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => CategoriesCustomer(
-                        onBackPress: widget.onBackPress,
-                      ))),
+          onTap: () =>
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          CategoriesCustomer(
+                            onBackPress: widget.onBackPress,
+                          ))),
           child: const Text('View All',
               style: TextStyle(
                   color: AppColors.customButton,
@@ -280,64 +302,50 @@ class _HomeCustomerState extends State<HomeCustomer> {
   }
 
   Widget buildHorizontalCategoryList() {
-    List<Map<String, dynamic>> categories = [
-      {'icon': Icons.code, 'label': 'Developer', 'color': Colors.blue},
-      {'icon': Icons.plumbing, 'label': 'Plumber', 'color': Colors.green},
-      {
-        'icon': Icons.alternate_email,
-        'label': 'Social Media',
-        'color': Colors.orange
-      },
-      {'icon': Icons.pets, 'label': 'Pet Care', 'color': Colors.deepPurple},
-      {'icon': Icons.brush, 'label': 'Art & Design', 'color': Colors.pink},
-      {'icon': Icons.build, 'label': 'DIY', 'color': Colors.brown},
-      {'icon': Icons.directions_bike, 'label': 'Cycling', 'color': Colors.red},
-      {'icon': Icons.kitchen, 'label': 'Cooking', 'color': Colors.teal},
-      {'icon': Icons.fitness_center, 'label': 'Fitness', 'color': Colors.black},
-      {'icon': Icons.music_note, 'label': 'Music', 'color': Colors.cyan},
-      {'icon': Icons.local_florist, 'label': 'Gardening', 'color': Colors.lime},
-      {'icon': Icons.camera_alt, 'label': 'Photography', 'color': Colors.amber},
-    ];
+    return categories.isEmpty
+        ? Center(child: CircularProgressIndicator())
+        : SizedBox(
+      height: 100,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: categories.length > 5 ? 5 : categories.length, // Show only up to 5 items
+        itemBuilder: (context, index) {
+          String categoryName = categories[index];
+          IconData categoryIcon = categoryIcons[categoryName] ?? FontAwesomeIcons.questionCircle;
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: categories
-            .map((category) => buildCategoryItem(
-                  category['icon'],
-                  category['label'],
-                  category['color'],
-                  () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CategoriesCustomer(
-                                onBackPress: widget.onBackPress,
-                              ))),
-                ))
-            .toList(),
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CategoryServicesScreen(categoryName: categoryName),
+                  ),
+                );
+                // print('Tapped on $categoryName');
+              },
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.blueAccent,
+                    child: Icon(categoryIcon, color: Colors.white),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(categoryName,
+                      style: const TextStyle(
+                          color: AppColors.heading,
+                          fontFamily: 'Poppins',
+                          fontSize: 10,)),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget buildCategoryItem(
-      IconData icon, String label, Color color, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            CircleAvatar(
-                radius: 20,
-                backgroundColor: color,
-                child: Icon(icon, color: Colors.white)),
-            const SizedBox(height: 5),
-            Text(label),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget servicesList() {
     return Column(
@@ -346,7 +354,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 23.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Services",
@@ -357,20 +365,25 @@ class _HomeCustomerState extends State<HomeCustomer> {
                   fontSize: 17,
                 ),
               ),
-              // GestureDetector(
-              //   onTap: () {
-              //
-              //   },
-              //   child: Text(
-              //     'View All',
-              //     style: TextStyle(
-              //       fontFamily: 'Poppins',
-              //       fontWeight: FontWeight.bold,
-              //       color: AppColors.customButton,
-              //       fontSize: 16,
-              //     ),
-              //   ),
-              // ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ServicesScreen(), // Pass the DocumentSnapshot here
+                    ),
+                  );
+                },
+                child: Text(
+                  'View All',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.customButton,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -378,8 +391,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: StreamBuilder<QuerySnapshot>(
-            stream:
-                FirebaseFirestore.instance.collection('service').snapshots(),
+            stream: FirebaseFirestore.instance.collection('service').snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return Text("No Data Available");
@@ -393,25 +405,26 @@ class _HomeCustomerState extends State<HomeCustomer> {
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                 ),
-                itemCount: snapshot.data!.docs.length,
+                // Limit the displayed items to six
+                itemCount: min(snapshot.data!.docs.length, 6),
                 itemBuilder: (context, index) {
                   DocumentSnapshot serviceDoc = snapshot.data!.docs[index];
                   return FutureBuilder<DocumentSnapshot>(
-                      future: FirebaseFirestore.instance
-                          .collection('provider')
-                          .doc(serviceDoc['providerId'])
-                          .get(),
-                      builder: (context, providerSnapshot) {
-                        if (!providerSnapshot.hasData) {
-                          return Center(
-                              child: CircularProgressIndicator(
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.blue),
-                          ));
-                        }
-                        return buildServiceCard(
-                            context, serviceDoc, providerSnapshot.data!);
-                      });
+                    future: FirebaseFirestore.instance
+                        .collection('provider')
+                        .doc(serviceDoc['providerId'])
+                        .get(),
+                    builder: (context, providerSnapshot) {
+                      if (!providerSnapshot.hasData) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                          ),
+                        );
+                      }
+                      return buildServiceCard(context, serviceDoc, providerSnapshot.data!);
+                    },
+                  );
                 },
               );
             },
@@ -419,22 +432,16 @@ class _HomeCustomerState extends State<HomeCustomer> {
         ),
       ],
     );
+
   }
 
-  Widget buildServiceCard(BuildContext context, DocumentSnapshot serviceDoc,
-      DocumentSnapshot providerDoc) {
-    // Assuming fields are correctly retrieved.
-    String imageUrl =
-        getDocumentField(serviceDoc, 'ImageUrl', 'default_image_url');
-    String serviceName =
-        getDocumentField(serviceDoc, 'ServiceName', 'No service name');
+  Widget buildServiceCard(BuildContext context, DocumentSnapshot serviceDoc, DocumentSnapshot providerDoc) {
+    String imageUrl = getDocumentField(serviceDoc, 'ImageUrl', 'default_image_url');
+    String serviceName = getDocumentField(serviceDoc, 'ServiceName', 'No service name');
     String subcategory = getDocumentField(serviceDoc, 'Subcategory', 'General');
-    String servicePrice =
-        getDocumentField(serviceDoc, 'Price', 'Call for price');
-    String providerPic =
-        getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url');
-    String providerName =
-        getDocumentField(providerDoc, 'FirstName', 'No provider name');
+    String servicePrice = getDocumentField(serviceDoc, 'Price', 'Call for price');
+    String providerPic = getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url');
+    String providerName = getDocumentField(providerDoc, 'FirstName', 'No provider name');
 
     return InkWell(
       onTap: () {
@@ -479,7 +486,11 @@ class _HomeCustomerState extends State<HomeCustomer> {
                             fontSize: 18,
                             color: Colors.blue[800]),
                       ),
-                      SizedBox(width: 65,),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
                       Text(
                         "\$" + servicePrice,
                         style: TextStyle(
@@ -489,10 +500,9 @@ class _HomeCustomerState extends State<HomeCustomer> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 4),
                   Text(
                     subcategory,
-                    style: TextStyle(fontSize: 12,fontFamily: 'Poppins',fontWeight: FontWeight.bold, color: Colors.blueGrey,),
+                    style: TextStyle(fontSize: 12, fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.blueGrey),
                   ),
                 ],
               ),
@@ -500,13 +510,12 @@ class _HomeCustomerState extends State<HomeCustomer> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: Row(
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CircleAvatar(
                     backgroundImage: NetworkImage(providerPic),
                     radius: 15,
                   ),
-                  SizedBox(width: 20,),
+                  SizedBox(width: 20),
                   Text(
                     providerName,
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -520,11 +529,8 @@ class _HomeCustomerState extends State<HomeCustomer> {
     );
   }
 
-  dynamic getDocumentField(DocumentSnapshot doc, String fieldName,
-      [dynamic defaultValue = '']) {
+  dynamic getDocumentField(DocumentSnapshot doc, String fieldName, [dynamic defaultValue = '']) {
     var data = doc.data() as Map<String, dynamic>?;
-    return data != null && data.containsKey(fieldName)
-        ? data[fieldName]
-        : defaultValue;
+    return data != null && data.containsKey(fieldName) ? data[fieldName] : defaultValue;
   }
 }

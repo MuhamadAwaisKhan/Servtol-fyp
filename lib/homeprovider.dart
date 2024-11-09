@@ -33,6 +33,7 @@ class _HomeProviderState extends State<HomeProvider> {
 
   int bookingCount = 0;
   int serviceCount = 0;
+  String providerId = ''; // Declare providerId here
 
   @override
   void initState() {
@@ -83,6 +84,7 @@ class _HomeProviderState extends State<HomeProvider> {
         setState(() {
           _userName = name ?? 'Name not available';
           providerPicUrl = profilePic; // Can be null if not available
+       providerId = snapshot.docs.first.id; // Store providerId here
         });
       }
     } catch (e) {
@@ -93,7 +95,6 @@ class _HomeProviderState extends State<HomeProvider> {
       print(e); // Print the error to the console for debugging
     }
   }
-
   int unreadCount = 0;
 
   // Function to listen for unread notifications
@@ -233,7 +234,7 @@ class _HomeProviderState extends State<HomeProvider> {
             onPressed: () =>
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => chatprovider()),
+                  MaterialPageRoute(builder: (context) => ProviderLogScreen(providerId: providerId,)),
                 ),
           ),
           StreamBuilder<List<QuerySnapshot>>(
