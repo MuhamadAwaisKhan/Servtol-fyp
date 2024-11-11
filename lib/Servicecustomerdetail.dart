@@ -10,7 +10,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Servicecustomerdetail extends StatefulWidget {
   final DocumentSnapshot service;
 
-  Servicecustomerdetail({required this.service});
+  Servicecustomerdetail({required this.service,
+    // required String serviceId
+
+  });
 
   @override
   State<Servicecustomerdetail> createState() => _ServicecustomerdetailState();
