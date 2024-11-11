@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:servtol/bookservice.dart';
 import 'package:servtol/messagescreen.dart';
+import 'package:servtol/providerprofilescreen.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -271,10 +272,12 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                     .doc(providerId)
                     .get(),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData)
+                  if (!snapshot.hasData) {
                     return CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                     );
+                  }
+
                   var providerData = snapshot.data!.data() as Map<String, dynamic>;
                   final providerName = providerData['FirstName'] ?? 'Unknown Provider';
                   final profilePicUrl = providerData['ProfilePic'];
@@ -301,16 +304,23 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => MessageScreen(
-                              chatWithId: providerId,                 // Pass the provider's ID here
-                              chatWithName: providerName,             // Pass the provider's name here
-                              chatWithPicUrl: profilePicUrl,          // Pass the provider's profile picture URL
+                              chatWithId: providerId,
+                              chatWithName: providerName,
+                              chatWithPicUrl: profilePicUrl,
                             ),
                           ),
-
-
                         );
                       },
                     ),
+                    onTap: () {
+                      // Navigate to the profile screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => providerprofileview(providerId: providerId),
+                        ),
+                      );
+                    },
                   );
                 },
               ),

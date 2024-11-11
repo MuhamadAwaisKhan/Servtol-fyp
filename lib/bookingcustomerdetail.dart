@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:servtol/providerprofilescreen.dart';
 import 'package:servtol/util/AppColors.dart';
 
 enum PaymentMethod { cash, card }
@@ -367,7 +368,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         return AlertDialog(
           title: Text('Booking Status'),
           content: FutureBuilder<DocumentSnapshot>(
-            future: _firestore.collection('bookings').doc(widget.bookings.id).get(),
+            future:
+                _firestore.collection('bookings').doc(widget.bookings.id).get(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
@@ -410,7 +412,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                     subtitle: Text(
                       '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}',
                     ),
-                    content: Text(''), // You might want to add some content here
+                    content: Text(''),
+                    // You might want to add some content here
                     isActive: i == statusHistory.length - 1,
                   ),
                 );
@@ -432,7 +435,6 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -996,12 +998,10 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                               ),
                               IconButton(
                                 onPressed: () {
-                                  // Define what happens when the info button is pressed
+                                  showProviderDetails(context);
                                 },
                                 icon: Icon(Icons.info),
-                                tooltip:
-                                    'More Info', // Tooltip text on long press
-                              )
+                              ),
                             ],
                           ),
                           subtitle: Text(
@@ -1009,6 +1009,18 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                             style: TextStyle(color: Colors.grey[700]),
                           ),
                           onTap: () {
+                            final providerId =
+                                widget.bookings['providerId'] ?? 'default_id';
+
+                            // print(providerId);
+                            // Navigate to provider profile view
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    providerprofileview(providerId: providerId),
+                              ),
+                            );
                             // Define what happens when you tap this ListTile
                           },
                         ),
@@ -1290,6 +1302,158 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
         },
       ),
     );
+  }
+  void showProviderDetails(BuildContext context) async {
+    // Fetch provider data (assumed to be already implemented)
+    final providerId =
+        widget.bookings['providerId'] ?? 'default_id';
+
+    Map<String, dynamic> providerData = await fetchProviderData(providerId);
+
+    // Show bottom sheet with provider details
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Profile Picture
+              CircleAvatar(
+                radius: 40,
+                backgroundImage: NetworkImage(
+                  providerData['ProfilePic'] ?? 'https://via.placeholder.com/150',
+                ),
+              ),
+              SizedBox(height: 10),
+              // Provider Name
+              Text(
+                '${providerData['FirstName']} ${providerData['LastName']}',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 5),
+              // Provider Bio
+              Text(
+                providerData['Bio'] ?? 'No bio available',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Colors.grey[700]),
+              ),
+              SizedBox(height: 15),
+              // Rating (if available)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.star, color: Colors.amber, size: 24),
+                  SizedBox(width: 5),
+                  Text(
+                    "${providerData['rating'] ?? 'N/A'}",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              // Services (if available)
+              Text(
+                "Services: ${providerData['services'] ?? 'No services listed'}",
+                style: TextStyle(fontSize: 14, color: Colors.blue),
+              ),
+              SizedBox(height: 20),
+              // Close Button
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close the bottom sheet
+                },
+                child: Text('Close'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
+  // void showProviderDetailsDialog(
+  //     BuildContext context, Map<String, dynamic> providerData) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         shape:
+  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+  //         contentPadding: EdgeInsets.all(16),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             CircleAvatar(
+  //               radius: 30,
+  //               backgroundImage: NetworkImage(
+  //                 providerData['ProfilePic'] ??
+  //                     'https://via.placeholder.com/150',
+  //               ),
+  //             ),
+  //             SizedBox(height: 10),
+  //             Text(
+  //               "${providerData['FirstName']} ${providerData['LastName']}",
+  //               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  //               textAlign: TextAlign.center,
+  //             ),
+  //             SizedBox(height: 5),
+  //             Text(
+  //               providerData['Bio'] ?? 'No additional information provided.',
+  //               style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+  //               textAlign: TextAlign.center,
+  //             ),
+  //             Divider(height: 20, color: Colors.grey[300]),
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //               children: [
+  //                 Column(
+  //                   children: [
+  //                     Icon(Icons.star, color: Colors.amber, size: 24),
+  //                     SizedBox(height: 4),
+  //                     Text(
+  //                       "${providerData['rating'] ?? 'N/A'}",
+  //                       style: TextStyle(fontSize: 14),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 Column(
+  //                   children: [
+  //                     Icon(Icons.work, color: Colors.blue, size: 24),
+  //                     SizedBox(height: 4),
+  //                     Text(
+  //                       "${providerData['services'] ?? 'No services'}",
+  //                       style: TextStyle(fontSize: 14),
+  //                       textAlign: TextAlign.center,
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             child: Text('Close', style: TextStyle(color: Colors.blue)),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+// Fetch provider data from Firestore
+  Future<Map<String, dynamic>> fetchProviderData(String providerId) async {
+    var snapshot = await FirebaseFirestore.instance.collection('provider').doc(providerId).get();
+    return snapshot.data() ?? {}; // Return the provider data or empty map if not found
   }
 
   void _listenToProviderReadiness(String bookingId) {

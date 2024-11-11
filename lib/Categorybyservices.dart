@@ -4,7 +4,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:servtol/Servicecustomerdetail.dart';
 import 'package:servtol/util/AppColors.dart';
-
 class CategoryServicesScreen extends StatefulWidget {
   final String categoryName;
 
@@ -13,7 +12,6 @@ class CategoryServicesScreen extends StatefulWidget {
   @override
   _CategoryServicesScreenState createState() => _CategoryServicesScreenState();
 }
-
 class _CategoryServicesScreenState extends State<CategoryServicesScreen> {
   List<String> subcategories = [];
   String? selectedSubcategory;
@@ -26,7 +24,6 @@ class _CategoryServicesScreenState extends State<CategoryServicesScreen> {
     fetchSubcategories();
     fetchServices();
   }
-
   void fetchSubcategories() async {
     // Step 1: Fetch the categoryID for the selected category name
     var categorySnapshot = await FirebaseFirestore.instance
@@ -50,7 +47,6 @@ class _CategoryServicesScreenState extends State<CategoryServicesScreen> {
       print('No category found with the name: ${widget.categoryName}');
     }
   }
-
   void fetchServices() async {
     try {
       Query query = FirebaseFirestore.instance
@@ -67,61 +63,16 @@ class _CategoryServicesScreenState extends State<CategoryServicesScreen> {
         filtersApplied = selectedSubcategory != null;
       });
 
-      if (services.isEmpty) {
-        print('No services found for category: ${widget.categoryName} with subcategory: $selectedSubcategory');
-      } else {
-        print('Fetched services: ${services.length}');
+      // If no services found and no filter applied, reset filtersApplied to false
+      if (services.isEmpty && selectedSubcategory == null) {
+        setState(() {
+          filtersApplied = false;
+        });
       }
     } catch (e) {
       print('Error fetching services: $e');
     }
   }
-
-  String _getLottieAnimationPath(String category) {
-    switch (category) {
-      case 'Online Services':
-        return 'assets/images/onlineservice.json';
-      case 'Development':
-        return 'assets/images/development.json';
-      case 'Healthcare':
-        return 'assets/images/healthcare.json';
-      case 'Design & Multimedia':
-        return 'assets/images/designmulti.json';
-      case 'Telemedicine':
-        return 'assets/images/Telemedicine.json';
-      case 'Education':
-        return 'assets/images/education.json';
-      case 'Retail':
-        return 'assets/images/Retail.json';
-      case 'Online Consultation':
-        return 'assets/images/Online Consultation.json';
-      case 'Digital Marketing':
-        return 'assets/images/Digital Marketing.json';
-      case 'Online Training':
-        return 'assets/images/onlineservice.json';
-      case 'Event Management':
-        return 'assets/images/Event Management.json';
-      case 'Video Editing':
-        return 'assets/images/Graphic Design.json';
-      case 'Home & Maintenance':
-        return 'assets/images/Home & Maintenance.json';
-      case 'Hospitality':
-        return 'assets/images/Hospitality.json';
-      case 'Social Media Management':
-        return 'assets/images/Social Media Management.json';
-      case 'IT Support':
-        return 'assets/images/IT Support.json';
-      case 'Personal & Lifestyle':
-        return 'assets/images/Personal & Lifestyle.json';
-      case 'Graphic Design':
-        return 'assets/images/Graphic Design.json';
-      case 'Finance':
-        return 'assets/images/Finance.json';
-      default:
-        return 'assets/images/default.json';
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +99,17 @@ class _CategoryServicesScreenState extends State<CategoryServicesScreen> {
         backgroundColor: AppColors.background,
       ),
       backgroundColor: AppColors.background,
-      body: ListView.builder(
+
+      body: services.isEmpty
+          ? Center(
+        child: Text(
+          filtersApplied
+              ? 'No Service match your filter criteria.'
+              : 'No Service available for this category.',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      )
+          : ListView.builder(
         itemCount: services.length,
         itemBuilder: (context, index) {
           var service = services[index];
@@ -308,4 +269,50 @@ class _CategoryServicesScreenState extends State<CategoryServicesScreen> {
       },
     );
   }
+
+  String _getLottieAnimationPath(String category) {
+    switch (category) {
+      case 'Online Services':
+        return 'assets/images/onlineservice.json';
+      case 'Development':
+        return 'assets/images/development.json';
+      case 'Healthcare':
+        return 'assets/images/healthcare.json';
+      case 'Design & Multimedia':
+        return 'assets/images/designmulti.json';
+      case 'Telemedicine':
+        return 'assets/images/Telemedicine.json';
+      case 'Education':
+        return 'assets/images/education.json';
+      case 'Retail':
+        return 'assets/images/Retail.json';
+      case 'Online Consultation':
+        return 'assets/images/Online Consultation.json';
+      case 'Digital Marketing':
+        return 'assets/images/Digital Marketing.json';
+      case 'Online Training':
+        return 'assets/images/onlineservice.json';
+      case 'Event Management':
+        return 'assets/images/Event Management.json';
+      case 'Video Editing':
+        return 'assets/images/Graphic Design.json';
+      case 'Home & Maintenance':
+        return 'assets/images/Home & Maintenance.json';
+      case 'Hospitality':
+        return 'assets/images/Hospitality.json';
+      case 'Social Media Management':
+        return 'assets/images/Social Media Management.json';
+      case 'IT Support':
+        return 'assets/images/IT Support.json';
+      case 'Personal & Lifestyle':
+        return 'assets/images/Personal & Lifestyle.json';
+      case 'Graphic Design':
+        return 'assets/images/Graphic Design.json';
+      case 'Finance':
+        return 'assets/images/Finance.json';
+      default:
+        return 'assets/images/default.json';
+    }
+  }
+
 }

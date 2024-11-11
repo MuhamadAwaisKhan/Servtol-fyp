@@ -18,13 +18,25 @@ class _ServicesScreenState extends State<ServicesScreen> {
   // Filter variables
   String? _selectedServiceType;
   String? _selectedWageType;
+  String? _selectedProvince;
+  String? _selectedCategory;
+  String? _selectedCity;
+  String? _selectedSubCategory;
 
   // Temporary filter variables
   String? _tempSelectedServiceType;
   String? _tempSelectedWageType;
+  String? _tempSelectedProvince;
+  String? _tempSelectedCategory;
+  String? _tempSelectedCity;
+  String? _tempSelectedSubcategory;
 
   List<String> serviceTypes = [];
   List<String> wageTypes = [];
+  List<String> provinces = [];
+  List<String> categories = [];
+  List<String> cities = [];
+  List<String> subcategories = [];
 
   @override
   void initState() {
@@ -34,44 +46,70 @@ class _ServicesScreenState extends State<ServicesScreen> {
         searchQuery = searchController.text;
       });
     });
-    _firestore = FirebaseFirestore.instance;
-    // print("abc");
     _fetchFilterOptions();
   }
 
   Future<void> _fetchFilterOptions() async {
     try {
-      // print("Fetching service types and wage types...");
-
-      // Fetching service types from the 'servicetypes' collection
-      var serviceTypesSnapshot = await _firestore.collection('ServiceTypes').get();
-      final types = <String>{};
-      print(serviceTypesSnapshot.docs.length);
-      for (var doc in serviceTypesSnapshot.docs) {
-        print("ServiceType document: ${doc.data()}");
+      var categorySnapshot = await _firestore.collection('Category').get();
+      final categoryType = <String>{};
+      for (var doc in categorySnapshot.docs) {
         if (doc['Name'] != null) {
-          types.add(doc['Name']);
+          categoryType.add(doc['Name']);
         }
       }
 
-      // Fetching wage types from the 'wagetypes' collection
-      var wageTypesSnapshot = await _firestore.collection('wageTypes').get();
-      final wages = <String>{};
-
-      for (var doc in wageTypesSnapshot.docs) {
-        print("WageType document: ${doc.data()}");
+      var provinceSnapshot = await _firestore.collection('Province').get();
+      final provinceType = <String>{};
+      for (var doc in provinceSnapshot.docs) {
         if (doc['Name'] != null) {
-          wages.add(doc['Name']);
+          provinceType.add(doc['Name']);
+        }
+      }
+
+      var subcategorySnapshot =
+          await _firestore.collection('Subcategory').get();
+      final subcategoryType = <String>{};
+      for (var doc in subcategorySnapshot.docs) {
+        if (doc['Name'] != null) {
+          subcategoryType.add(doc['Name']);
+        }
+      }
+
+      var citySnapshot = await _firestore.collection('City').get();
+      final cityType = <String>{};
+      for (var doc in citySnapshot.docs) {
+        if (doc['Name'] != null) {
+          cityType.add(doc['Name']);
+        }
+      }
+
+      var serviceTypesSnapshot =
+          await _firestore.collection('ServiceTypes').get();
+      final serviceTypeSet = <String>{};
+      for (var doc in serviceTypesSnapshot.docs) {
+        if (doc['Name'] != null) {
+          serviceTypeSet.add(doc['Name']);
+        }
+      }
+
+      var wageTypesSnapshot = await _firestore.collection('wageTypes').get();
+      final wageTypeSet = <String>{};
+      for (var doc in wageTypesSnapshot.docs) {
+        if (doc['Name'] != null) {
+          wageTypeSet.add(doc['Name']);
         }
       }
 
       setState(() {
-        serviceTypes = types.toList();
-        wageTypes = wages.toList();
+        serviceTypes = serviceTypeSet.toList();
+        wageTypes = wageTypeSet.toList();
+        provinces = provinceType.toList();
+        categories = categoryType.toList();
+        cities = cityType.toList(); // Add cities to setState
+        subcategories =
+            subcategoryType.toList(); // Add subcategories to setState
       });
-    //
-    //   print("Fetched service types: $serviceTypes");
-    //   print("Fetched wage types: $wageTypes");
     } catch (error) {
       print('Error fetching filter options: $error');
     }
@@ -84,12 +122,35 @@ class _ServicesScreenState extends State<ServicesScreen> {
     bool matchesWageType = _selectedWageType == null ||
         _selectedWageType == 'All' ||
         serviceData['WageType'] == _selectedWageType;
-    return matchesServiceType && matchesWageType;
+    bool matchesProvince = _selectedProvince == null ||
+        _selectedProvince == 'All' ||
+        serviceData['Province'] == _selectedProvince;
+    bool matchesCategory = _selectedCategory == null ||
+        _selectedCategory == 'All' ||
+        serviceData['Category'] == _selectedCategory;
+    bool matchesCity = _selectedCity == null || // Fix: Compare City correctly
+        _selectedCity == 'All' ||
+        serviceData['City'] == _selectedCity;
+    bool matchesSubCategory =
+        _selectedSubCategory == null || // Fix: Compare Subcategory correctly
+            _selectedSubCategory == 'All' ||
+            serviceData['Subcategory'] == _selectedSubCategory;
+    return matchesServiceType &&
+        matchesWageType &&
+        matchesCategory &&
+        matchesProvince &&
+        matchesCity &&
+        matchesSubCategory;
   }
+
   void _applyFilters() {
     setState(() {
       _selectedServiceType = _tempSelectedServiceType;
       _selectedWageType = _tempSelectedWageType;
+      _selectedCategory = _tempSelectedCategory;
+      _selectedProvince = _tempSelectedProvince;
+      _selectedSubCategory = _tempSelectedSubcategory;
+      _selectedCity = _tempSelectedCity;
     });
   }
 
@@ -97,9 +158,14 @@ class _ServicesScreenState extends State<ServicesScreen> {
     setState(() {
       _tempSelectedServiceType = null;
       _tempSelectedWageType = null;
+      _tempSelectedCategory = null;
+      _tempSelectedProvince = null;
+      _tempSelectedCity = null;
+      _tempSelectedSubcategory = null;
       _applyFilters();
     });
   }
+
   bool filtersApplied = false; // Tracks if filters are applied
 
   @override
@@ -116,87 +182,18 @@ class _ServicesScreenState extends State<ServicesScreen> {
         ),
         backgroundColor: AppColors.background,
         actions: [
-      IconButton(
-      icon: FaIcon(
-      FontAwesomeIcons.filter,
-        color: filtersApplied ? Colors.amber : Colors.grey,
-      ),
-      onPressed: () {
-              // Print service and wage types when the filter icon is clicked
-              // print("Service Types: $serviceTypes");
-              // print("Wage Types: $wageTypes");
-
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text("Filter Services"),
-                    content: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          DropdownButton<String>(
-                            hint: Text("Select Service Type"),
-                            value: _tempSelectedServiceType,
-                            onChanged: (newValue) {
-                              setState(() {
-                                _tempSelectedServiceType = newValue;
-                              });
-                            },
-                            items: serviceTypes
-                                .map((type) => DropdownMenuItem<String>(
-                              value: type,
-                              child: Text(type),
-                            ))
-                                .toList(),
-                          ),
-                          DropdownButton<String>(
-                            hint: Text("Select Wage Type"),
-                            value: _tempSelectedWageType,
-                            onChanged: (newValue) {
-                              setState(() {
-                                _tempSelectedWageType = newValue;
-                              });
-                            },
-                            items: wageTypes
-                                .map((type) => DropdownMenuItem<String>(
-                              value: type,
-                              child: Text(type),
-                            ))
-                                .toList(),
-                          ),
-                        ],
-                      ),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _applyFilters();
-                        },
-                        child: Text('Apply Filters'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _clearFilters();
-                        },
-                        child: Text('Clear Filters'),
-                      ),
-                    ],
-                  );
-                },
-              );
-
-            },
+          IconButton(
+            icon: FaIcon(
+              FontAwesomeIcons.filter,
+              color: filtersApplied ? Colors.amber : Colors.grey,
+            ),
+            onPressed: _showFilterDialog,
           ),
         ],
       ),
       backgroundColor: AppColors.background,
-
       body: Column(
         children: [
-          // Search Field
           Padding(
             padding: EdgeInsets.all(10),
             child: TextField(
@@ -205,15 +202,16 @@ class _ServicesScreenState extends State<ServicesScreen> {
               decoration: InputDecoration(
                 labelText: 'Search Services',
                 labelStyle: TextStyle(fontFamily: 'Poppins'),
-                prefixIcon: Icon(FontAwesomeIcons.search, color: Colors.grey),
+                prefixIcon:
+                    Icon(FontAwesomeIcons.magnifyingGlass, color: Colors.grey),
                 suffixIcon: searchController.text.isNotEmpty
                     ? GestureDetector(
-                  child: Icon(Icons.clear, color: Colors.grey),
-                  onTap: () {
-                    searchController.clear();
-                    setState(() {}); // Refresh the search when cleared
-                  },
-                )
+                        child: Icon(Icons.clear, color: Colors.grey),
+                        onTap: () {
+                          searchController.clear();
+                          setState(() {});
+                        },
+                      )
                     : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
@@ -221,17 +219,18 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 ),
                 filled: true,
                 fillColor: Colors.white,
-                contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 0, horizontal: 20),
               ),
               onChanged: (value) {
                 setState(() {});
               },
             ),
           ),
-          // StreamBuilder to fetch and filter services based on the search query
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('service').snapshots(),
+              stream:
+                  FirebaseFirestore.instance.collection('service').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -239,20 +238,26 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 if (snapshot.hasError) {
                   return Center(child: Text('Something went wrong.'));
                 }
-
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return Center(child: Text('No services found.'));
                 }
 
-                // Filter services by search query and selected filters
-                var services = snapshot.data!.docs
-                    .where((doc) {
+                var services = snapshot.data!.docs.where((doc) {
                   var serviceData = doc.data() as Map<String, dynamic>;
-                  var serviceName = serviceData['ServiceName']?.toLowerCase() ?? '';
+                  var serviceName =
+                      serviceData['ServiceName']?.toLowerCase() ?? '';
                   return serviceName.contains(searchQuery.toLowerCase()) &&
                       _matchesFilters(serviceData);
-                })
-                    .toList();
+                }).toList();
+                // Check if no services match the applied filters and display a message
+                if (services.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No Service match your filter criteria.',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  );
+                }
 
                 return ListView.builder(
                   itemCount: services.length,
@@ -279,7 +284,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         ],
                       ),
                       child: ListTile(
-                        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                         leading: Lottie.asset(
                           _getLottieAnimationPath(serviceData['Category']),
                           height: 100,
@@ -288,21 +294,27 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         ),
                         title: Text(
                           serviceData['ServiceName'] ?? 'No name',
-                          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.white),
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
                         ),
                         subtitle: Text(
                           serviceData['Category'] ?? 'No category',
-                          style: TextStyle(fontFamily: 'Poppins', color: Colors.white70),
+                          style: TextStyle(
+                              fontFamily: 'Poppins', color: Colors.white70),
                         ),
                         trailing: Text(
                           "\$" + (serviceData['Price'] ?? 0).toString(),
-                          style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
+                          style: TextStyle(
+                              fontFamily: 'Poppins', color: Colors.white),
                         ),
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => Servicecustomerdetail(service: serviceDoc, ),
+                              builder: (context) =>
+                                  Servicecustomerdetail(service: serviceDoc),
                             ),
                           );
                         },
@@ -362,5 +374,220 @@ class _ServicesScreenState extends State<ServicesScreen> {
         return 'assets/images/default.json';
     }
   }
+  String? selectedFilter;
 
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25)),
+              title: Text('Filter Options',
+                  style: TextStyle(fontFamily:  'Poppins', fontWeight: FontWeight.bold)),
+              content: Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<String>(
+                      isDense: true, // makes the dropdown slightly more compact
+                      itemHeight: 48.0,
+                      value: _tempSelectedServiceType,
+                      onChanged: (newValue) {
+                        setDialogState(() => _tempSelectedServiceType = newValue);
+                      },
+                      items: ['All', ...serviceTypes].map((type) {
+                        return DropdownMenuItem<String>(
+                          value: type,
+                          child:
+                              Text(type, style: TextStyle(fontFamily: 'Poppins')),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        labelText: 'Service Type',
+                        labelStyle: TextStyle(fontFamily: 'Poppins'),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    DropdownButtonFormField<String>(
+                      isDense: true, // makes the dropdown slightly more compact
+                      itemHeight: 48.0,
+                      value: _tempSelectedWageType,
+                      onChanged: (newValue) {
+                        setDialogState(() => _tempSelectedWageType = newValue);
+                      },
+                      items: ['All', ...wageTypes].map((type) {
+                        return DropdownMenuItem<String>(
+                          value: type,
+                          child:
+                              Text(type, style: TextStyle(fontFamily: 'Poppins')),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        labelText: 'Wage Type',
+                        labelStyle: TextStyle(fontFamily: 'Poppins'),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    DropdownButtonFormField<String>(
+                      isDense: true, // makes the dropdown slightly more compact
+                      itemHeight: 48.0,
+                      value: _tempSelectedProvince,
+                      onChanged: (newValue) {
+                        setDialogState(() => _tempSelectedProvince = newValue);
+                      },
+                      items: ['All', ...provinces].map((type) {
+                        return DropdownMenuItem<String>(
+                          value: type,
+                          child:
+                              Text(type, style: TextStyle(fontFamily: 'Poppins')),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        labelText: 'Province',
+                        labelStyle: TextStyle(fontFamily: 'Poppins'),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    DropdownButtonFormField<String>(
+                      isDense: true, // makes the dropdown slightly more compact
+                      itemHeight: 48.0,
+                      value: _tempSelectedCity,
+                      onChanged: (newValue) {
+                        setDialogState(() => _tempSelectedCity = newValue);
+                      },
+                      items: ['All', ...cities].map((type) {
+                        return DropdownMenuItem<String>(
+                          value: type,
+                          child:
+                              Text(type, style: TextStyle(fontFamily: 'Poppins')),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        labelText: 'City',
+                        labelStyle: TextStyle(fontFamily: 'Poppins'),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    DropdownButtonFormField<String>(
+                      isDense: true, // makes the dropdown slightly more compact
+                      itemHeight: 48.0,
+                      value: _tempSelectedCategory,
+                      onChanged: (newValue) {
+                        setDialogState(() => _tempSelectedCategory = newValue);
+                      },
+                      items: ['All', ...categories].map((type) {
+                        return DropdownMenuItem<String>(
+                          value: type,
+                          child:
+                              Text(type, style: TextStyle(fontFamily: 'Poppins')),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        labelText: 'Category',
+                        labelStyle: TextStyle(fontFamily: 'Poppins'),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    DropdownButtonFormField<String>(
+                      isDense: true, // makes the dropdown slightly more compact
+                      itemHeight: 48.0,
+                      value: _tempSelectedSubcategory,
+                      onChanged: (newValue) {
+                        setDialogState(() => _tempSelectedSubcategory = newValue);
+                      },
+                      items: ['All', ...subcategories].map((type) {
+                        return DropdownMenuItem<String>(
+                          value: type,
+                          child:
+                              Text(type, style: TextStyle(fontFamily: 'Poppins')),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        labelText: 'Subcategory',
+                        labelStyle: TextStyle(fontFamily: 'Poppins'),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                SizedBox(
+                  height: 10,),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    _clearFilters();
+                    filtersApplied = false;
+                    Navigator.pop(context);
+                  },
+                  child:  Text(
+                    'Clear Filters',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _applyFilters();
+                    setState(() {
+                      filtersApplied = true;
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Apply Filters',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 }
