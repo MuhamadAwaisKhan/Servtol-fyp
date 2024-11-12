@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
 import 'package:servtol/loginprovider.dart';
@@ -24,6 +24,7 @@ class _SignupProviderState extends State<SignupProvider> {
   final TextEditingController numberController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController cnicController = TextEditingController();
+  final TextEditingController occuController = TextEditingController();
   bool _hidePassword = true;
   bool _rememberMe = false;
   bool _isLoading = false;
@@ -37,6 +38,7 @@ class _SignupProviderState extends State<SignupProvider> {
     numberController.dispose();
     passwordController.dispose();
     cnicController.dispose();
+    occuController.dispose();
     super.dispose();
   }
 
@@ -50,6 +52,7 @@ class _SignupProviderState extends State<SignupProvider> {
         'Mobile': numberController.text,
         'Username': usernameController.text,
         'CNIC': cnicController.text,
+        'Occupation': occuController.text,
       });
       Fluttertoast.showToast(msg: 'Account Created Successfully');
       Navigator.pushReplacement(
@@ -75,7 +78,8 @@ class _SignupProviderState extends State<SignupProvider> {
         numberController.text.isEmpty ||
         usernameController.text.isEmpty ||
         cnicController.text.isEmpty ||
-        passwordController.text.isEmpty) {
+        passwordController.text.isEmpty ||
+        occuController.text.isEmpty) {
       Fluttertoast.showToast(msg: 'Please fill all the fields.');
       return;
     }
@@ -114,7 +118,6 @@ class _SignupProviderState extends State<SignupProvider> {
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
                 fontFamily: "Poppins",
-
                 color: AppColors.heading,
               ),
             ),
@@ -128,22 +131,20 @@ class _SignupProviderState extends State<SignupProvider> {
               ),
             ),
             const SizedBox(height: 12),
+            uihelper.CustomTextField(context, firstController, "First Name",
+                Icons.account_circle, false),
+            uihelper.CustomTextField(context, lastController, "Last Name",
+                Icons.account_circle, false),
+            uihelper.CustomTextField(context, usernameController, "User Name",
+                Icons.account_circle, false),
+            uihelper.CustomTextField(context, occuController, "Occupation",
+                Icons.business_center, false),
             uihelper.CustomTextField(
-              context,
-                firstController, "First Name", Icons.account_circle, false),
-            uihelper.CustomTextField(
-              context,
-                lastController, "Last Name", Icons.account_circle, false),
-            uihelper.CustomTextField(
-              context,
-                usernameController, "User Name", Icons.account_circle, false),
-            uihelper.CustomTextField(
-              context,
-                emailController, "Email Address", Icons.email, false),
-            uihelper.CustomNumberField( context,
-                numberController, "Contact", Icons.phone, false),
-            uihelper.CustomNumberField(context,
-                cnicController, "CNIC", Icons.card_membership, false),
+                context, emailController, "Email Address", Icons.email, false),
+            uihelper.CustomNumberField(
+                context, numberController, "Contact", Icons.phone, false),
+            uihelper.CustomNumberField(
+                context, cnicController, "CNIC", Icons.card_membership, false),
             uihelper.CustomTextfieldpassword(
                 context, passwordController, "Password", _hidePassword,
                 (bool value) {
@@ -153,15 +154,18 @@ class _SignupProviderState extends State<SignupProvider> {
             }),
             Padding(
               padding: const EdgeInsets.only(right: 58.0),
-              child: Row( mainAxisAlignment: MainAxisAlignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Checkbox(
-                    fillColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                    fillColor: MaterialStateProperty.resolveWith<Color>(
+                        (Set<MaterialState> states) {
                       if (states.contains(MaterialState.selected)) {
                         return Colors.blue;
                         // Color when checkbox is checked
                       }
-                      return Colors.transparent; // Color when checkbox is unchecked
+                      return Colors
+                          .transparent; // Color when checkbox is unchecked
                     }),
                     value: _rememberMe,
                     onChanged: (bool? newValue) {
@@ -170,11 +174,14 @@ class _SignupProviderState extends State<SignupProvider> {
                       });
                     },
                   ),
-                  SizedBox(width: 8), // Adds some space between the checkbox and the text
+                  SizedBox(width: 8),
+                  // Adds some space between the checkbox and the text
                   RichText(
                     text: TextSpan(
-                      text: 'Agree to ', // First part of the text
-                      style: TextStyle(color: Colors.black), // Default style for the first part
+                      text: 'Agree to ',
+                      // First part of the text
+                      style: TextStyle(color: Colors.black),
+                      // Default style for the first part
                       children: <TextSpan>[
                         TextSpan(
                           text: 'Terms', // Clickable text "Terms"
@@ -183,14 +190,16 @@ class _SignupProviderState extends State<SignupProvider> {
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.underline,
                           ),
-                          recognizer: TapGestureRecognizer()..onTap = () {
-                            // Handle tap for both "Terms & Conditions"
-                            print("Terms & Conditions tapped");
-                          },
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              // Handle tap for both "Terms & Conditions"
+                              print("Terms & Conditions tapped");
+                            },
                         ),
                         TextSpan(
                           text: ' & ', // Non-clickable text "&"
-                          style: TextStyle(color: Colors.black), // Color stays black
+                          style: TextStyle(
+                              color: Colors.black), // Color stays black
                         ),
                         TextSpan(
                           text: 'Conditions', // Clickable text "Conditions"
@@ -199,24 +208,22 @@ class _SignupProviderState extends State<SignupProvider> {
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.underline,
                           ),
-                          recognizer: TapGestureRecognizer()..onTap = () {
-                            // Handle tap for both "Terms & Conditions"
-                            print("Terms & Conditions tapped");
-                          },
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              // Handle tap for both "Terms & Conditions"
+                              print("Terms & Conditions tapped");
+                            },
                         ),
                       ],
                     ),
                   )
-
                 ],
               ),
             ),
-
             if (_isLoading) // Show loading indicator
               Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.blue),
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                 ),
               ),
             SizedBox(

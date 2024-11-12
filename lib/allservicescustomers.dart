@@ -410,7 +410,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         labelText: 'Service Type',
                         labelStyle: TextStyle(fontFamily: 'Poppins'),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(15),
                         ),
                       ),
                     ),
@@ -435,7 +435,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         labelText: 'Wage Type',
                         labelStyle: TextStyle(fontFamily: 'Poppins'),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(15),
                         ),
                       ),
                     ),
@@ -460,7 +460,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         labelText: 'Province',
                         labelStyle: TextStyle(fontFamily: 'Poppins'),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(15),
                         ),
                       ),
                     ),
@@ -485,7 +485,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         labelText: 'City',
                         labelStyle: TextStyle(fontFamily: 'Poppins'),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(15),
                         ),
                       ),
                     ),
@@ -510,7 +510,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         labelText: 'Category',
                         labelStyle: TextStyle(fontFamily: 'Poppins'),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(15),
                         ),
                       ),
                     ),
@@ -535,7 +535,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         labelText: 'Subcategory',
                         labelStyle: TextStyle(fontFamily: 'Poppins'),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(15),
                         ),
                       ),
                     ),

@@ -184,7 +184,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
             icon: FaIcon(FontAwesomeIcons.magnifyingGlass),
             onPressed: () =>
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => searchcustomer())),
+                    MaterialPageRoute(builder: (context) => SearchScreen())),
           ),
         ],
       ),

@@ -317,7 +317,7 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => providerprofileview(providerId: providerId),
+                          builder: (context) => ProviderProfileView(providerId: providerId),
                         ),
                       );
                     },

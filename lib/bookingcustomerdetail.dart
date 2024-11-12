@@ -1018,7 +1018,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    providerprofileview(providerId: providerId),
+                                    ProviderProfileView(providerId: providerId),
                               ),
                             );
                             // Define what happens when you tap this ListTile
@@ -1322,6 +1322,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
               // Profile Picture
               CircleAvatar(
                 radius: 40,
+
                 backgroundImage: NetworkImage(
                   providerData['ProfilePic'] ?? 'https://via.placeholder.com/150',
                 ),
