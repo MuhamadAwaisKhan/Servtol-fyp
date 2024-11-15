@@ -19,7 +19,10 @@ class _CityScreenState extends State<CityScreen> {
   @override
   void initState() {
     super.initState();
-    citiesStream = _db.collection('City').snapshots();
+    citiesStream = _db.collection('City')
+        .orderBy('Name', descending: false) // Fetch data in ascending order by name
+
+        .snapshots();
     fetchProvinces();
     searchController.addListener(_onSearchChanged);
   }
@@ -78,7 +81,7 @@ class _CityScreenState extends State<CityScreen> {
               controller: searchController,
               style: TextStyle(fontSize: 16),
               decoration: InputDecoration(
-                labelText: 'Search Provinces',
+                labelText: 'Search City',
                 labelStyle: TextStyle(fontFamily: 'Poppins'),
                 prefixIcon: Icon(Icons.search, color: Colors.grey),
                 suffixIcon: searchController.text.isNotEmpty
@@ -157,7 +160,7 @@ class _CityScreenState extends State<CityScreen> {
                             ),
                             IconButton(
                               icon: Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => _deleteCity(city.id),
+                              onPressed: () => _deleteServiceType(city.id),
                             ),
                           ],
                         ),
@@ -183,52 +186,180 @@ class _CityScreenState extends State<CityScreen> {
     );
   }
 
-  void _deleteCity(String id) {
-    _db.collection('City').doc(id).delete();
+  void _deleteServiceType(String id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
+              SizedBox(width: 10),
+              Text(
+                'Confirm Delete',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.redAccent,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Are you sure you want to delete this city? This action cannot be undone.',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              ),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Delete',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                ),
+              ),
+              onPressed: () {
+                _db.collection('City').doc(id).delete(); // Perform delete
+                Navigator.of(context).pop(); // Close the dialog after delete
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  void _showEditDialog(BuildContext context, String cityId, String currentName,
-      String currentProvinceId) {
-    TextEditingController nameController =
-        TextEditingController(text: currentName);
-    String? selectedProvinceId = currentProvinceId;
+
+  void _showEditDialog(BuildContext context, String subcategoryId, String currentName, String currentCategoryId) {
+    TextEditingController nameController = TextEditingController(text: currentName);
+    String? selectedCategoryId = currentCategoryId;
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit City'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Icon(Icons.edit, color: Colors.blue, size: 28),
+              SizedBox(width: 8),
+              Text(
+                'Edit Subcategory',
+                style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
-                decoration: InputDecoration(labelText: 'City Name'),
+                decoration: InputDecoration(
+                  labelText: 'City Name',
+                  labelStyle: TextStyle(color: Colors.blueAccent),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                ),
               ),
+              SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: selectedProvinceId,
+                value: selectedCategoryId,
                 onChanged: (newValue) {
-                  setState(() {
-                    selectedProvinceId = newValue;
-                  });
+                  selectedCategoryId = newValue;
                 },
                 items: provinceItems,
-                decoration: InputDecoration(labelText: 'Select Province'),
+                decoration: InputDecoration(
+                  labelText: 'Select Province',
+                  labelStyle: TextStyle(color: Colors.blueAccent),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                ),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(color: Colors.red)),
+              child: Text('Cancel', style: TextStyle(color: Colors.red, fontFamily: 'Poppins')),
             ),
             TextButton(
-              onPressed: () {
-                if (selectedProvinceId != null) {
-                  _updateCity(cityId, nameController.text, selectedProvinceId!);
-                  Navigator.pop(context);
+              onPressed: () async {
+                if (selectedCategoryId == null) {
+                  print('Category ID is null');
+                  return;
+                }
+
+                // Show confirmation dialog before saving
+                bool confirmSave = await showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return AlertDialog(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      title: Row(
+                        children: [
+                          Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+                          SizedBox(width: 8),
+                          Text(
+                            'Confirm Save',
+                            style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      content: Text(
+                        'Are you sure you want to save these changes?',
+                        style: TextStyle(fontFamily: 'Poppins', color: Colors.black87),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text('No', style: TextStyle(color: Colors.grey, fontFamily: 'Poppins')),
+                          onPressed: () => Navigator.of(context).pop(false),
+                        ),
+                        TextButton(
+                          child: Text('Yes', style: TextStyle(color: Colors.green, fontFamily: 'Poppins')),
+                          onPressed: () => Navigator.of(context).pop(true),
+                        ),
+                      ],
+                    );
+                  },
+                ) ?? false;
+
+                if (confirmSave) {
+                  _updateCity(subcategoryId, nameController.text, selectedCategoryId!);
+                  Navigator.pop(context); // Close the main dialog after saving
                 }
               },
-              child: Text('Save', style: TextStyle(color: Colors.green)),
+              child: Text('Save', style: TextStyle(color: Colors.green, fontFamily: 'Poppins')),
             ),
           ],
         );

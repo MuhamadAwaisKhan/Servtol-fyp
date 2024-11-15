@@ -302,17 +302,129 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
     return await storageTaskSnapshot.ref.getDownloadURL();
   }
 
+  // void showEditProfileDialog(Map<String, dynamic> data, String docId) {
+  //   TextEditingController firstNameController =
+  //       TextEditingController(text: data['FirstName']);
+  //   TextEditingController lastNameController =
+  //       TextEditingController(text: data['LastName']);
+  //   TextEditingController usernameController =
+  //       TextEditingController(text: data['Username']);
+  //   TextEditingController mobileController =
+  //       TextEditingController(text: data['Mobile']);
+  //   TextEditingController cnicController =
+  //       TextEditingController(text: data['CNIC']);
+  //
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setState) {
+  //           return AlertDialog(
+  //             title: Text("Edit Profile",
+  //                 style: TextStyle(
+  //                     fontFamily: 'Poppins',
+  //                     fontWeight: FontWeight.bold)), // Added font family
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(20.0),
+  //             ),
+  //             content: SingleChildScrollView(
+  //               child: ListBody(
+  //                 children: <Widget>[
+  //                   GestureDetector(
+  //                     onTap: () async {
+  //                       await pickImage();
+  //                       setState(
+  //                           () {}); // Refresh the dialog to show the selected image
+  //                     },
+  //                     child: ListBody(
+  //                       children: <Widget>[
+  //                         TextField(
+  //                             controller: firstNameController,
+  //                             decoration:
+  //                                 InputDecoration(labelText: "First Name")),
+  //                         SizedBox(height: 10),
+  //                         TextField(
+  //                             controller: lastNameController,
+  //                             decoration:
+  //                                 InputDecoration(labelText: "Last Name")),
+  //                         SizedBox(height: 10),
+  //                         TextField(
+  //                             controller: usernameController,
+  //                             decoration:
+  //                                 InputDecoration(labelText: "Username")),
+  //                         SizedBox(height: 10),
+  //                         TextField(
+  //                             controller: mobileController,
+  //                             decoration: InputDecoration(labelText: "Mobile")),
+  //                         SizedBox(height: 10),
+  //                         TextField(
+  //                             controller: cnicController,
+  //                             decoration: InputDecoration(labelText: "CNIC")),
+  //                         SizedBox(height: 10),
+  //                       ],
+  //                     ),
+  //                   )
+  //                 ],
+  //               ),
+  //             ),
+  //             actions: <Widget>[
+  //               TextButton(
+  //                 child: Text('Cancel',
+  //                     style:
+  //                         TextStyle(fontFamily: 'Poppins', color: Colors.red)),
+  //                 onPressed: () => Navigator.of(context).pop(),
+  //               ),
+  //               TextButton(
+  //                 child: _isLoading
+  //                     ? Row(
+  //                         mainAxisSize: MainAxisSize.min,
+  //                         children: [
+  //                           CircularProgressIndicator(
+  //                             valueColor: AlwaysStoppedAnimation<Color>(
+  //                                 Colors.blue), // Blue loader
+  //                           ),
+  //                           SizedBox(width: 10),
+  //                           Text('Saving...'),
+  //                         ],
+  //                       )
+  //                     : Text('Save', style: TextStyle(fontFamily: 'Poppins',color: Colors.green)),
+  //                 onPressed: _isLoading
+  //                     ? null
+  //                     : () async {
+  //                         setState(() {
+  //                           _isLoading = true;
+  //                         });
+  //                         // String imageUrl = await _uploadImageToFirebaseStorage();
+  //                         await updateProfileData(
+  //                             docId,
+  //                             firstNameController.text,
+  //                             lastNameController.text,
+  //                             usernameController.text,
+  //                             mobileController.text,
+  //                             cnicController.text);
+  //                         setState(() {
+  //                           _isLoading = false;
+  //                         });
+  //                         Navigator.of(context).pop();
+  //                       },
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
   void showEditProfileDialog(Map<String, dynamic> data, String docId) {
-    TextEditingController firstNameController =
-        TextEditingController(text: data['FirstName']);
-    TextEditingController lastNameController =
-        TextEditingController(text: data['LastName']);
-    TextEditingController usernameController =
-        TextEditingController(text: data['Username']);
-    TextEditingController mobileController =
-        TextEditingController(text: data['Mobile']);
-    TextEditingController cnicController =
-        TextEditingController(text: data['CNIC']);
+    TextEditingController firstNameController = TextEditingController(text: data['FirstName']);
+    TextEditingController lastNameController = TextEditingController(text: data['LastName']);
+    TextEditingController usernameController = TextEditingController(text: data['Username']);
+    TextEditingController mobileController = TextEditingController(text: data['Mobile']);
+    TextEditingController cnicController = TextEditingController(text: data['CNIC']);
+    TextEditingController aboutController = TextEditingController(text: data['About'] ?? ''); // New About field
+    TextEditingController occupationController = TextEditingController(text: data['Occupation'] ?? ''); // New Occupation field
+    TextEditingController skillsController = TextEditingController(text: (data['Skills'] ?? []).join(', ')); // New Skills field, initially formatted as comma-separated string
+    TextEditingController experienceController = TextEditingController(text: data['Experience']?.toString() ?? ''); // New Experience field
 
     showDialog(
       context: context,
@@ -321,9 +433,7 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
           builder: (context, setState) {
             return AlertDialog(
               title: Text("Edit Profile",
-                  style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold)), // Added font family
+                  style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
               ),
@@ -333,34 +443,56 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                     GestureDetector(
                       onTap: () async {
                         await pickImage();
-                        setState(
-                            () {}); // Refresh the dialog to show the selected image
+                        setState(() {}); // Refresh the dialog to show the selected image
                       },
                       child: ListBody(
                         children: <Widget>[
                           TextField(
-                              controller: firstNameController,
-                              decoration:
-                                  InputDecoration(labelText: "First Name")),
+                            controller: firstNameController,
+                            decoration: InputDecoration(labelText: "First Name"),
+                          ),
                           SizedBox(height: 10),
                           TextField(
-                              controller: lastNameController,
-                              decoration:
-                                  InputDecoration(labelText: "Last Name")),
+                            controller: lastNameController,
+                            decoration: InputDecoration(labelText: "Last Name"),
+                          ),
                           SizedBox(height: 10),
                           TextField(
-                              controller: usernameController,
-                              decoration:
-                                  InputDecoration(labelText: "Username")),
+                            controller: usernameController,
+                            decoration: InputDecoration(labelText: "Username"),
+                          ),
                           SizedBox(height: 10),
                           TextField(
-                              controller: mobileController,
-                              decoration: InputDecoration(labelText: "Mobile")),
+                            controller: mobileController,
+                            decoration: InputDecoration(labelText: "Mobile"),
+                          ),
                           SizedBox(height: 10),
                           TextField(
-                              controller: cnicController,
-                              decoration: InputDecoration(labelText: "CNIC")),
+                            controller: cnicController,
+                            decoration: InputDecoration(labelText: "CNIC"),
+                          ),
                           SizedBox(height: 10),
+                          TextField(
+                            controller: aboutController,
+                            decoration: InputDecoration(labelText: "About"),
+                            maxLines: 3,
+                          ),
+                          SizedBox(height: 10),
+                          TextField(
+                            controller: occupationController,
+                            decoration: InputDecoration(labelText: "Occupation"),
+                          ),
+                          SizedBox(height: 10),
+                          TextField(
+                            controller: skillsController,
+                            decoration: InputDecoration(labelText: "Skills (comma-separated)"),
+                          ),
+                          SizedBox(height: 10),
+                          TextField(
+                            controller: experienceController,
+                            decoration: InputDecoration(labelText: "Experience (years)"),
+                            keyboardType: TextInputType.number,
+                          ),
                         ],
                       ),
                     )
@@ -369,44 +501,47 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: Text('Cancel',
-                      style:
-                          TextStyle(fontFamily: 'Poppins', color: Colors.red)),
+                  child: Text('Cancel', style: TextStyle(fontFamily: 'Poppins', color: Colors.red)),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 TextButton(
                   child: _isLoading
                       ? Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.blue), // Blue loader
-                            ),
-                            SizedBox(width: 10),
-                            Text('Saving...'),
-                          ],
-                        )
-                      : Text('Save', style: TextStyle(fontFamily: 'Poppins',color: Colors.green)),
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                      ),
+                      SizedBox(width: 10),
+                      Text('Saving...'),
+                    ],
+                  )
+                      : Text('Save', style: TextStyle(fontFamily: 'Poppins', color: Colors.green)),
                   onPressed: _isLoading
                       ? null
                       : () async {
-                          setState(() {
-                            _isLoading = true;
-                          });
-                          // String imageUrl = await _uploadImageToFirebaseStorage();
-                          await updateProfileData(
-                              docId,
-                              firstNameController.text,
-                              lastNameController.text,
-                              usernameController.text,
-                              mobileController.text,
-                              cnicController.text);
-                          setState(() {
-                            _isLoading = false;
-                          });
-                          Navigator.of(context).pop();
-                        },
+                    setState(() {
+                      _isLoading = true;
+                    });
+
+                    await updateProfileData(
+                      docId,
+                      firstNameController.text,
+                      lastNameController.text,
+                      usernameController.text,
+                      mobileController.text,
+                      cnicController.text,
+                      aboutController.text,
+                      occupationController.text,
+                      skillsController.text.split(',').map((s) => s.trim()).toList(), // Convert to list
+                      int.tryParse(experienceController.text) ?? 0,
+                    );
+
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    Navigator.of(context).pop();
+                  },
                 ),
               ],
             );
@@ -417,26 +552,59 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
   }
 
   Future<void> updateProfileData(
-    String docId,
-    String firstName,
-    String lastName,
-    String username,
-    String mobile,
-    String cnic,
-  ) async {
+      String docId,
+      String firstName,
+      String lastName,
+      String username,
+      String mobile,
+      String cnic,
+      String about,
+      String occupation,
+      List<String> skills,
+      int experience,
+      ) async {
     Map<String, dynamic> dataToUpdate = {
       'FirstName': firstName,
       'LastName': lastName,
       'Username': username,
       'Mobile': mobile,
       'CNIC': cnic,
+      'About': about,
+      'Occupation': occupation,
+      'Skills': skills,
+      'Experience': experience,
     };
+
     await FirebaseFirestore.instance
         .collection('provider')
         .doc(docId)
         .update(dataToUpdate)
         .then((value) => Fluttertoast.showToast(msg: "Profile Updated"))
         .catchError((error) =>
-            Fluttertoast.showToast(msg: "Failed to update profile: $error"));
+        Fluttertoast.showToast(msg: "Failed to update profile: $error"));
   }
+
+  // Future<void> updateProfileData(
+  //   String docId,
+  //   String firstName,
+  //   String lastName,
+  //   String username,
+  //   String mobile,
+  //   String cnic,
+  // ) async {
+  //   Map<String, dynamic> dataToUpdate = {
+  //     'FirstName': firstName,
+  //     'LastName': lastName,
+  //     'Username': username,
+  //     'Mobile': mobile,
+  //     'CNIC': cnic,
+  //   };
+  //   await FirebaseFirestore.instance
+  //       .collection('provider')
+  //       .doc(docId)
+  //       .update(dataToUpdate)
+  //       .then((value) => Fluttertoast.showToast(msg: "Profile Updated"))
+  //       .catchError((error) =>
+  //           Fluttertoast.showToast(msg: "Failed to update profile: $error"));
+  // }
 }

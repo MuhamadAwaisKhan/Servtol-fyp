@@ -71,13 +71,13 @@ class _ServicesAdditionState extends State<ServicesAddition> {
     fetchFirestoreData('timestamp', timestampItems, null);
   }
 
-  void fetchFirestoreData(
-      String collection, List<DropdownItem> itemList, Function? postFetch) {
+  void fetchFirestoreData(String collection, List<DropdownItem> itemList, Function? postFetch) {
     FirebaseFirestore.instance
         .collection(collection)
         .snapshots()
         .listen((snapshot) {
       List<DropdownItem> items = snapshot.docs.map((doc) {
+        print("Fetched item from $collection: ${doc['Name']}"); // Debug log
         return DropdownItem(id: doc.id, name: doc['Name'] ?? 'N/A');
       }).toList();
       setState(() {
@@ -507,8 +507,7 @@ class _ServicesAdditionState extends State<ServicesAddition> {
           }).toList(),
           onChanged: (String? value) {
             if (value != null) {
-              var selectedItem =
-                  timestampItems.firstWhere((item) => item.id == value);
+              var selectedItem = timestampItems.firstWhere((item) => item.id == value);
               setState(() {
                 selectedtimestampId = value; // Assign to selectedtimestampId
                 selectedtimestampName = selectedItem.name;
@@ -517,6 +516,7 @@ class _ServicesAdditionState extends State<ServicesAddition> {
           },
           labelText: "Select Duration",
         ),
+
         // Wage Type Dropdown
         uihelper.customDropdownButtonFormField(
           value: selectedWageTypeId,

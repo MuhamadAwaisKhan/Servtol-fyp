@@ -22,7 +22,10 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
   void initState() {
     super.initState();
     fetchCategories();
-    subcategoriesStream = _db.collection('Subcategory').snapshots();
+    subcategoriesStream = _db.collection('Subcategory')
+        .orderBy('Name', descending: false) // Fetch data in ascending order by name
+
+        .snapshots();
     searchController.addListener(_onSearchChanged);
   }
 
@@ -164,7 +167,7 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
                             IconButton(
                               icon: Icon(Icons.delete, color: Colors.red),
                               onPressed: () =>
-                                  _deleteSubcategory(subcategory.id),
+                                  _deleteServiceType(subcategory.id),
                             ),
                           ],
                         ),
@@ -195,66 +198,187 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
     super.dispose();
   }
 
-  void _deleteSubcategory(String id) {
-    _db
-        .collection('Subcategory')
-        .doc(id)
-        .delete()
-        .then((_) => print('Subcategory deleted successfully'))
-        .catchError((e) => print('Error deleting subcategory: $e'));
-  }
-
-  void _showEditDialog(BuildContext context, String subcategoryId,
-      String currentName, String currentCategoryId) {
-    TextEditingController nameController =
-        TextEditingController(text: currentName);
-    String? selectedCategoryId = currentCategoryId;
+  void _deleteServiceType(String id) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Edit Subcategory'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
             children: [
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: 'Subcategory Name'),
-              ),
-              DropdownButtonFormField<String>(
-                value: selectedCategoryId,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedCategoryId = newValue;
-                  });
-                },
-                items: categoryItems,
-                decoration: InputDecoration(labelText: 'Select Category'),
+              Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
+              SizedBox(width: 10),
+              Text(
+                'Confirm Delete',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.redAccent,
+                ),
               ),
             ],
           ),
-          actions: [
+          content: Text(
+            'Are you sure you want to delete this subcategory ? This action cannot be undone.',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+          ),
+          actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(color: Colors.red)),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              ),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Delete',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                ),
+              ),
               onPressed: () {
-                if (selectedCategoryId != null) {
-                  _updateSubcategory(
-                      subcategoryId, nameController.text, selectedCategoryId!);
-                  Navigator.pop(context);
-                } else {
-                  print('Category ID is null');
-                }
+                _db.collection('Subcategory').doc(id).delete(); // Perform delete
+                Navigator.of(context).pop(); // Close the dialog after delete
               },
-              child: Text('Save', style: TextStyle(color: Colors.green)),
             ),
           ],
         );
       },
     );
   }
+
+
+  void _showEditDialog(BuildContext context, String subcategoryId, String currentName, String currentCategoryId) {
+    TextEditingController nameController = TextEditingController(text: currentName);
+    String? selectedCategoryId = currentCategoryId;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Icon(Icons.edit, color: Colors.blue, size: 28),
+              SizedBox(width: 8),
+              Text(
+                'Edit Subcategory',
+                style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: 'Subcategory Name',
+                  labelStyle: TextStyle(color: Colors.blueAccent),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                ),
+              ),
+              SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: selectedCategoryId,
+                onChanged: (newValue) {
+                  selectedCategoryId = newValue;
+                },
+                items: categoryItems,
+                decoration: InputDecoration(
+                  labelText: 'Select Category',
+                  labelStyle: TextStyle(color: Colors.blueAccent),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel', style: TextStyle(color: Colors.red, fontFamily: 'Poppins')),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (selectedCategoryId == null) {
+                  print('Category ID is null');
+                  return;
+                }
+
+                // Show confirmation dialog before saving
+                bool confirmSave = await showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return AlertDialog(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      title: Row(
+                        children: [
+                          Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+                          SizedBox(width: 8),
+                          Text(
+                            'Confirm Save',
+                            style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      content: Text(
+                        'Are you sure you want to save these changes?',
+                        style: TextStyle(fontFamily: 'Poppins', color: Colors.black87),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text('No', style: TextStyle(color: Colors.grey, fontFamily: 'Poppins')),
+                          onPressed: () => Navigator.of(context).pop(false),
+                        ),
+                        TextButton(
+                          child: Text('Yes', style: TextStyle(color: Colors.green, fontFamily: 'Poppins')),
+                          onPressed: () => Navigator.of(context).pop(true),
+                        ),
+                      ],
+                    );
+                  },
+                ) ?? false;
+
+                if (confirmSave) {
+                  _updateSubcategory(subcategoryId, nameController.text, selectedCategoryId!);
+                  Navigator.pop(context); // Close the main dialog after saving
+                }
+              },
+              child: Text('Save', style: TextStyle(color: Colors.green, fontFamily: 'Poppins')),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   void _updateSubcategory(
       String subcategoryId, String newName, String newCategoryId) {

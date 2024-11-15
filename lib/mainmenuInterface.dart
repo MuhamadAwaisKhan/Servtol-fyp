@@ -4,24 +4,22 @@ import 'package:servtol/TaxScreen.dart';
 import 'package:servtol/category.dart';
 import 'package:servtol/city.dart';
 import 'package:servtol/couponadmin.dart';
-import 'package:servtol/favouriteservice.dart';
 import 'package:servtol/province.dart';
 import 'package:servtol/service.dart';
 import 'package:servtol/subcategory.dart';
 import 'package:servtol/timestamp.dart';
-
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 import 'package:servtol/wage.dart';
 
-class MainMenuScreen extends StatefulWidget {
-  const MainMenuScreen({super.key});
+class MainInterface extends StatefulWidget {
+  const MainInterface({super.key});
 
   @override
-  State<MainMenuScreen> createState() => _MainMenuScreenState();
+  State<MainInterface> createState() => _MainInterfaceState();
 }
 
-class _MainMenuScreenState extends State<MainMenuScreen> {
+class _MainInterfaceState extends State<MainInterface> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -216,11 +214,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 height: 20,
               ),
               uihelper.CustomButton(
-                    () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => timestamp()));
+                () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => timestamp()));
                   // setState(() {
                   //   isSecondButtonClicked = false; // Reset second button state
                   //   isFirstButtonClicked =
@@ -244,4 +240,3 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     );
   }
 }
-

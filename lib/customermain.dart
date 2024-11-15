@@ -110,9 +110,9 @@ class _CustomerMainScreenState extends State<CustomerMainScreen>
           });
         },
         icons: const [
-          FontAwesomeIcons.home,
+          FontAwesomeIcons.house,
           FontAwesomeIcons.calendarCheck,
-          FontAwesomeIcons.thList,
+          FontAwesomeIcons.tableList,
           FontAwesomeIcons.commentDots,
           FontAwesomeIcons.user,
         ],

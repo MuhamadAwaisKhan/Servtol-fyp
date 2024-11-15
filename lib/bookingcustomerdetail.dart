@@ -1005,8 +1005,12 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                             ],
                           ),
                           subtitle: Text(
-                            "${data['provider']['Bio'] ?? 'No additional information'}",
-                            style: TextStyle(color: Colors.grey[700]),
+                            "${data['provider']['about'] ?? 'No additional information'}",
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                          trailing: Text(
+                            "${data['provider']['Occupation'] ?? 'No additional information'}",
+                            style: TextStyle(color: Colors.grey[700],fontSize: 12,),
                           ),
                           onTap: () {
                             final providerId =
@@ -1304,14 +1308,18 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
     );
   }
   void showProviderDetails(BuildContext context) async {
-    // Fetch provider data (assumed to be already implemented)
-    final providerId =
-        widget.bookings['providerId'] ?? 'default_id';
+    // Get provider ID from booking data
+    final providerId = widget.bookings['providerId'] ?? 'default_id';
 
+    // Fetch provider data
     Map<String, dynamic> providerData = await fetchProviderData(providerId);
+
+    // Fetch and calculate average rating from reviews
+    double averageRating = await calculateAverageRating(providerId);
 
     // Show bottom sheet with provider details
     showModalBottomSheet(
+      backgroundColor: AppColors.background,
       context: context,
       builder: (BuildContext context) {
         return Padding(
@@ -1322,7 +1330,6 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
               // Profile Picture
               CircleAvatar(
                 radius: 40,
-
                 backgroundImage: NetworkImage(
                   providerData['ProfilePic'] ?? 'https://via.placeholder.com/150',
                 ),
@@ -1330,7 +1337,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
               SizedBox(height: 10),
               // Provider Name
               Text(
-                '${providerData['FirstName']} ${providerData['LastName']}',
+                '${providerData['FirstName'] ?? 'Unknown'} ${providerData['LastName'] ?? 'Provider'}',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -1339,36 +1346,42 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
               SizedBox(height: 5),
               // Provider Bio
               Text(
-                providerData['Bio'] ?? 'No bio available',
+                providerData['about'] ?? 'No bio available',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    color: Colors.grey[700]),
+                  color: Colors.grey[700],
+                ),
               ),
               SizedBox(height: 15),
-              // Rating (if available)
+              // Rating derived from reviews
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.star, color: Colors.amber, size: 24),
                   SizedBox(width: 5),
                   Text(
-                    "${providerData['rating'] ?? 'N/A'}",
+                    averageRating != 0 ? averageRating.toStringAsFixed(1) : 'N/A',
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              // SizedBox(height: 10),
               // Services (if available)
-              Text(
-                "Services: ${providerData['services'] ?? 'No services listed'}",
-                style: TextStyle(fontSize: 14, color: Colors.blue),
-              ),
+              // Text(
+              //   "Services: ${providerData['services'] ?? 'No services listed'}",
+              //   style: TextStyle(fontSize: 14, color: Colors.blue),
+              //   textAlign: TextAlign.center,
+              // ),
               SizedBox(height: 20),
               // Close Button
               TextButton(
                 onPressed: () {
                   Navigator.pop(context); // Close the bottom sheet
                 },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  foregroundColor: Colors.white,
+                ),
                 child: Text('Close'),
               ),
             ],
@@ -1378,79 +1391,33 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
     );
   }
 
+  Future<double> calculateAverageRating(String providerId) async {
+    final reviews = await FirebaseFirestore.instance
+        .collection('reviews')
+        .where('providerId', isEqualTo: providerId)
+        .get();
 
-  // void showProviderDetailsDialog(
-  //     BuildContext context, Map<String, dynamic> providerData) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         shape:
-  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-  //         contentPadding: EdgeInsets.all(16),
-  //         content: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             CircleAvatar(
-  //               radius: 30,
-  //               backgroundImage: NetworkImage(
-  //                 providerData['ProfilePic'] ??
-  //                     'https://via.placeholder.com/150',
-  //               ),
-  //             ),
-  //             SizedBox(height: 10),
-  //             Text(
-  //               "${providerData['FirstName']} ${providerData['LastName']}",
-  //               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-  //               textAlign: TextAlign.center,
-  //             ),
-  //             SizedBox(height: 5),
-  //             Text(
-  //               providerData['Bio'] ?? 'No additional information provided.',
-  //               style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-  //               textAlign: TextAlign.center,
-  //             ),
-  //             Divider(height: 20, color: Colors.grey[300]),
-  //             Row(
-  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //               children: [
-  //                 Column(
-  //                   children: [
-  //                     Icon(Icons.star, color: Colors.amber, size: 24),
-  //                     SizedBox(height: 4),
-  //                     Text(
-  //                       "${providerData['rating'] ?? 'N/A'}",
-  //                       style: TextStyle(fontSize: 14),
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 Column(
-  //                   children: [
-  //                     Icon(Icons.work, color: Colors.blue, size: 24),
-  //                     SizedBox(height: 4),
-  //                     Text(
-  //                       "${providerData['services'] ?? 'No services'}",
-  //                       style: TextStyle(fontSize: 14),
-  //                       textAlign: TextAlign.center,
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ],
-  //             ),
-  //           ],
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             child: Text('Close', style: TextStyle(color: Colors.blue)),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
+    // print("Number of reviews fetched: ${reviews.docs.length}"); // Debugging line
+
+    if (reviews.docs.isEmpty) return 0.0;
+
+    double totalRating = 0;
+    int reviewCount = reviews.docs.length;
+
+    for (var review in reviews.docs) {
+      // print("Rating from review: ${review['emojiRating']}"); // Debugging line
+      totalRating += review['emojiRating'] ?? 0;
+    }
+
+    double average = totalRating / reviewCount;
+    // print("Calculated average rating: $average"); // Debugging line
+
+    return average;
+  }
+
+
+
+
 // Fetch provider data from Firestore
   Future<Map<String, dynamic>> fetchProviderData(String providerId) async {
     var snapshot = await FirebaseFirestore.instance.collection('provider').doc(providerId).get();

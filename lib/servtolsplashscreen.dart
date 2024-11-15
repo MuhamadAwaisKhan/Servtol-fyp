@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:lottie/lottie.dart';
-import 'package:servtol/main%20login.dart';
+import 'package:servtol/MainMenuScreen.dart';
+import 'package:servtol/mainmenuInterface.dart';
 import 'package:servtol/startscreen.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -118,7 +119,7 @@ class _ServToolSplashScreenState extends State<ServToolSplashScreen> {
             child: TextButton(
               onPressed: () {
                 Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => mainlogin()));
+                    MaterialPageRoute(builder: (context) => MainMenuScreen()));
               },
               child: Text('Skip', style: TextStyle(fontFamily: 'Poppins',
                   color: Colors.white)),
@@ -135,7 +136,7 @@ class _ServToolSplashScreenState extends State<ServToolSplashScreen> {
               onTap: () {
                 if (_currentIndex == 2) {
                   Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => mainlogin()));
+                      MaterialPageRoute(builder: (context) => MainMenuScreen()));
                 } else {
                   _controller.nextPage();
                 }

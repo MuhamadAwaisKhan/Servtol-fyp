@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:servtol/main%20login.dart';
 import 'package:servtol/servtolsplashscreen.dart';
 import 'package:servtol/util/AppColors.dart';
 class startingscreen extends StatefulWidget {

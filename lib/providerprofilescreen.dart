@@ -207,7 +207,7 @@ class _ProviderProfileViewState extends State<ProviderProfileView> {
               ),
               SizedBox(height: 10),
               Text(
-                providerData['about'] ?? 'No description available.',
+                providerData['About'] ?? 'No description available.',
                 style: TextStyle(fontFamily: 'Poppins', fontSize: 14),
               ),
               SizedBox(height: 10),
@@ -223,11 +223,14 @@ class _ProviderProfileViewState extends State<ProviderProfileView> {
                       ),
                     ],
                   ),
-                  SizedBox(width: 45,),
+                  SizedBox(width: 15,),
                   Text(
-                    providerData['experience'] ?? 'N/A' ,
+                    providerData['Experience'] != null
+                        ? '${providerData['Experience'].toString()} years'
+                        : 'N/A',
                     style: TextStyle(fontFamily: 'Poppins'),
                   ),
+
                 ],
               ),
               SizedBox(height: 10),
@@ -244,10 +247,10 @@ class _ProviderProfileViewState extends State<ProviderProfileView> {
                       ),
                     ],
                   ),
-                  SizedBox(width: 85,),
+                  SizedBox(width: 05,),
 
                   Text(
-                    ' ${providerData['skills']?.join(', ') ?? 'N/A'}',
+                    ' ${providerData['Skills']?.join(', ') ?? 'N/A'}',
                     style: TextStyle(fontFamily: 'Poppins'),
                   ),
                 ],

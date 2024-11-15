@@ -293,7 +293,7 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
-                      providerData['Bio'] ?? 'No additional information',
+                      providerData['About'] ?? 'No additional information',
                       style: TextStyle(color: Colors.blue[700]),
                     ),
                     trailing: IconButton(

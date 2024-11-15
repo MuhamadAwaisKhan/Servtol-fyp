@@ -18,7 +18,10 @@ class _categoryscreenState extends State<categoryscreen> {
   @override
   void initState() {
     super.initState();
-    categoriesStream = _db.collection('Category').snapshots();
+    categoriesStream = _db.collection('Category')
+        .orderBy('Name', descending: false) // Fetch data in ascending order by name
+
+        .snapshots();
     searchController.addListener(_onSearchChanged);
   }
 
@@ -63,7 +66,7 @@ class _categoryscreenState extends State<categoryscreen> {
               controller: searchController,
               style: TextStyle(fontSize: 16),
               decoration: InputDecoration(
-                labelText: 'Search Provinces',
+                labelText: 'Search Category',
                 labelStyle: TextStyle(fontFamily: 'Poppins'),
                 prefixIcon: Icon(Icons.search, color: Colors.grey),
                 suffixIcon: searchController.text.isNotEmpty
@@ -143,7 +146,7 @@ class _categoryscreenState extends State<categoryscreen> {
                             ),
                             IconButton(
                               icon: Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => _deleteCategory(category.id),
+                              onPressed: () => _deleteServiceType(category.id),
                             ),
                           ],
                         ),
@@ -169,34 +172,181 @@ class _categoryscreenState extends State<categoryscreen> {
     );
   }
 
-  void _deleteCategory(String id) {
-    _db.collection('Category').doc(id).delete();
+  void _deleteServiceType(String id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
+              SizedBox(width: 10),
+              Text(
+                'Confirm Delete',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.redAccent,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Are you sure you want to delete this category? This action cannot be undone.',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              ),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Delete',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                ),
+              ),
+              onPressed: () {
+                _db.collection('Category').doc(id).delete(); // Perform delete
+                Navigator.of(context).pop(); // Close the dialog after delete
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
+
   void _showEditDialog(BuildContext context, String id, String currentName) {
-    TextEditingController nameController =
-        TextEditingController(text: currentName);
+    TextEditingController _nameController = TextEditingController(text: currentName);
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit Category Name'),
-          content: TextField(
-            controller: nameController,
-            decoration: InputDecoration(labelText: "Enter New Category Name"),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Icon(Icons.edit, color: Colors.blue, size: 30),
+              SizedBox(width: 10),
+              Text(
+                'Edit Service Type',
+                style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameController,
+                style: TextStyle(fontFamily: 'Poppins', color: Colors.black87),
+                decoration: InputDecoration(
+                  labelText: "Enter New Service Type Name",
+                  labelStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide(color: Colors.blueAccent, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide(color: Colors.blue, width: 1.5),
+                  ),
+                ),
+              ),
+            ],
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel', style: TextStyle(color: Colors.red)),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.red, fontFamily: 'Poppins'),
+              ),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: Text('Save', style: TextStyle(color: Colors.green)),
+              child: Text(
+                'Save',
+                style: TextStyle(color: Colors.green, fontFamily: 'Poppins'),
+              ),
               onPressed: () {
-                if (nameController.text.isNotEmpty) {
-                  _updateCategory(id, nameController.text);
-                  Navigator.of(context).pop();
+                if (_nameController.text.isNotEmpty) {
+                  // Ask for confirmation before saving
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) {
+                      return AlertDialog(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        title: Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 30),
+                            SizedBox(width: 10),
+                            Text(
+                              'Confirm Edit',
+                              style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        content: Text(
+                          'Are you sure you want to save the changes?',
+                          style: TextStyle(fontFamily: 'Poppins', color: Colors.black87),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text(
+                              'No',
+                              style: TextStyle(color: Colors.grey, fontFamily: 'Poppins'),
+                            ),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                          TextButton(
+                            child: Text(
+                              'Yes',
+                              style: TextStyle(color: Colors.green, fontFamily: 'Poppins'),
+                            ),
+                            onPressed: () {
+                              _updateCategory(id, _nameController.text);
+                              Navigator.of(context).pop(); // Close confirmation dialog
+                              Navigator.of(context).pop(); // Close edit dialog
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 }
               },
             ),

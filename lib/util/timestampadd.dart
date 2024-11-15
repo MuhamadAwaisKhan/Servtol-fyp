@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
+
 class timestampadd extends StatefulWidget {
   const timestampadd({super.key});
 
@@ -12,7 +13,8 @@ class timestampadd extends StatefulWidget {
 
 class _timestampaddState extends State<timestampadd> {
   final TextEditingController _nameController = TextEditingController();
-  bool _isLoading = false;  // Initial state is not loading
+  final TextEditingController _durationController = TextEditingController(); // Controller for duration input
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -32,25 +34,42 @@ class _timestampaddState extends State<timestampadd> {
       ),
       backgroundColor: AppColors.background,
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())  // Show loader while adding data
+          ? Center(child: CircularProgressIndicator()) // Show loader while adding data
           : SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Lottie.asset('assets/images/timestamp.json',
+            Lottie.asset(
+              'assets/images/timestamp.json',
               width: 200,
               height: 200,
               fit: BoxFit.fill,
             ),
             SizedBox(height: 20),
-            uihelper.CustomTextField(context,_nameController, "Enter Timestamp Name", Icons.warehouse, false),
+            // Name input field
+
+            // Duration input field (in minutes)
+            uihelper.CustomTextField(
+              context,
+              _durationController,
+              "Enter Duration (in minutes)",
+              Icons.access_time,
+              false,
+               // Ensure numeric input
+            ),
             SizedBox(height: 20),
-            uihelper.CustomButton(() {
-              if (!_isLoading) {  // Prevent multiple submissions
-                _addServiceType();
-              }
-            }, "Save", 50, 170),
+            // Save button
+            uihelper.CustomButton(
+                  () {
+                if (!_isLoading) {
+                  _addServiceType(); // Call to add timestamp with duration
+                }
+              },
+              "Save",
+              50,
+              170,
+            ),
           ],
         ),
       ),
@@ -58,9 +77,18 @@ class _timestampaddState extends State<timestampadd> {
   }
 
   Future<void> _addServiceType() async {
-    if (_nameController.text.isEmpty) {
+    if ( _durationController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please Enter a valid timestamp name')),
+        SnackBar(content: Text('Please Enter duration')),
+      );
+      return;
+    }
+
+    // Ensure the duration is a valid number
+
+    if (_durationController == null ) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter a valid duration (positive number)')),
       );
       return;
     }
@@ -71,12 +99,13 @@ class _timestampaddState extends State<timestampadd> {
 
     try {
       await FirebaseFirestore.instance.collection('timestamp').add({
-        'Name': _nameController.text.trim(),
+        // 'Name': _nameController.text.trim(),
+        'Name': _durationController, // Add duration field
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Timestamp  added successfully')),
+        SnackBar(content: Text('Timestamp added successfully')),
       );
-      Navigator.pop(context);
+      Navigator.pop(context); // Go back to previous screen
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to add timestamp: $e')),

@@ -18,7 +18,10 @@ class _timestampState extends State<timestamp> {
   @override
   void initState() {
     super.initState();
-    timestampStream = _db.collection('timestamp').snapshots();
+    timestampStream = _db.collection('timestamp')
+        .orderBy('Name', descending: false)
+        .snapshots();
+
     searchController.addListener(_onSearchChanged);
   }
 
@@ -28,8 +31,7 @@ class _timestampState extends State<timestamp> {
         timestampStream = _db
             .collection('timestamp')
             .where('Name', isGreaterThanOrEqualTo: searchController.text)
-            .where('Name',
-                isLessThanOrEqualTo: searchController.text + '\uf8ff')
+            .where('Name', isLessThanOrEqualTo: searchController.text + '\uf8ff')
             .snapshots();
       });
     } else {
@@ -67,12 +69,12 @@ class _timestampState extends State<timestamp> {
               prefixIcon: Icon(Icons.search, color: Colors.grey),
               suffixIcon: searchController.text.isNotEmpty
                   ? GestureDetector(
-                      child: Icon(Icons.clear, color: Colors.grey),
-                      onTap: () {
-                        searchController.clear();
-                        _onSearchChanged(); // Refresh the search
-                      },
-                    )
+                child: Icon(Icons.clear, color: Colors.grey),
+                onTap: () {
+                  searchController.clear();
+                  _onSearchChanged(); // Refresh the search
+                },
+              )
                   : null,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
@@ -106,6 +108,7 @@ class _timestampState extends State<timestamp> {
                     Divider(color: Colors.grey),
                 itemBuilder: (context, index) {
                   var timestamp = data.docs[index];
+                  int duration = timestamp['Name']; // Get the duration in minutes
                   return Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -124,12 +127,18 @@ class _timestampState extends State<timestamp> {
                         child: Text('${index + 1}',
                             style: TextStyle(color: Colors.white)),
                       ),
-                      title: Text(timestamp['Name'],
+                      title: Text('${timestamp['Name'].toString()} minutes',  // Correct string interpolation
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold,
                               color: Colors.white)),
+                      // subtitle: Text('$duration minutes',  // Display the duration
+                      //     textAlign: TextAlign.center,
+                      //     style: TextStyle(
+                      //         fontFamily: 'Poppins',
+                      //         fontWeight: FontWeight.bold,
+                      //         color: Colors.white)),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
@@ -140,7 +149,7 @@ class _timestampState extends State<timestamp> {
                           ),
                           IconButton(
                             icon: Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => _deleteProvince(timestamp.id),
+                            onPressed: () => _deleteServiceType(timestamp.id),
                           ),
                         ],
                       ),
@@ -174,34 +183,180 @@ class _timestampState extends State<timestamp> {
     );
   }
 
-  void _deleteProvince(String id) {
-    _db.collection('timestamp').doc(id).delete();
+  void _deleteServiceType(String id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
+              SizedBox(width: 10),
+              Text(
+                'Confirm Delete',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.redAccent,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Are you sure you want to delete this timestamp? This action cannot be undone.',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              ),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Delete',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                ),
+              ),
+              onPressed: () {
+                _db.collection('timestamp').doc(id).delete(); // Perform delete
+                Navigator.of(context).pop(); // Close the dialog after delete
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showEditDialog(BuildContext context, String id, String currentName) {
-    TextEditingController _nameController =
-        TextEditingController(text: currentName);
+    TextEditingController _nameController = TextEditingController(text: currentName);
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit TimeStamp Name'),
-          content: TextField(
-            controller: _nameController,
-            decoration: InputDecoration(labelText: "Enter New TimeStamp Name"),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Icon(Icons.edit, color: Colors.blue, size: 30),
+              SizedBox(width: 10),
+              Text(
+                'Edit Time Stamp',
+                style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameController,
+                style: TextStyle(fontFamily: 'Poppins', color: Colors.black87),
+                decoration: InputDecoration(
+                  labelText: "Enter New Time Stamp",
+                  labelStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide(color: Colors.blueAccent, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide(color: Colors.blue, width: 1.5),
+                  ),
+                ),
+              ),
+            ],
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel', style: TextStyle(color: Colors.red)),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.red, fontFamily: 'Poppins'),
+              ),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: Text('Save', style: TextStyle(color: Colors.green)),
+              child: Text(
+                'Save',
+                style: TextStyle(color: Colors.green, fontFamily: 'Poppins'),
+              ),
               onPressed: () {
                 if (_nameController.text.isNotEmpty) {
-                  _updateProvince(id, _nameController.text);
-                  Navigator.of(context).pop();
+                  // Ask for confirmation before saving
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) {
+                      return AlertDialog(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        title: Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 30),
+                            SizedBox(width: 10),
+                            Text(
+                              'Confirm Edit',
+                              style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        content: Text(
+                          'Are you sure you want to save the changes?',
+                          style: TextStyle(fontFamily: 'Poppins', color: Colors.black87),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text(
+                              'No',
+                              style: TextStyle(color: Colors.grey, fontFamily: 'Poppins'),
+                            ),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                          TextButton(
+                            child: Text(
+                              'Yes',
+                              style: TextStyle(color: Colors.green, fontFamily: 'Poppins'),
+                            ),
+                            onPressed: () {
+                              _updateProvince(id, _nameController.text);
+                              Navigator.of(context).pop(); // Close confirmation dialog
+                              Navigator.of(context).pop(); // Close edit dialog
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 }
               },
             ),
@@ -212,6 +367,6 @@ class _timestampState extends State<timestamp> {
   }
 
   void _updateProvince(String id, String newName) {
-    _db.collection('timstamp').doc(id).update({'Name': newName});
+    _db.collection('timestamp').doc(id).update({'Name': newName});
   }
 }

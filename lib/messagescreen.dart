@@ -33,7 +33,12 @@ class _MessageScreenState extends State<MessageScreen> {
   void _initializeConversation() {
     final currentUser = _auth.currentUser;
     if (currentUser != null) {
-      _conversationId = _initializeConversationId(currentUser.uid, widget.chatWithId);
+      final conversationId = _initializeConversationId(currentUser.uid, widget.chatWithId);
+      if (mounted) {
+        setState(() {
+          _conversationId = conversationId;
+        });
+      }
     }
   }
 
@@ -41,35 +46,47 @@ class _MessageScreenState extends State<MessageScreen> {
     return userId.compareTo(otherUserId) < 0 ? '$userId\_$otherUserId' : '$otherUserId\_$userId';
   }
 
-  void _sendMessage() {
+  void _sendMessage() async {
     final message = _messageController.text.trim();
     if (message.isEmpty || _conversationId == null) return;
 
     final currentUser = _auth.currentUser;
     if (currentUser == null) return;
 
-    final messageData = {
-      'senderId': currentUser.uid,
-      'message': message,
-      'timestamp': FieldValue.serverTimestamp(),
-    };
+    try {
+      final messageData = {
+        'senderId': currentUser.uid,
+        'message': message,
+        'timestamp': FieldValue.serverTimestamp(),
+      };
 
-    _firestore
-        .collection('conversations')
-        .doc(_conversationId)
-        .collection('messages')
-        .add(messageData);
+      // Add message to Firestore
+      await _firestore
+          .collection('conversations')
+          .doc(_conversationId)
+          .collection('messages')
+          .add(messageData);
 
-    _firestore.collection('conversations').doc(_conversationId).set({
-      'userId': currentUser.uid == widget.chatWithId ? currentUser.uid : widget.chatWithId,
-      'providerId': currentUser.uid == widget.chatWithId ? widget.chatWithId : currentUser.uid,
-      'lastMessage': message,
-      'timestamp': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+      // Update the last message and timestamp
+      await _firestore.collection('conversations').doc(_conversationId).set({
+        'userId': currentUser.uid == widget.chatWithId ? currentUser.uid : widget.chatWithId,
+        'providerId': currentUser.uid == widget.chatWithId ? widget.chatWithId : currentUser.uid,
+        'lastMessage': message,
+        'timestamp': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
-    _messageController.clear();
+      // Clear the message field if the widget is still mounted
+      if (mounted) {
+        setState(() {
+          _messageController.clear();
+        });
+      }
+    } catch (e) {
+      // Log or handle any errors (like connectivity issues) here if necessary
+      print("Error sending message: $e");
+    }
   }
-
+ 
   Widget _buildMessageList() {
     if (_conversationId == null) return Center(child: CircularProgressIndicator());
 
