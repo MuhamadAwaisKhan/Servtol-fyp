@@ -229,8 +229,11 @@ class _ServicesScreenState extends State<ServicesScreen> {
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream:
-                  FirebaseFirestore.instance.collection('service').snapshots(),
+              stream: FirebaseFirestore.instance
+                  .collection('service')
+                  .orderBy("ServiceName", descending: false)
+                  .orderBy("serviceNameLower", descending: false)
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -374,8 +377,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
         return 'assets/images/default.json';
     }
   }
-  String? selectedFilter;
 
+  String? selectedFilter;
 
   void _showFilterDialog() {
     showDialog(
@@ -387,23 +390,26 @@ class _ServicesScreenState extends State<ServicesScreen> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25)),
               title: Text('Filter Options',
-                  style: TextStyle(fontFamily:  'Poppins', fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                      fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
               content: Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     DropdownButtonFormField<String>(
-                      isDense: true, // makes the dropdown slightly more compact
+                      isDense: true,
+                      // makes the dropdown slightly more compact
                       itemHeight: 48.0,
                       value: _tempSelectedServiceType,
                       onChanged: (newValue) {
-                        setDialogState(() => _tempSelectedServiceType = newValue);
+                        setDialogState(
+                            () => _tempSelectedServiceType = newValue);
                       },
                       items: ['All', ...serviceTypes].map((type) {
                         return DropdownMenuItem<String>(
                           value: type,
-                          child:
-                              Text(type, style: TextStyle(fontFamily: 'Poppins')),
+                          child: Text(type,
+                              style: TextStyle(fontFamily: 'Poppins')),
                         );
                       }).toList(),
                       decoration: InputDecoration(
@@ -418,7 +424,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       height: 10,
                     ),
                     DropdownButtonFormField<String>(
-                      isDense: true, // makes the dropdown slightly more compact
+                      isDense: true,
+                      // makes the dropdown slightly more compact
                       itemHeight: 48.0,
                       value: _tempSelectedWageType,
                       onChanged: (newValue) {
@@ -427,8 +434,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       items: ['All', ...wageTypes].map((type) {
                         return DropdownMenuItem<String>(
                           value: type,
-                          child:
-                              Text(type, style: TextStyle(fontFamily: 'Poppins')),
+                          child: Text(type,
+                              style: TextStyle(fontFamily: 'Poppins')),
                         );
                       }).toList(),
                       decoration: InputDecoration(
@@ -443,7 +450,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       height: 10,
                     ),
                     DropdownButtonFormField<String>(
-                      isDense: true, // makes the dropdown slightly more compact
+                      isDense: true,
+                      // makes the dropdown slightly more compact
                       itemHeight: 48.0,
                       value: _tempSelectedProvince,
                       onChanged: (newValue) {
@@ -452,8 +460,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       items: ['All', ...provinces].map((type) {
                         return DropdownMenuItem<String>(
                           value: type,
-                          child:
-                              Text(type, style: TextStyle(fontFamily: 'Poppins')),
+                          child: Text(type,
+                              style: TextStyle(fontFamily: 'Poppins')),
                         );
                       }).toList(),
                       decoration: InputDecoration(
@@ -468,7 +476,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       height: 10,
                     ),
                     DropdownButtonFormField<String>(
-                      isDense: true, // makes the dropdown slightly more compact
+                      isDense: true,
+                      // makes the dropdown slightly more compact
                       itemHeight: 48.0,
                       value: _tempSelectedCity,
                       onChanged: (newValue) {
@@ -477,8 +486,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       items: ['All', ...cities].map((type) {
                         return DropdownMenuItem<String>(
                           value: type,
-                          child:
-                              Text(type, style: TextStyle(fontFamily: 'Poppins')),
+                          child: Text(type,
+                              style: TextStyle(fontFamily: 'Poppins')),
                         );
                       }).toList(),
                       decoration: InputDecoration(
@@ -493,7 +502,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       height: 10,
                     ),
                     DropdownButtonFormField<String>(
-                      isDense: true, // makes the dropdown slightly more compact
+                      isDense: true,
+                      // makes the dropdown slightly more compact
                       itemHeight: 48.0,
                       value: _tempSelectedCategory,
                       onChanged: (newValue) {
@@ -502,8 +512,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       items: ['All', ...categories].map((type) {
                         return DropdownMenuItem<String>(
                           value: type,
-                          child:
-                              Text(type, style: TextStyle(fontFamily: 'Poppins')),
+                          child: Text(type,
+                              style: TextStyle(fontFamily: 'Poppins')),
                         );
                       }).toList(),
                       decoration: InputDecoration(
@@ -518,17 +528,19 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       height: 10,
                     ),
                     DropdownButtonFormField<String>(
-                      isDense: true, // makes the dropdown slightly more compact
+                      isDense: true,
+                      // makes the dropdown slightly more compact
                       itemHeight: 48.0,
                       value: _tempSelectedSubcategory,
                       onChanged: (newValue) {
-                        setDialogState(() => _tempSelectedSubcategory = newValue);
+                        setDialogState(
+                            () => _tempSelectedSubcategory = newValue);
                       },
                       items: ['All', ...subcategories].map((type) {
                         return DropdownMenuItem<String>(
                           value: type,
-                          child:
-                              Text(type, style: TextStyle(fontFamily: 'Poppins')),
+                          child: Text(type,
+                              style: TextStyle(fontFamily: 'Poppins')),
                         );
                       }).toList(),
                       decoration: InputDecoration(
@@ -539,8 +551,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         ),
                       ),
                     ),
-                SizedBox(
-                  height: 10,),
+                    SizedBox(
+                      height: 10,
+                    ),
                   ],
                 ),
               ),
@@ -551,7 +564,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     filtersApplied = false;
                     Navigator.pop(context);
                   },
-                  child:  Text(
+                  child: Text(
                     'Clear Filters',
                     style: TextStyle(
                       fontFamily: 'Poppins',

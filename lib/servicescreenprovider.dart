@@ -88,10 +88,13 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
               stream: (searchController.text.isEmpty)
                   ? FirebaseFirestore.instance
                       .collection('service')
+                  .orderBy("ServiceName",descending: false)
                       .where('providerId', isEqualTo: currentUser?.uid)
                       .snapshots()
                   : FirebaseFirestore.instance
                       .collection('service')
+                  .orderBy("ServiceName",descending: false)
+                  .orderBy("serviceNameLower",descending: false)
                       .where('providerId', isEqualTo: currentUser?.uid)
                       .where('ServiceName',
                           isGreaterThanOrEqualTo: searchController.text)

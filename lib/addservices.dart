@@ -502,7 +502,7 @@ class _ServicesAdditionState extends State<ServicesAddition> {
           items: timestampItems.map((DropdownItem item) {
             return DropdownMenuItem<String>(
               value: item.id,
-              child: Text(item.name),
+              child: Text('${item.name} minutes'), // Concatenate 'minutes' here
             );
           }).toList(),
           onChanged: (String? value) {
@@ -510,7 +510,7 @@ class _ServicesAdditionState extends State<ServicesAddition> {
               var selectedItem = timestampItems.firstWhere((item) => item.id == value);
               setState(() {
                 selectedtimestampId = value; // Assign to selectedtimestampId
-                selectedtimestampName = selectedItem.name;
+                selectedtimestampName = '${selectedItem.name} minutes'; // Add 'minutes' here as well
               });
             }
           },

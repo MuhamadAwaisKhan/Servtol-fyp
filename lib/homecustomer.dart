@@ -391,7 +391,10 @@ class _HomeCustomerState extends State<HomeCustomer> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('service').snapshots(),
+            stream: FirebaseFirestore.instance.collection('service')
+                .orderBy("ServiceName",descending: false)
+
+                .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return Text("No Data Available");
