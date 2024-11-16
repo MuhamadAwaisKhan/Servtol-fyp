@@ -125,6 +125,49 @@ class uihelper {
       ),
     );
   }
+  static Widget CustomTextfieldpassword1(
+      BuildContext context,
+      TextEditingController controller,
+      String text,
+      bool passwordVisible,
+      Function(bool) toggleVisibility, {
+        String? Function(String?)? validator, // Optional validator parameter
+      }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+      child: TextFormField( // Changed from TextField to TextFormField for validation support
+        controller: controller,
+        obscureText: !passwordVisible,
+        decoration: InputDecoration(
+          labelText: text,
+          labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 17, color: Colors.blue),
+          suffixIcon: GestureDetector(
+            onTap: () {
+              toggleVisibility(!passwordVisible);
+            },
+            child: Icon(
+              passwordVisible ? Icons.visibility : Icons.visibility_off,
+              color: Theme.of(context).primaryColorDark,
+            ),
+          ),
+          border: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+        validator: validator, // Adding validation support
+      ),
+    );
+  }
+
 
   static CustomButton(
       VoidCallback voidCallback, String text, double h, double w) {
@@ -418,6 +461,62 @@ class uihelper {
       ),
     );
   }
+  static Widget CustomTextField12(
+      BuildContext context,
+      TextEditingController controller,
+      String text,
+      IconData iconData,
+      bool toHide, {
+        String? Function(String?)? validator, // Optional validator for form validation
+        bool isPasswordField = false,        // Flag to indicate password fields
+        Function(bool)? toggleVisibility,    // Callback for toggling password visibility
+      }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
+      child: TextFormField(
+        controller: controller,
+        obscureText: isPasswordField ? toHide : false,
+        decoration: InputDecoration(
+          labelText: text,
+          labelStyle: const TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 17,
+            color: Colors.blue,
+          ),
+          suffixIcon: isPasswordField
+              ? GestureDetector(
+            onTap: () {
+              if (toggleVisibility != null) {
+                toggleVisibility(!toHide);
+              }
+            },
+            child: Icon(
+              toHide ? Icons.visibility_off : Icons.visibility,
+              color: Theme.of(context).primaryColorDark,
+            ),
+          )
+              : Icon(
+            iconData,
+            color: Theme.of(context).primaryColorDark,
+          ),
+          border: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+        validator: validator, // Added validation support
+      ),
+    );
+  }
+
   static CustomTextField1(
       BuildContext context,
       TextEditingController controller,

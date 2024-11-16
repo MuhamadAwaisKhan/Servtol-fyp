@@ -1,24 +1,43 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:servtol/messagescreen.dart';
 import 'package:servtol/util/AppColors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class ProviderLogScreen extends StatefulWidget {
+class MessageLogProviderScreen extends StatefulWidget {
   final String providerId;
 
-  ProviderLogScreen({required this.providerId});
+  const MessageLogProviderScreen({Key? key, required this.providerId})
+      : super(key: key);
 
   @override
-  State<ProviderLogScreen> createState() => _ProviderLogScreenState();
+  State<MessageLogProviderScreen> createState() =>
+      _MessageLogProviderScreenState();
 }
 
-class _ProviderLogScreenState extends State<ProviderLogScreen> {
+class _MessageLogProviderScreenState extends State<MessageLogProviderScreen> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
+    final currentUser = _auth.currentUser;
+
+    if (currentUser == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text(
+            "Please log in to see your messages.",
+            style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'My Customers',
           style: TextStyle(
             fontFamily: 'Poppins',
@@ -32,63 +51,67 @@ class _ProviderLogScreenState extends State<ProviderLogScreen> {
       ),
       backgroundColor: AppColors.background,
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
+        stream: _firestore
             .collection('conversations')
-            .where('providerId', isEqualTo: widget.providerId)
+            .where('participants', arrayContains: currentUser.uid)
+            .orderBy('timestamp', descending: true)
             .snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No customers to display.'));
+            return const Center(child: CircularProgressIndicator());
           }
 
-          final customerChats = snapshot.data!.docs;
-          print('Fetched customer chats: ${customerChats.length}'); // Debugging
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text("Error fetching conversations."),
+            );
+          }
+
+          final conversations = snapshot.data?.docs ?? [];
+          if (conversations.isEmpty) {
+            return const Center(
+              child: Text("No conversations found."),
+            );
+          }
 
           return ListView.builder(
-            itemCount: customerChats.length,
+            itemCount: conversations.length,
             itemBuilder: (context, index) {
-              final chat = customerChats[index];
-              final customerId = chat['userId'] ?? '';
+              final data = conversations[index].data() as Map<String, dynamic>;
+              final customerId = (data['participants'] as List).firstWhere(
+                    (id) => id != currentUser.uid,
+                orElse: () => null,
+              );
+              final lastMessage = data['lastMessage'] ?? "No messages yet";
 
-              if (customerId.isEmpty) {
-                return ListTile(
-                  title: Text('Customer ID is missing'),
-                );
+              if (customerId == null) {
+                return const ListTile(title: Text("Unknown User"));
               }
 
               return FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance
-                    .collection('customer')
-                    .doc(customerId)
-                    .get(),
-                builder: (context, customerSnapshot) {
-                  if (customerSnapshot.connectionState == ConnectionState.waiting) {
-                    return ListTile(
-                      title: Text('Loading customer details...'),
+                future: _firestore.collection('customer').doc(customerId).get(),
+                builder: (context, userSnapshot) {
+                  if (userSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const ListTile(title: Text("Loading..."));
+                  }
+
+                  if (userSnapshot.hasError || !userSnapshot.hasData) {
+                    return const ListTile(
+                      title: Text("Error loading customer data."),
                     );
                   }
 
-                  if (customerSnapshot.hasError) {
-                    return ListTile(
-                      title: Text('Error loading customer data'),
-                    );
-                  }
-
-                  if (!customerSnapshot.hasData || !customerSnapshot.data!.exists) {
-                    return ListTile(
-                      title: Text('Customer not found'),
-                    );
-                  }
-
-                  final customerData = customerSnapshot.data!.data() as Map<String, dynamic>;
-                  final customerName = "${customerData['FirstName'] ?? 'Unknown'} ${customerData['LastName'] ?? ''}";
-                  final customerprofilepic = customerData['ProfilePic'] ?? '';
+                  final customerData = userSnapshot.data!.data()
+                  as Map<String, dynamic>? ??
+                      {};
+                  final customerName =
+                      customerData['FirstName'] ?? 'Unknown Customer';
+                  final profilePicUrl = customerData['ProfilePic'];
 
                   return Card(
-                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 8, horizontal: 16),
                     elevation: 4,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -96,17 +119,20 @@ class _ProviderLogScreenState extends State<ProviderLogScreen> {
                     child: ListTile(
                       leading: CircleAvatar(
                         radius: 30,
-                        backgroundImage: (customerprofilepic.isNotEmpty)
-                            ? NetworkImage(customerprofilepic)
+                        backgroundImage: profilePicUrl != null
+                            ? NetworkImage(profilePicUrl)
                             : null,
                         backgroundColor: AppColors.accentColor,
-                        child: (customerprofilepic.isEmpty)
-                            ? FaIcon(FontAwesomeIcons.user, color: Colors.white)
+                        child: profilePicUrl == null
+                            ? const FaIcon(
+                          FontAwesomeIcons.user,
+                          color: Colors.white,
+                        )
                             : null,
                       ),
                       title: Text(
                         customerName,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w600,
                           fontSize: 18,
@@ -114,15 +140,15 @@ class _ProviderLogScreenState extends State<ProviderLogScreen> {
                         ),
                       ),
                       subtitle: Text(
-                        'Tap to chat',
-                        style: TextStyle(
+                        lastMessage,
+                        style: const TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 14,
                           color: AppColors.secondaryTextColor,
                         ),
                       ),
                       trailing: Icon(
-                        FontAwesomeIcons.message,
+                        FontAwesomeIcons.solidMessage,
                         color: AppColors.primaryColor,
                       ),
                       onTap: () {
@@ -132,7 +158,7 @@ class _ProviderLogScreenState extends State<ProviderLogScreen> {
                             builder: (context) => MessageScreen(
                               chatWithId: customerId,
                               chatWithName: customerName,
-                              chatWithPicUrl: customerprofilepic,
+                              chatWithPicUrl: profilePicUrl,
                             ),
                           ),
                         );

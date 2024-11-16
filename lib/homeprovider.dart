@@ -15,7 +15,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:rxdart/rxdart.dart';
 
 class HomeProvider extends StatefulWidget {
-  Function onBackPress; // Making this final and required
+  Function onBackPress;
 
   HomeProvider({super.key, required this.onBackPress});
 
@@ -234,7 +234,7 @@ class _HomeProviderState extends State<HomeProvider> {
             onPressed: () =>
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ProviderLogScreen(providerId: providerId,)),
+                  MaterialPageRoute(builder: (context) => MessageLogProviderScreen(providerId: providerId,)),
                 ),
           ),
           StreamBuilder<List<QuerySnapshot>>(
