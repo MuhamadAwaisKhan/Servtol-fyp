@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -33,22 +32,28 @@ class _MessageScreenState extends State<MessageScreen> {
   final ImagePicker _picker = ImagePicker();
   File? _previewImage;
   String? _conversationId;
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  void _updateTyping(bool isTyping) {
-    _firestore.collection('conversations').doc(_conversationId).set({
-      'typing': {widget.chatWithId: isTyping},
-    }, SetOptions(merge: true));
+  String? _replyingToMessage;
+  final ScrollController _scrollController = ScrollController();
+  bool _isUserAtBottom = true;
+
+  void _scrollListener() {
+    if (_scrollController.offset >=
+        _scrollController.position.maxScrollExtent - 50) {
+      _isUserAtBottom = true;
+    } else {
+      _isUserAtBottom = false;
+    }
   }
-  void addMessage(DocumentSnapshot message) {
-    _listKey.currentState?.insertItem(0);
-  }
+
   @override
   void initState() {
     super.initState();
     _initializeConversation();
     _messageController.addListener(() {
-      _updateTyping(_messageController.text.isNotEmpty);
-    });  }
+      _updateTypingState(_messageController.text.isNotEmpty);
+      _scrollController.addListener(_scrollListener);
+    });
+  }
 
   void _initializeConversation() {
     final currentUser = _auth.currentUser;
@@ -60,6 +65,7 @@ class _MessageScreenState extends State<MessageScreen> {
       });
     }
   }
+
   Future<File?> compressImage(File file) async {
     final targetPath = file.path.replaceFirst('.jpg', '_compressed.jpg');
     return await FlutterImageCompress.compressAndGetFile(
@@ -73,12 +79,14 @@ class _MessageScreenState extends State<MessageScreen> {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      File compressed = await compressImage(File(pickedFile.path)) ?? File(pickedFile.path);
+      File compressed =
+          await compressImage(File(pickedFile.path)) ?? File(pickedFile.path);
       setState(() {
         _previewImage = compressed;
       });
     }
   }
+
   String _generateConversationId(String userId, String otherUserId) {
     return userId.compareTo(otherUserId) < 0
         ? '$userId\_$otherUserId'
@@ -99,16 +107,15 @@ class _MessageScreenState extends State<MessageScreen> {
         'senderId': currentUser.uid,
         'sentAt': FieldValue.serverTimestamp(),
         'read': false,
+        'replyTo': _replyingToMessage,
       };
 
-      // Add message to Firestore
       await _firestore
           .collection('conversations')
           .doc(_conversationId)
           .collection('messages')
           .add(messageData);
 
-      // Update or set conversation metadata
       await _firestore.collection('conversations').doc(_conversationId).set({
         'participants': [currentUser.uid, widget.chatWithId],
         'lastMessage': imageUrl != null ? '[Image]' : messageContent,
@@ -118,84 +125,13 @@ class _MessageScreenState extends State<MessageScreen> {
       setState(() {
         _messageController.clear();
         _previewImage = null;
+        _replyingToMessage = null;
       });
     } catch (e) {
       print("Error sending message: $e");
     }
   }
 
-  // Future<void> _selectImage() async {
-  //   final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-  //
-  //   if (pickedFile != null) {
-  //     setState(() {
-  //       _previewImage = File(pickedFile.path);
-  //     });
-  //   }
-  // }
-
-  void _clearPreview() {
-    setState(() {
-      _previewImage = null;
-    });
-  }
-
-  Future<void> _uploadAndSendImage() async {
-    if (_previewImage == null || _conversationId == null) return;
-
-    final currentUser = _auth.currentUser;
-    if (currentUser == null) return;
-
-    final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final storageRef = FirebaseStorage.instance
-        .ref()
-        .child('conversations/$_conversationId/$fileName');
-
-    try {
-      final uploadTask = await storageRef.putFile(_previewImage!);
-      final imageUrl = await uploadTask.ref.getDownloadURL();
-      _sendMessage(imageUrl: imageUrl);
-    } catch (e) {
-      print("Error uploading image: $e");
-    }
-  }
-
-  Widget _buildPreviewImage() {
-    return Container(
-      margin: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey, width: 2),
-      ),
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.file(
-              _previewImage!,
-              height: 150,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                icon: const FaIcon(FontAwesomeIcons.close, color: Colors.red),
-                onPressed: _clearPreview,
-              ),
-              IconButton(
-                icon: const FaIcon(FontAwesomeIcons.check, color: Colors.blue),
-                onPressed: _uploadAndSendImage,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
   void _updateTypingState(bool isTyping) async {
     if (_conversationId == null) return;
 
@@ -219,58 +155,20 @@ class _MessageScreenState extends State<MessageScreen> {
         .collection('messages');
 
     final unseenMessages = await messagesRef
-        .where('seenBy', arrayContains: currentUser.uid)
+        .where('read', isEqualTo: false)
+        .where('senderId', isNotEqualTo: currentUser.uid)
         .get();
 
     for (var doc in unseenMessages.docs) {
-      await doc.reference.update({
-        'seenBy': FieldValue.arrayUnion([currentUser.uid]),
-      });
+      await doc.reference.update({'read': true});
     }
   }
 
-  Widget _buildMessageInput() {
-    return Column(
-      children: [
-        if (_previewImage != null) _buildPreviewImage(),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const FaIcon(FontAwesomeIcons.image, color: Colors.blue),
-                onPressed: _selectImage,
-              ),
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Type a message...',
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 5),
-              CircleAvatar(
-                backgroundColor: Colors.blue,
-                child: IconButton(
-                  icon: FaIcon(FontAwesomeIcons.paperPlane,
-                      color: Colors.white, size: 18),
-                  onPressed: _sendMessage,
-                ),
-              ),
-            ],
-          ),
-        )
-      ],
-    );
+  // Helper to compare if two dates are the same
+  bool isSameDate(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 
   Widget _buildMessageList() {
@@ -284,91 +182,84 @@ class _MessageScreenState extends State<MessageScreen> {
             .collection('conversations')
             .doc(_conversationId)
             .collection('messages')
-            .orderBy('sentAt', descending: true)
+            .orderBy('sentAt', descending: false) // Oldest to newest
             .snapshots(),
         builder: (context, snapshot) {
-    if (!snapshot.hasData) return Container();
-    if (snapshot.connectionState == ConnectionState.waiting) {
-    return const Center(child: CircularProgressIndicator());
-    }
-    if (snapshot.hasError) {
-    print("Error loading messages: ${snapshot.error}");
-    return Center(child: Text("Error: ${snapshot.error}"));
-    }
-    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-    return const Center(child: Text("No messages yet"));
-    }
-    final typingData = snapshot.data?.get('typing') as Map<String, dynamic>? ?? {};
-    final otherUserTyping = typingData[widget.chatWithId] ?? false;
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-    if (otherUserTyping) {
-    return const Text(
-    'User is typing...',
-    style: TextStyle(fontSize: 12, color: Colors.grey),
-    );
-    }
           final messages = snapshot.data!.docs;
 
-          return ListView.builder(
-            reverse: true,
-            itemCount: messages.length,
-            itemBuilder: (context, index) {
-              final messageData = messages[index].data() as Map<String, dynamic>;
-              final isSentByUser =
-                  messageData['senderId'] == _auth.currentUser!.uid;
-              final messageContent =
-                  messageData['messageContent'] ?? '[Message missing]';
-              final messageType = messageData['messageType'] ?? 'text';
+          // Mark messages as seen
+          _markMessagesAsSeen();
 
-              // Mark message as seen if not sent by user
-              if (!isSentByUser && !(messageData['read'] ?? false)) {
-                messages[index].reference.update({'read': true});
-              }
+          // Render messages
+          List<Widget> messageWidgets = [];
+          String? lastDateLabel;
 
-              return GestureDetector(
+          for (var i = 0; i < messages.length; i++) {
+            final messageData = messages[i].data() as Map<String, dynamic>;
+            final isSentByUser =
+                messageData['senderId'] == _auth.currentUser!.uid;
+            final messageContent =
+                messageData['messageContent'] ?? '[Message missing]';
+            final messageType = messageData['messageType'] ?? 'text';
+            final replyTo = messageData['replyTo'];
+            final timestamp = messageData['sentAt'] as Timestamp;
+            final messageDate = timestamp.toDate();
+
+            final localMessageDate = messageDate.toLocal();
+            final now = DateTime.now();
+
+            // Determine date label
+            String dateLabel;
+            if (isSameDate(localMessageDate, now)) {
+              dateLabel = "Today";
+            } else if (isSameDate(
+                localMessageDate, now.subtract(Duration(days: 1)))) {
+              dateLabel = "Yesterday";
+            } else {
+              dateLabel = DateFormat('MMMM d, yyyy').format(localMessageDate);
+            }
+
+            if (lastDateLabel != dateLabel) {
+              messageWidgets.add(
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Center(
+                    child: Text(
+                      dateLabel,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+              lastDateLabel = dateLabel;
+            }
+
+            // Add the message widget
+            messageWidgets.add(
+              GestureDetector(
                 onLongPress: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Message Options'),
-                        actions: [
-                          TextButton(
-                            child: const Text('Reply'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              _messageController.text =
-                              "Replying to: $messageContent";
-                            },
-                          ),
-                          if (isSentByUser)
-                            TextButton(
-                              child: const Text('Delete'),
-                              onPressed: () async {
-                                try {
-                                  await messages[index].reference.delete();
-                                  Navigator.of(context).pop();
-                                } catch (e) {
-                                  print("Error deleting message: $e");
-                                  Navigator.of(context).pop();
-                                }
-                              },
-                            ),
-                          TextButton(
-                            child: const Text('Cancel'),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                        ],
-                      );
-                    },
+                  _handleMessageLongPress(
+                    context,
+                    messages[i],
+                    messageContent,
+                    isSentByUser,
                   );
                 },
                 child: Align(
-                  alignment:
-                  isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment: isSentByUser
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
                   child: Container(
                     margin:
-                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: isSentByUser ? Colors.blue : Colors.grey[300],
@@ -377,6 +268,14 @@ class _MessageScreenState extends State<MessageScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (replyTo != null)
+                          Text(
+                            'Replying to: $replyTo',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
                         if (messageType == 'text')
                           Text(
                             messageContent,
@@ -392,28 +291,6 @@ class _MessageScreenState extends State<MessageScreen> {
                               height: 150,
                               width: 150,
                               fit: BoxFit.cover,
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) {
-                                  return child;
-                                } else {
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                          ? loadingProgress.cumulativeBytesLoaded /
-                                          (loadingProgress
-                                              .expectedTotalBytes ?? 1)
-                                          : null,
-                                    ),
-                                  );
-                                }
-                              },
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Text(
-                                  'Failed to load image',
-                                  style: TextStyle(color: Colors.red),
-                                );
-                              },
                             ),
                           )
                         else
@@ -423,9 +300,7 @@ class _MessageScreenState extends State<MessageScreen> {
                           ),
                         const SizedBox(height: 5),
                         Text(
-                          DateFormat('h:mm a').format(
-                            (messageData['sentAt'] as Timestamp).toDate(),
-                          ),
+                          DateFormat('h:mm a').format(localMessageDate),
                           style: const TextStyle(
                             fontSize: 10,
                             color: Colors.black54,
@@ -435,17 +310,65 @@ class _MessageScreenState extends State<MessageScreen> {
                     ),
                   ),
                 ),
-              );
-            },
+              ),
+            );
+          }
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_scrollController.hasClients) {
+              _scrollController
+                  .jumpTo(_scrollController.position.maxScrollExtent);
+            }
+          });
+
+          return ListView(
+            controller: _scrollController,
+            children: messageWidgets,
           );
         },
       ),
     );
   }
 
-  /// Helper function to validate a URL
-  bool _isValidUrl(String url) {
-    return Uri.tryParse(url)?.hasAbsolutePath ?? false;
+// Handle message long press actions (with delete option)
+  void _handleMessageLongPress(BuildContext context, QueryDocumentSnapshot doc,
+      String messageContent, bool isSentByUser) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Message Options'),
+          actions: [
+            TextButton(
+              child: const Text('Reply'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  _replyingToMessage = messageContent;
+                });
+              },
+            ),
+            if (isSentByUser)
+              TextButton(
+                child: const Text('Delete'),
+                onPressed: () async {
+                  try {
+                    await doc.reference.delete();
+                    Navigator.of(context).pop();
+                  } catch (e) {
+                    print("Error deleting message: $e");
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _previewImageDialog(String imageUrl) {
@@ -455,17 +378,22 @@ class _MessageScreenState extends State<MessageScreen> {
       builder: (_) => Dialog(
         backgroundColor: Colors.transparent,
         child: GestureDetector(
-          onTap: () => Navigator.pop(context), // Close dialog on tap outside
+          onTap: () => Navigator.pop(context),
+          // Close dialog on tap outside
           child: Container(
             color: Colors.black.withOpacity(0.8), // Dark background
             child: Stack(
               children: [
                 Center(
                   child: InteractiveViewer(
-                    panEnabled: true, // Allow panning
-                    boundaryMargin: EdgeInsets.all(20), // Margin around the image
-                    minScale: 0.1, // Minimum zoom level
-                    maxScale: 4.0, // Maximum zoom level
+                    panEnabled: true,
+                    // Allow panning
+                    boundaryMargin: EdgeInsets.all(20),
+                    // Margin around the image
+                    minScale: 0.1,
+                    // Minimum zoom level
+                    maxScale: 4.0,
+                    // Maximum zoom level
                     child: Image.network(
                       imageUrl,
                       fit: BoxFit.contain,
@@ -477,7 +405,7 @@ class _MessageScreenState extends State<MessageScreen> {
                             child: CircularProgressIndicator(
                               value: loadingProgress.expectedTotalBytes != null
                                   ? loadingProgress.cumulativeBytesLoaded /
-                                  (loadingProgress.expectedTotalBytes ?? 1)
+                                      (loadingProgress.expectedTotalBytes ?? 1)
                                   : null,
                             ),
                           );
@@ -510,6 +438,78 @@ class _MessageScreenState extends State<MessageScreen> {
     );
   }
 
+  Widget _buildMessageInput() {
+    return Column(
+      children: [
+        if (_replyingToMessage != null)
+          Container(
+            color: Colors.grey[200],
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Replying to: $_replyingToMessage',
+                    style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    setState(() {
+                      _replyingToMessage = null;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              IconButton(
+                icon: const FaIcon(FontAwesomeIcons.image, color: Colors.lightBlue),
+                onPressed: _selectImage,
+              ),
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: InputDecoration(
+                      hintText: 'Type a message...',
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+              ),              SizedBox(width: 5),
+
+              CircleAvatar(
+                backgroundColor: Colors.blue,
+                child: IconButton(
+                  icon: FaIcon(FontAwesomeIcons.paperPlane,
+                      color: Colors.white, size: 18),
+                  onPressed: _sendMessage,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -517,16 +517,48 @@ class _MessageScreenState extends State<MessageScreen> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundImage: NetworkImage(widget.chatWithPicUrl ??
-                  'https://example.com/default_pic.png'),
+              backgroundImage: widget.chatWithPicUrl != null
+                  ? NetworkImage(widget.chatWithPicUrl!)
+                  : null,
+              child: widget.chatWithPicUrl == null
+                  ? const Icon(Icons.person, size: 30)
+                  : null,
             ),
-            SizedBox(width: 10),
-            Text(
-              widget.chatWithName,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.chatWithName,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                StreamBuilder<DocumentSnapshot>(
+                  stream: _firestore
+                      .collection('users')
+                      .doc(
+                        widget.chatWithId,
+                      )
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData &&
+                        snapshot.data!.data() is Map<String, dynamic>) {
+                      final userData =
+                          snapshot.data!.data() as Map<String, dynamic>;
+                      return Text(
+                        userData['status'] ?? 'Offline',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ],
             ),
           ],
         ),
@@ -535,8 +567,7 @@ class _MessageScreenState extends State<MessageScreen> {
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-
-          Expanded(child: _buildMessageList()),
+          _buildMessageList(),
           _buildMessageInput(),
         ],
       ),
