@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -59,7 +60,7 @@ class _MessageScreenState extends State<MessageScreen> {
     final currentUser = _auth.currentUser;
     if (currentUser != null) {
       final conversationId =
-          _generateConversationId(currentUser.uid, widget.chatWithId);
+      _generateConversationId(currentUser.uid, widget.chatWithId);
       setState(() {
         _conversationId = conversationId;
       });
@@ -75,10 +76,12 @@ class _MessageScreenState extends State<MessageScreen> {
     );
   }
 
+
   Future<void> _selectImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
+      // Compress image before displaying it
       File compressed =
           await compressImage(File(pickedFile.path)) ?? File(pickedFile.path);
       setState(() {
@@ -86,6 +89,73 @@ class _MessageScreenState extends State<MessageScreen> {
       });
     }
   }
+
+  Widget _buildImagePreview() {
+    if (_previewImage != null) {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.file(
+                _previewImage!,
+                width: 150,
+                height: 150,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Cancel button
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _previewImage = null; // Cancel the image selection
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red, textStyle: TextStyle(fontSize: 16),
+                  ),
+                  child: Text("Cancel"),
+                ),
+                SizedBox(width: 20),
+                // Send button
+                TextButton(
+                  onPressed: () async {
+                    await _sendImageMessage(); // Send the image
+                    setState(() {
+                      _previewImage = null; // Reset after sending
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.green, textStyle: TextStyle(fontSize: 16),
+                  ),
+                  child: Text("Send"),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+    return SizedBox.shrink(); // If no image is selected, return empty widget
+  }
+
 
   String _generateConversationId(String userId, String otherUserId) {
     return userId.compareTo(otherUserId) < 0
@@ -259,7 +329,7 @@ class _MessageScreenState extends State<MessageScreen> {
                       : Alignment.centerLeft,
                   child: Container(
                     margin:
-                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: isSentByUser ? Colors.blue : Colors.grey[300],
@@ -328,6 +398,35 @@ class _MessageScreenState extends State<MessageScreen> {
         },
       ),
     );
+  }
+  Future<String?> _uploadImage(File imageFile) async {
+    try {
+      // Get a reference to Firebase Storage
+      final storageRef = FirebaseStorage.instance.ref().child(
+          'message_images/${DateTime.now().millisecondsSinceEpoch}.jpg');
+
+      // Upload the image to Firebase Storage
+      final uploadTask = storageRef.putFile(imageFile);
+
+      // Wait for the upload to complete
+      final snapshot = await uploadTask.whenComplete(() => {});
+
+      // Get the image URL after uploading
+      final imageUrl = await snapshot.ref.getDownloadURL();
+      return imageUrl;
+    } catch (e) {
+      print("Error uploading image: $e");
+      return null;
+    }
+  }
+
+  Future<void> _sendImageMessage() async {
+    if (_previewImage == null) return;
+
+    final imageUrl = await _uploadImage(_previewImage!);
+    if (imageUrl != null) {
+      _sendMessage(imageUrl: imageUrl);
+    }
   }
 
 // Handle message long press actions (with delete option)
@@ -405,7 +504,7 @@ class _MessageScreenState extends State<MessageScreen> {
                             child: CircularProgressIndicator(
                               value: loadingProgress.expectedTotalBytes != null
                                   ? loadingProgress.cumulativeBytesLoaded /
-                                      (loadingProgress.expectedTotalBytes ?? 1)
+                                  (loadingProgress.expectedTotalBytes ?? 1)
                                   : null,
                             ),
                           );
@@ -487,8 +586,8 @@ class _MessageScreenState extends State<MessageScreen> {
                     ),
                   ),
                 ),
-              ),              SizedBox(width: 5),
-
+              ),
+              SizedBox(width: 5),
               CircleAvatar(
                 backgroundColor: Colors.blue,
                 child: IconButton(
@@ -500,10 +599,11 @@ class _MessageScreenState extends State<MessageScreen> {
             ],
           ),
         ),
+        // Add image preview above the input field
+        if (_previewImage != null) _buildImagePreview(),
       ],
     );
   }
-
   @override
   void dispose() {
     _scrollController.dispose();
@@ -539,14 +639,14 @@ class _MessageScreenState extends State<MessageScreen> {
                   stream: _firestore
                       .collection('users')
                       .doc(
-                        widget.chatWithId,
-                      )
+                    widget.chatWithId,
+                  )
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData &&
                         snapshot.data!.data() is Map<String, dynamic>) {
                       final userData =
-                          snapshot.data!.data() as Map<String, dynamic>;
+                      snapshot.data!.data() as Map<String, dynamic>;
                       return Text(
                         userData['status'] ?? 'Offline',
                         style: const TextStyle(
