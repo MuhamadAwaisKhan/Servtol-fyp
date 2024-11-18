@@ -60,7 +60,7 @@ class _MessageScreenState extends State<MessageScreen> {
     final currentUser = _auth.currentUser;
     if (currentUser != null) {
       final conversationId =
-      _generateConversationId(currentUser.uid, widget.chatWithId);
+          _generateConversationId(currentUser.uid, widget.chatWithId);
       setState(() {
         _conversationId = conversationId;
       });
@@ -75,7 +75,6 @@ class _MessageScreenState extends State<MessageScreen> {
       quality: 70,
     );
   }
-
 
   Future<void> _selectImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -129,7 +128,8 @@ class _MessageScreenState extends State<MessageScreen> {
                     });
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: Colors.red, textStyle: TextStyle(fontSize: 16),
+                    foregroundColor: Colors.red,
+                    textStyle: TextStyle(fontSize: 16),
                   ),
                   child: Text("Cancel"),
                 ),
@@ -143,7 +143,8 @@ class _MessageScreenState extends State<MessageScreen> {
                     });
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: Colors.green, textStyle: TextStyle(fontSize: 16),
+                    foregroundColor: Colors.green,
+                    textStyle: TextStyle(fontSize: 16),
                   ),
                   child: Text("Send"),
                 ),
@@ -155,7 +156,6 @@ class _MessageScreenState extends State<MessageScreen> {
     }
     return SizedBox.shrink(); // If no image is selected, return empty widget
   }
-
 
   String _generateConversationId(String userId, String otherUserId) {
     return userId.compareTo(otherUserId) < 0
@@ -276,8 +276,15 @@ class _MessageScreenState extends State<MessageScreen> {
                 messageData['messageContent'] ?? '[Message missing]';
             final messageType = messageData['messageType'] ?? 'text';
             final replyTo = messageData['replyTo'];
-            final timestamp = messageData['sentAt'] as Timestamp;
-            final messageDate = timestamp.toDate();
+            final timestamp = messageData['sentAt'];
+            DateTime? messageDate;
+
+            if (timestamp != null && timestamp is Timestamp) {
+              messageDate = timestamp.toDate();
+            } else {
+              // Handle the case where the timestamp is null (optional default value)
+              messageDate = DateTime.now(); // or any other default value
+            }
 
             final localMessageDate = messageDate.toLocal();
             final now = DateTime.now();
@@ -329,7 +336,7 @@ class _MessageScreenState extends State<MessageScreen> {
                       : Alignment.centerLeft,
                   child: Container(
                     margin:
-                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: isSentByUser ? Colors.blue : Colors.grey[300],
@@ -338,14 +345,43 @@ class _MessageScreenState extends State<MessageScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Handle the `replyTo` display logic
                         if (replyTo != null)
-                          Text(
-                            'Replying to: $replyTo',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontStyle: FontStyle.italic,
+                          if (replyTo.startsWith('https'))
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Replying with an image:',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                                Image.network(
+                                  replyTo,
+                                  height: 100, // Adjust the height as needed
+                                  width: 100,  // Adjust the width as needed
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Text(
+                                      'Error loading image',
+                                      style: TextStyle(fontSize: 10),
+                                    );
+                                  },
+                                ),
+                              ],
+                            )
+                          else
+                            Text(
+                              'Replying to: $replyTo',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
-                          ),
+
+                        // Handle message content display logic
                         if (messageType == 'text')
                           Text(
                             messageContent,
@@ -361,6 +397,12 @@ class _MessageScreenState extends State<MessageScreen> {
                               height: 150,
                               width: 150,
                               fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Text(
+                                  'Error loading image',
+                                  style: TextStyle(color: Colors.red),
+                                );
+                              },
                             ),
                           )
                         else
@@ -368,6 +410,8 @@ class _MessageScreenState extends State<MessageScreen> {
                             'Unsupported message type',
                             style: TextStyle(color: Colors.red),
                           ),
+
+                        // Display the message timestamp
                         const SizedBox(height: 5),
                         Text(
                           DateFormat('h:mm a').format(localMessageDate),
@@ -378,6 +422,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         ),
                       ],
                     ),
+
                   ),
                 ),
               ),
@@ -399,11 +444,13 @@ class _MessageScreenState extends State<MessageScreen> {
       ),
     );
   }
+
   Future<String?> _uploadImage(File imageFile) async {
     try {
       // Get a reference to Firebase Storage
-      final storageRef = FirebaseStorage.instance.ref().child(
-          'message_images/${DateTime.now().millisecondsSinceEpoch}.jpg');
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('message_images/${DateTime.now().millisecondsSinceEpoch}.jpg');
 
       // Upload the image to Firebase Storage
       final uploadTask = storageRef.putFile(imageFile);
@@ -504,7 +551,7 @@ class _MessageScreenState extends State<MessageScreen> {
                             child: CircularProgressIndicator(
                               value: loadingProgress.expectedTotalBytes != null
                                   ? loadingProgress.cumulativeBytesLoaded /
-                                  (loadingProgress.expectedTotalBytes ?? 1)
+                                      (loadingProgress.expectedTotalBytes ?? 1)
                                   : null,
                             ),
                           );
@@ -568,7 +615,8 @@ class _MessageScreenState extends State<MessageScreen> {
           child: Row(
             children: [
               IconButton(
-                icon: const FaIcon(FontAwesomeIcons.image, color: Colors.lightBlue),
+                icon: const FaIcon(FontAwesomeIcons.image,
+                    color: Colors.lightBlue),
                 onPressed: _selectImage,
               ),
               Expanded(
@@ -604,6 +652,7 @@ class _MessageScreenState extends State<MessageScreen> {
       ],
     );
   }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -639,14 +688,14 @@ class _MessageScreenState extends State<MessageScreen> {
                   stream: _firestore
                       .collection('users')
                       .doc(
-                    widget.chatWithId,
-                  )
+                        widget.chatWithId,
+                      )
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData &&
                         snapshot.data!.data() is Map<String, dynamic>) {
                       final userData =
-                      snapshot.data!.data() as Map<String, dynamic>;
+                          snapshot.data!.data() as Map<String, dynamic>;
                       return Text(
                         userData['status'] ?? 'Offline',
                         style: const TextStyle(

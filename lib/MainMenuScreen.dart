@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:servtol/datamangamentadmin.dart';
-import 'package:servtol/favouriteservice.dart';
 import 'package:servtol/logincustomer.dart';
 import 'package:servtol/loginprovider.dart';
-import 'package:servtol/mainmenuInterface.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 
@@ -23,7 +21,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.background,
-
       ),
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
@@ -47,7 +44,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 height: 15,
               ),
               uihelper.CustomButton(
-                    () {
+                () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => loginprovider()));
                   // setState(() {
@@ -67,7 +64,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 height: 30,
               ),
               uihelper.CustomButton(
-                    () {
+                () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => logincustomer()));
                   // setState(() {
@@ -87,9 +84,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 height: 30,
               ),
               uihelper.CustomButton(
-                    () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => datamanagement()));
+                () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => datamanagement()));
                   // setState(() {
                   //   isSecondButtonClicked = false; // Reset second button state
                   //   isFirstButtonClicked =
@@ -106,7 +105,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               SizedBox(
                 height: 30,
               ),
-
             ],
           ),
         ),

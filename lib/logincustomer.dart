@@ -23,7 +23,20 @@ class logincustomer extends StatefulWidget {
 }
 
 class _logincustomerState extends State<logincustomer> {
-
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    @override
+    void initState() {
+      // TODO: implement initState
+      super.initState();
+      // var user = FirebaseAuth.instance.currentUser;
+      // if (user != null)
+      //   Navigator.push(
+      //       context, MaterialPageRoute(builder: (context) => logincustomer()));
+    }
+  }
   TextEditingController emailcontroller = TextEditingController(text:'qwerty@awais.com');
   TextEditingController passwordcontroller = TextEditingController(text:'123456789');
   bool _hidePassword = false;
