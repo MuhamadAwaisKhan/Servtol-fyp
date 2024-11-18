@@ -2,10 +2,14 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -50,7 +54,6 @@ class _MessageScreenState extends State<MessageScreen> {
   void initState() {
     super.initState();
     _initializeConversation();
-    _updateOnlineStatus('Online');
     _messageController.addListener(() {
       _updateTypingState(_messageController.text.isNotEmpty);
       _scrollController.addListener(_scrollListener);
@@ -61,7 +64,7 @@ class _MessageScreenState extends State<MessageScreen> {
     final currentUser = _auth.currentUser;
     if (currentUser != null) {
       final conversationId =
-          _generateConversationId(currentUser.uid, widget.chatWithId);
+      _generateConversationId(currentUser.uid, widget.chatWithId);
       setState(() {
         _conversationId = conversationId;
       });
@@ -176,21 +179,24 @@ class _MessageScreenState extends State<MessageScreen> {
         'messageContent': messageContent,
         'messageType': imageUrl != null ? 'image' : 'text',
         'senderId': currentUser.uid,
-        'sentAt': FieldValue.serverTimestamp(),
+        'sentAt': ServerValue.timestamp,
         'read': false,
         'replyTo': _replyingToMessage,
       };
+      final newMessageRef = _database // Use _database for Realtime Database
+          .ref()
+          .child('conversations')
+          .child(_conversationId!)
+          .child('messages')
+          .push();
 
-      await _firestore
-          .collection('conversations')
-          .doc(_conversationId)
-          .collection('messages')
-          .add(messageData);
+      await newMessageRef.set(messageData);
 
-      await _firestore.collection('conversations').doc(_conversationId).set({
+
+      await _database.ref().child('conversations').child(_conversationId!).update({
         'participants': [currentUser.uid, widget.chatWithId],
         'lastMessage': imageUrl != null ? '[Image]' : messageContent,
-        'timestamp': FieldValue.serverTimestamp(),
+        'timestamp': ServerValue.timestamp, // Use ServerValue.timestamp for Realtime Database
       }, SetOptions(merge: true));
 
       setState(() {
@@ -209,33 +215,30 @@ class _MessageScreenState extends State<MessageScreen> {
     final currentUser = _auth.currentUser;
     if (currentUser == null) return;
 
-    try {
-      await _firestore.collection('conversations').doc(_conversationId).update({
-        'typing.${currentUser.uid}': isTyping,
-      });
-    } catch (e) {
-      print("Error updating typing state: $e");
-    }
+    await _database.ref().child('conversations').child(_conversationId!).update({
+      'typing.${currentUser.uid}': isTyping,
+    });
   }
+
   void _markMessagesAsSeen() async {
     if (_conversationId == null) return;
 
     final currentUser = _auth.currentUser;
     if (currentUser == null) return;
 
-    final messagesRef = _firestore
-        .collection('conversations')
-        .doc(_conversationId)
-        .collection('messages');
+    final messagesRef = _database // Use _database for Realtime Database
+        .ref()
+        .child('conversations')
+        .child(_conversationId!)
+        .child('messages');
 
-    final unseenMessages = await messagesRef
-        .where('read', isEqualTo: false)
-        .where('senderId', isNotEqualTo: currentUser.uid)
-        .get();
-
-    for (var doc in unseenMessages.docs) {
+    await messagesRef
+        .orderByChild('read')
+        .equalTo(false)
+        .once()
+        .then((DataSnapshot snapshot) async {
       await doc.reference.update({'read': true});
-    }
+    });
   }
 
   // Helper to compare if two dates are the same
@@ -245,267 +248,210 @@ class _MessageScreenState extends State<MessageScreen> {
         date1.day == date2.day;
   }
 
-  Future<String?> _getConversationId() async {
-    final currentUser = _auth.currentUser;
-    if (currentUser != null) {
-      return _generateConversationId(currentUser.uid, widget.chatWithId);
-    }
-    return null;
-  }
-
   Widget _buildMessageList() {
+    if (_conversationId == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Expanded(
-        child: FutureBuilder<String?>(
-            future: _getConversationId(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
+      child: StreamBuilder<DatabaseEvent>( // Use StreamBuilder<DatabaseEvent> for Realtime Database
+        stream: _database // Use _database for Realtime Database
+            .ref()
+            .child('conversations')
+            .child(_conversationId!)
+            .child('messages')
+            .orderByChild('sentAt')
+            .onValue,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-              if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              }
+          final messages = snapshot.data!.docs;
 
-              _conversationId = snapshot.data;
+          // Mark messages as seen
+          _markMessagesAsSeen();
 
-              if (_conversationId == null) {
-                return const Center(child: Text('No conversation found.'));
-              }
+          // Render messages
+          List<Widget> messageWidgets = [];
+          String? lastDateLabel;
 
-              return StreamBuilder<QuerySnapshot>(
-                stream: _firestore
-                    .collection('conversations')
-                    .doc(_conversationId)
-                    .collection('messages')
-                    .orderBy('sentAt', descending: false)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+          for (var i = 0; i < messages.length; i++) {
 
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  }
+            Map<dynamic, dynamic>? messages =
+            snapshot.data!.snapshot.value as Map<dynamic, dynamic>?;
+            final messageData = messages[i].data() as Map<String, dynamic>;
+            final isSentByUser =
+                messageData['senderId'] == _auth.currentUser!.uid;
+            final messageContent =
+                messageData['messageContent'] ?? '[Message missing]';
+            final messageType = messageData['messageType'] ?? 'text';
+            final replyTo = messageData['replyTo'];
+            final timestamp = messageData['sentAt'];
+            DateTime messageDate;
+            if (timestamp != null) {
+              messageDate = DateTime.fromMillisecondsSinceEpoch(timestamp as int);
+            } else {
+              // Handle the case where the timestamp is null (optional default value)
+              messageDate = DateTime.now(); // or any other default value
+            }
 
-                  final messages = snapshot.data!.docs;
+            final localMessageDate = messageDate.toLocal();
+            final now = DateTime.now();
 
-                  // Mark messages as seen
-                  _markMessagesAsSeen();
-                  // Render messages
-                  List<Widget> messageWidgets = [];
-                  String? lastDateLabel;
+            // Determine date label
+            String dateLabel;
+            if (isSameDate(localMessageDate, now)) {
+              dateLabel = "Today";
+            } else if (isSameDate(
+                localMessageDate, now.subtract(Duration(days: 1)))) {
+              dateLabel = "Yesterday";
+            } else {
+              dateLabel = DateFormat('MMMM d, yyyy').format(localMessageDate);
+            }
 
-                  for (var i = 0; i < messages.length; i++) {
-                    final messageData =
-                        messages[i].data() as Map<String, dynamic>;
-                    final isSentByUser =
-                        messageData['senderId'] == _auth.currentUser!.uid;
-                    final messageContent =
-                        messageData['messageContent'] ?? '[Message missing]';
-                    final messageType = messageData['messageType'] ?? 'text';
-                    final replyTo = messageData['replyTo'];
-                    final timestamp = messageData['sentAt'];
-                    final isRead =
-                        messageData['read'] ?? false; // Get the read status
-                    DateTime? messageDate;
-
-                    if (timestamp != null && timestamp is Timestamp) {
-                      messageDate = timestamp.toDate();
-                    } else {
-                      // Handle the case where the timestamp is null (optional default value)
-                      messageDate =
-                          DateTime.now(); // or any other default value
-                    }
-
-                    final localMessageDate = messageDate.toLocal();
-                    final now = DateTime.now();
-
-                    // Determine date label
-                    String dateLabel;
-                    if (isSameDate(localMessageDate, now)) {
-                      dateLabel = "Today";
-                    } else if (isSameDate(
-                        localMessageDate, now.subtract(Duration(days: 1)))) {
-                      dateLabel = "Yesterday";
-                    } else {
-                      dateLabel =
-                          DateFormat('MMMM d, yyyy').format(localMessageDate);
-                    }
-
-                    if (lastDateLabel != dateLabel) {
-                      messageWidgets.add(
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Center(
-                            child: Text(
-                              dateLabel,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                      lastDateLabel = dateLabel;
-                    }
-
-                    // Add the message widget
-                    messageWidgets.add(
-                      GestureDetector(
-                        onLongPress: () {
-                          _handleMessageLongPress(
-                            context,
-                            messages[i],
-                            messageContent,
-                            isSentByUser,
-                          );
-                        },
-                        child: Align(
-                          alignment: isSentByUser
-                              ? Alignment.centerRight
-                              : Alignment.centerLeft,
-                          child: Container(
-                            constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width *
-                                  0.3, // Adjust the multiplier as needed
-                            ),
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color:
-                                  isSentByUser ? Colors.blue : Colors.grey[300],
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Handle the `replyTo` display logic
-                                if (replyTo != null)
-                                  if (replyTo.startsWith('https'))
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'Replying with an image:',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        ),
-                                        Image.network(
-                                          replyTo,
-                                          height: 100,
-                                          // Adjust the height as needed
-                                          width: 100,
-                                          // Adjust the width as needed
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return const Text(
-                                              'Error loading image',
-                                              style: TextStyle(fontSize: 10),
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    )
-                                  else
-                                    Text(
-                                      'Replying to: $replyTo',
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-
-                                // Handle message content display logic
-                                if (messageType == 'text')
-                                  Text(
-                                    messageContent,
-                                    style: TextStyle(
-                                      color: isSentByUser
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                                  )
-                                else if (messageType == 'image')
-                                  GestureDetector(
-                                    onTap: () =>
-                                        _previewImageDialog(messageContent),
-                                    child: Image.network(
-                                      messageContent,
-                                      height: 150,
-                                      width: 150,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return const Text(
-                                          'Error loading image',
-                                          style: TextStyle(color: Colors.red),
-                                        );
-                                      },
-                                    ),
-                                  )
-                                else
-                                  Text(
-                                    'Unsupported message type',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-
-                                // Display the message timestamp
-                                const SizedBox(height: 5),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      DateFormat('h:mm a')
-                                          .format(localMessageDate),
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                    if (isSentByUser)
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 5.0),
-                                        child: Icon(
-                                          isRead ? Icons.done_all : Icons.done,
-                                          size: 15,
-                                          color: isRead
-                                              ? Colors.amberAccent
-                                              : Colors.black,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+            if (lastDateLabel != dateLabel) {
+              messageWidgets.add(
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Center(
+                    child: Text(
+                      dateLabel,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
                       ),
-                    );
-                  }
+                    ),
+                  ),
+                ),
+              );
+              lastDateLabel = dateLabel;
+            }
 
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (_scrollController.hasClients) {
-                      _scrollController
-                          .jumpTo(_scrollController.position.maxScrollExtent);
-                    }
-                  });
-
-                  return ListView(
-                    controller: _scrollController,
-                    children: messageWidgets,
+            // Add the message widget
+            messageWidgets.add(
+              GestureDetector(
+                onLongPress: () {
+                  _handleMessageLongPress(
+                    context,
+                    messages[i],
+                    messageContent,
+                    isSentByUser,
                   );
                 },
-              );
-            }));
+                child: Align(
+                  alignment: isSentByUser
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
+                  child: Container(
+                    margin:
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: isSentByUser ? Colors.blue : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Handle the `replyTo` display logic
+                        if (replyTo != null)
+                          if (replyTo.startsWith('https'))
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Replying with an image:',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                                Image.network(
+                                  replyTo,
+                                  height: 100, // Adjust the height as needed
+                                  width: 100, // Adjust the width as needed
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Text(
+                                      'Error loading image',
+                                      style: TextStyle(fontSize: 10),
+                                    );
+                                  },
+                                ),
+                              ],
+                            )
+                          else
+                            Text(
+                              'Replying to: $replyTo',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+
+                        // Handle message content display logic
+                        if (messageType == 'text')
+                          Text(
+                            messageContent,
+                            style: TextStyle(
+                              color: isSentByUser ? Colors.white : Colors.black,
+                            ),
+                          )
+                        else if (messageType == 'image')
+                          GestureDetector(
+                            onTap: () => _previewImageDialog(messageContent),
+                            child: Image.network(
+                              messageContent,
+                              height: 150,
+                              width: 150,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Text(
+                                  'Error loading image',
+                                  style: TextStyle(color: Colors.red),
+                                );
+                              },
+                            ),
+                          )
+                        else
+                          Text(
+                            'Unsupported message type',
+                            style: TextStyle(color: Colors.red),
+                          ),
+
+                        // Display the message timestamp
+                        const SizedBox(height: 5),
+                        Text(
+                          DateFormat('h:mm a').format(localMessageDate),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_scrollController.hasClients) {
+              _scrollController
+                  .jumpTo(_scrollController.position.maxScrollExtent);
+            }
+          });
+
+          return ListView(
+            controller: _scrollController,
+            children: messageWidgets,
+          );
+        },
+      ),
+    );
   }
 
   Future<String?> _uploadImage(File imageFile) async {
@@ -562,11 +508,16 @@ class _MessageScreenState extends State<MessageScreen> {
                 child: const Text('Delete'),
                 onPressed: () async {
                   try {
-                    await doc.reference.delete();
-                    Navigator.of(context).pop();
+                    await _database // Use _database for Realtime Database
+                        .ref()
+                        .child('conversations')
+                        .child(_conversationId!)
+                        .child('messages')
+                        .child(messageKey)
+                        .remove();
+                    // ...
                   } catch (e) {
-                    print("Error deleting message: $e");
-                    Navigator.of(context).pop();
+                    // ...
                   }
                 },
               ),
@@ -614,7 +565,7 @@ class _MessageScreenState extends State<MessageScreen> {
                             child: CircularProgressIndicator(
                               value: loadingProgress.expectedTotalBytes != null
                                   ? loadingProgress.cumulativeBytesLoaded /
-                                      (loadingProgress.expectedTotalBytes ?? 1)
+                                  (loadingProgress.expectedTotalBytes ?? 1)
                                   : null,
                             ),
                           );
@@ -691,10 +642,6 @@ class _MessageScreenState extends State<MessageScreen> {
                   ),
                   child: TextField(
                     controller: _messageController,
-                    onChanged: (text) {
-                      _updateTypingState(text
-                          .isNotEmpty); // Update typing state on text change
-                    },
                     decoration: InputDecoration(
                       hintText: 'Type a message...',
                       border: InputBorder.none,
@@ -719,25 +666,12 @@ class _MessageScreenState extends State<MessageScreen> {
       ],
     );
   }
-  void _updateOnlineStatus(String status) async {
-    final currentUser = _auth.currentUser;
-    if (currentUser != null) {
-      try {
-        await _firestore.collection('conversations').doc(currentUser.uid).update({
-          'status': status,
-        });
-      } catch (e) {
-        print("Error updating online status: $e");
-      }
-    }
-  }
+
   @override
   void dispose() {
-    _updateOnlineStatus('Offline'); // Set status to Offline when the user leaves the chat
     _scrollController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -764,16 +698,18 @@ class _MessageScreenState extends State<MessageScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                // StreamBuilder for online status
                 StreamBuilder<DocumentSnapshot>(
                   stream: _firestore
-                      .collection(widget.chatWithId.startsWith('C') ? 'customer' : 'provider')
-                      .doc(widget.chatWithId)
+                      .collection('users')
+                      .doc(
+                    widget.chatWithId,
+                  )
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData &&
                         snapshot.data!.data() is Map<String, dynamic>) {
-                      final userData = snapshot.data!.data() as Map<String, dynamic>;
+                      final userData =
+                      snapshot.data!.data() as Map<String, dynamic>;
                       return Text(
                         userData['status'] ?? 'Offline',
                         style: const TextStyle(
@@ -781,27 +717,6 @@ class _MessageScreenState extends State<MessageScreen> {
                           color: Colors.white70,
                         ),
                       );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-                // StreamBuilder for typing indicator
-                StreamBuilder<DocumentSnapshot>(
-                  stream: _firestore
-                      .collection('conversations')
-                      .doc(_conversationId)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data!.data() is Map<String, dynamic>) {
-                      final conversationData =
-                      snapshot.data!.data() as Map<String, dynamic>;
-                      final isTyping =
-                          conversationData['typing'][widget.chatWithId] ?? false;
-
-                      if (isTyping) {
-                        return Text('${widget.chatWithName} is typing...');
-                      }
                     }
                     return const SizedBox.shrink();
                   },
@@ -821,5 +736,4 @@ class _MessageScreenState extends State<MessageScreen> {
       ),
     );
   }
-
 }
