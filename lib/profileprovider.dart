@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:servtol/customerreviewsprovider.dart';
 import 'package:servtol/loginprovider.dart';
 import 'package:servtol/timeslot.dart';
 import 'package:servtol/util/AppColors.dart'; // Ensure this is the correct import path.
@@ -160,6 +161,28 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                 detailItem('CNIC:', data['CNIC']),
                 SizedBox(height: 30),
                 ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CustomerReviewByProvider(
+                          providerId: _auth.currentUser!.uid, // Pass the provider ID
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.customButton,
+                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
+                  child: Text('Customer Reviews',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: 'Poppins', // Added font family
+                          color: Colors.white)),
+                ),
+                SizedBox(height: 10),
+
+                ElevatedButton(
                   onPressed: () => showEditProfileDialog(data, docId),
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.customButton,
@@ -193,6 +216,7 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                           color: Colors.white)),
                 ),
                 SizedBox(height: 10),
+
                 ElevatedButton(
                   onPressed: logout,
                   style: ElevatedButton.styleFrom(
@@ -209,6 +233,7 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
             ),
           );
         });
+
   }
 
   Widget detailItem(String label, String? value) {

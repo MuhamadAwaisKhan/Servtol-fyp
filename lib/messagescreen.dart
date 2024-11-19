@@ -736,17 +736,17 @@ class _MessageScreenState extends State<MessageScreen> {
     final currentUser = _auth.currentUser;
     if (currentUser != null) {
       try {
+        // Determine the correct collection based on the current user's ID
         final collectionName = isCurrentUserCustomer() ? 'customer' : 'provider';
+
+        // Get a reference to the user's document
         final userDocRef = _firestore.collection(collectionName).doc(currentUser.uid);
 
-        print("Updating $collectionName online status for ${currentUser.uid} to: $status");
+        // Use set() with merge: true to update only the status field
+        await userDocRef.set({
+          'status': status,
+        }, SetOptions(merge: true));
 
-        final userDoc = await userDocRef.get();
-        if (userDoc.exists) {
-          await userDocRef.update({'status': status});
-        } else {
-          await userDocRef.set({'status': status});
-        }
       } catch (e) {
         print("Error updating online status: $e");
       }
@@ -754,7 +754,6 @@ class _MessageScreenState extends State<MessageScreen> {
       print("Current user is null in _updateOnlineStatus");
     }
   }
-
   void dispose() {
     _updateOnlineStatus(
         'Offline'); // Set status to Offline when the user leaves the chat

@@ -204,9 +204,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               // Submit button
       uihelper.CustomButton1(() async {
         // Store the emoji rating in the _feedback map
-        if (_selectedEmojiIndex >= 0) {
-          _feedback['Overall Feeling'] = _selectedEmojiIndex + 1;
-        }
+        // if (_selectedEmojiIndex >= 0) {
+        //   _feedback['Overall Feeling'] = _selectedEmojiIndex + 1;
+        // }
 
         // Basic validation
         if (_selectedEmojiIndex == -1 &&
