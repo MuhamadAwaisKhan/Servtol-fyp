@@ -49,6 +49,7 @@ class _SignupCustomerState extends State<SignupCustomer> {
         'Email': emailController.text,
         'Mobile': numberController.text,
         'Username': usernameController.text,
+        'status': 'Offline',
       });
       Fluttertoast.showToast(msg: 'Account Created Successfully');
       Navigator.pushReplacement(

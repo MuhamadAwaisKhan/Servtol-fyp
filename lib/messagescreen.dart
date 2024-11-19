@@ -50,7 +50,8 @@ class _MessageScreenState extends State<MessageScreen> {
   void initState() {
     super.initState();
     _initializeConversation();
-    _updateOnlineStatus('Online');
+    _updateOnlineStatus(
+        'Online'); // Set status to Online when the user enters the chat
     _messageController.addListener(() {
       _updateTypingState(_messageController.text.isNotEmpty);
       _scrollController.addListener(_scrollListener);
@@ -217,6 +218,7 @@ class _MessageScreenState extends State<MessageScreen> {
       print("Error updating typing state: $e");
     }
   }
+
   void _markMessagesAsSeen() async {
     if (_conversationId == null) return;
 
@@ -719,25 +721,46 @@ class _MessageScreenState extends State<MessageScreen> {
       ],
     );
   }
+
+  bool isCurrentUserCustomer() {
+    final currentUser = _auth.currentUser;
+    if (currentUser != null && currentUser.uid.startsWith('C')) {
+      return true; // It's a customer
+    } else if (currentUser != null && currentUser.uid.startsWith('P')) {
+      return false; // It's a provider
+    }
+    return false; // Default to false if the UID doesn't match either pattern
+  }
+
   void _updateOnlineStatus(String status) async {
     final currentUser = _auth.currentUser;
     if (currentUser != null) {
       try {
-        await _firestore.collection('conversations').doc(currentUser.uid).update({
-          'status': status,
-        });
+        final collectionName = isCurrentUserCustomer() ? 'customer' : 'provider';
+        final userDocRef = _firestore.collection(collectionName).doc(currentUser.uid);
+
+        print("Updating $collectionName online status for ${currentUser.uid} to: $status");
+
+        final userDoc = await userDocRef.get();
+        if (userDoc.exists) {
+          await userDocRef.update({'status': status});
+        } else {
+          await userDocRef.set({'status': status});
+        }
       } catch (e) {
         print("Error updating online status: $e");
       }
+    } else {
+      print("Current user is null in _updateOnlineStatus");
     }
   }
-  @override
+
   void dispose() {
-    _updateOnlineStatus('Offline'); // Set status to Offline when the user leaves the chat
+    _updateOnlineStatus(
+        'Offline'); // Set status to Offline when the user leaves the chat
     _scrollController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -771,11 +794,12 @@ class _MessageScreenState extends State<MessageScreen> {
                       .doc(widget.chatWithId)
                       .snapshots(),
                   builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data!.data() is Map<String, dynamic>) {
+                    if (snapshot.hasData && snapshot.data!.data() != null) {
                       final userData = snapshot.data!.data() as Map<String, dynamic>;
+                      final userStatus = userData['status'] ?? 'Offline';
+                      print("Fetched status for ${widget.chatWithId}: $userStatus"); // Add this
                       return Text(
-                        userData['status'] ?? 'Offline',
+                        userStatus,
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white70,
@@ -795,9 +819,10 @@ class _MessageScreenState extends State<MessageScreen> {
                     if (snapshot.hasData &&
                         snapshot.data!.data() is Map<String, dynamic>) {
                       final conversationData =
-                      snapshot.data!.data() as Map<String, dynamic>;
-                      final isTyping =
-                          conversationData['typing'][widget.chatWithId] ?? false;
+                          snapshot.data!.data() as Map<String, dynamic>;
+                      final isTyping = conversationData['typing']
+                              [widget.chatWithId] ??
+                          false;
 
                       if (isTyping) {
                         return Text('${widget.chatWithName} is typing...');
@@ -821,5 +846,4 @@ class _MessageScreenState extends State<MessageScreen> {
       ),
     );
   }
-
 }

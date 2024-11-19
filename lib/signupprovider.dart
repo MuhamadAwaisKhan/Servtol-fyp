@@ -53,6 +53,8 @@ class _SignupProviderState extends State<SignupProvider> {
         'Username': usernameController.text,
         'CNIC': cnicController.text,
         'Occupation': occuController.text,
+        'status': 'Offline',
+
       });
       Fluttertoast.showToast(msg: 'Account Created Successfully');
       Navigator.pushReplacement(
