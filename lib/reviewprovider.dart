@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class ServiceReviewsScreen extends StatefulWidget {
@@ -115,68 +116,97 @@ class _ServiceReviewsScreenState extends State<ServiceReviewsScreen> {
                                   AssetImage('assets/default_avatar.png'),
                             ),
                             SizedBox(width: 16),
-                            Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment
+                                    .spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Customer Details Column
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment
+                                        .start,
+                                    children: [
+                                      Text(
+                                        '${customerData['FirstName'] ??
+                                            'Customer'} ${customerData['LastName'] ??
+                                            ''}'.trim(),
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      if (customerData['Email'] != null)
+                                        Text(
+                                          customerData['Email'],
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Booking ID: ',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontFamily: 'Poppins',
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                          Text(
+                                            reviewData['bookingId'],
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ]),
+                            SizedBox(width: 55,),
+                            // Rating Widget
+                            Row(
                               children: [
-                                Text(
-                                  customerData['FirstName'] ??
-                                      'Customer',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
+                                FaIcon(
+                                  FontAwesomeIcons.solidStar,
+                                  color: Colors.amber,
+                                  size: 20,
                                 ),
-                                if (customerData['Email'] != null)
-                                  Text(
-                                    customerData['Email'],
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                SizedBox(height: 4),
+                                SizedBox(width: 2),
                                 Text(
-                                  'Booking ID: ${reviewData['bookingId']}',
+                                  ' ${reviewData['emojiRating']}.0/5',
                                   style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
+                                    fontSize: 16,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
                                   ),
                                 ),
                               ],
                             ),
                           ],
                         ),
+
+
                         SizedBox(height: 16),
                         Divider(color: Colors.grey[300]),
 
                         // Rating
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Rating: ${reviewData['emojiRating']}/5',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
+
                         SizedBox(height: 12),
 
                         // Feedback
                         if (reviewData['feedback'] != null &&
                             reviewData['feedback'] is Map)
-                          ...reviewData['feedback']
-                              .entries
-                              .map((entry) {
+                          ...reviewData['feedback'].entries.map((entry) {
                             return Row(
                               mainAxisAlignment:
                               MainAxisAlignment.spaceBetween,
@@ -185,6 +215,8 @@ class _ServiceReviewsScreenState extends State<ServiceReviewsScreen> {
                                   entry.key,
                                   style: TextStyle(
                                     fontSize: 14,
+                                    fontFamily: 'Poppins',
+
                                     color: Colors.black87,
                                   ),
                                 ),
@@ -209,13 +241,29 @@ class _ServiceReviewsScreenState extends State<ServiceReviewsScreen> {
                         // Comments
                         if (reviewData['notes'] != null &&
                             reviewData['notes'].isNotEmpty)
-                          Text(
-                            'Comments: ${reviewData['notes']}',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black87,
-                              fontStyle: FontStyle.italic,
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                'Comments:',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                              SizedBox(width: 10,),
+                              Text(
+                                reviewData['notes'],
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: 'Poppins',
+                                  color: Colors.black87,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
                           )
                         else
                           Text(
