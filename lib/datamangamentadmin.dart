@@ -60,31 +60,7 @@ class _datamanagementState extends State<datamanagement> {
               SizedBox(
                 height: 15,
               ),
-// uihelper.CustomButton(
-//       () {
-//     Navigator.push(context,
-//         MaterialPageRoute(builder: (context) => loginprovider()));
-//   },
-//   "Provider",
-//   40,
-//   130,
-//    ),
-// SizedBox(
-//   height: 30,
-// ),
-// uihelper.CustomButton(
-//       () {
-//     Navigator.push(context,
-//         MaterialPageRoute(builder: (context) => logincustomer()));
-//
-//   },
-//   "Customer",
-//   40,
-//   130,
-// ),
-// SizedBox(
-//   height: 30,
-// ),
+
               uihelper.CustomButton(
                 () {
                   Navigator.push(
@@ -113,20 +89,20 @@ class _datamanagementState extends State<datamanagement> {
               SizedBox(
                 height: 20,
               ),
-              uihelper.CustomButton(
-                    () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AdminDashboardScreen1()));
-                },
-                "Dashboard1...",
-                40,
-                200,
-              ),
-              SizedBox(
-                height: 20,
-              ),
+              // uihelper.CustomButton(
+              //       () {
+              //     Navigator.push(
+              //         context,
+              //         MaterialPageRoute(
+              //             builder: (context) => AdminDashboardScreen1()));
+              //   },
+              //   "Dashboard1...",
+              //   40,
+              //   200,
+              // ),
+              // SizedBox(
+              //   height: 20,
+              // ),
             ],
           ),
         ),

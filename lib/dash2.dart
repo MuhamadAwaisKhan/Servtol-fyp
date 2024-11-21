@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
 class AdminDashboardScreen1 extends StatefulWidget {
   const AdminDashboardScreen1({super.key});
 
@@ -8,12 +9,11 @@ class AdminDashboardScreen1 extends StatefulWidget {
 }
 
 class _AdminDashboardScreen1State extends State<AdminDashboardScreen1> {
-
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<int> getTotalServices() async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('services').get();
+      QuerySnapshot snapshot = await _firestore.collection('service').get();
       return snapshot.docs.length;
     } catch (e) {
       print('Error fetching total services: $e');
@@ -23,8 +23,19 @@ class _AdminDashboardScreen1State extends State<AdminDashboardScreen1> {
 
   Future<int> getBookedServices() async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('bookings')
-          .where('status', whereIn: ['Accepted', 'In Progress', 'Complete']).get();
+      QuerySnapshot snapshot =
+          await _firestore.collection('bookings').where('status', whereIn: [
+        'Accepted',
+        'Pending',
+        'Cancelled',
+        'Rejected',
+        'Waiting',
+        'Payment Pending',
+        'On going',
+        'Ready to Service',
+        'In Progress',
+        'Complete'
+      ]).get();
       return snapshot.docs.length;
     } catch (e) {
       print('Error fetching booked services: $e');
@@ -34,7 +45,8 @@ class _AdminDashboardScreen1State extends State<AdminDashboardScreen1> {
 
   Future<int> getCashPayments() async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('payments')
+      QuerySnapshot snapshot = await _firestore
+          .collection('payments')
           .where('Method', isEqualTo: 'OnCash')
           .get();
       return snapshot.docs.length;
@@ -46,8 +58,11 @@ class _AdminDashboardScreen1State extends State<AdminDashboardScreen1> {
 
   Future<int> getCardPayments() async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('card_payments') // Assuming you store card payments in a separate collection
-          .where('payment_status', isEqualTo: 'Success') // Check for successful card payments
+      QuerySnapshot snapshot = await _firestore
+          .collection(
+              'card_payments') // Assuming you store card payments in a separate collection
+          .where('payment_status',
+              isEqualTo: 'Success') // Check for successful card payments
           .get();
       return snapshot.docs.length;
     } catch (e) {
@@ -58,7 +73,8 @@ class _AdminDashboardScreen1State extends State<AdminDashboardScreen1> {
 
   Future<int> getPendingBookings() async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('bookings')
+      QuerySnapshot snapshot = await _firestore
+          .collection('bookings')
           .where('status', isEqualTo: 'Pending')
           .get();
       return snapshot.docs.length;
@@ -70,7 +86,8 @@ class _AdminDashboardScreen1State extends State<AdminDashboardScreen1> {
 
   Future<int> getCompletedBookings() async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('bookings')
+      QuerySnapshot snapshot = await _firestore
+          .collection('bookings')
           .where('status', isEqualTo: 'Complete')
           .get();
       return snapshot.docs.length;
@@ -82,8 +99,9 @@ class _AdminDashboardScreen1State extends State<AdminDashboardScreen1> {
 
   Future<int> getPositiveFeedback() async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('reviews')
-          .where('rating', isGreaterThanOrEqualTo: 4)
+      QuerySnapshot snapshot = await _firestore
+          .collection('reviews')
+          .where('emojiRating', isGreaterThanOrEqualTo: 3)
           .get();
       return snapshot.docs.length;
     } catch (e) {
@@ -94,8 +112,9 @@ class _AdminDashboardScreen1State extends State<AdminDashboardScreen1> {
 
   Future<int> getNegativeFeedback() async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('reviews')
-          .where('rating', isLessThan: 3)
+      QuerySnapshot snapshot = await _firestore
+          .collection('reviews')
+          .where('emojiRating', isLessThan: 2)
           .get();
       return snapshot.docs.length;
     } catch (e) {
@@ -191,7 +210,8 @@ class _AdminDashboardScreen1State extends State<AdminDashboardScreen1> {
               const SizedBox(height: 16.0),
               Text(
                 title,
-                style: TextStyle(fontWeight: FontWeight.bold, color: color), // Colored title
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: color), // Colored title
               ),
               const SizedBox(height: 8.0),
               FutureBuilder<int>(
@@ -205,7 +225,8 @@ class _AdminDashboardScreen1State extends State<AdminDashboardScreen1> {
                   }
                   return Text(
                     snapshot.data.toString(),
-                    style: TextStyle(fontSize: 24.0, color: color), // Colored count
+                    style: TextStyle(
+                        fontSize: 24.0, color: color), // Colored count
                   );
                 },
               ),
