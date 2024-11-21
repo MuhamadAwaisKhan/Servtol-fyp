@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:servtol/admindashboard.dart';
+import 'package:servtol/dash2.dart';
 import 'package:servtol/mainmenuInterface.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
@@ -95,7 +97,35 @@ class _datamanagementState extends State<datamanagement> {
                 200,
              ),
               SizedBox(
-                height: 30,
+                height: 20,
+              ),
+              uihelper.CustomButton(
+                    () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AdminDashboardScreen()));
+                },
+                "Dashboard",
+                40,
+                200,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              uihelper.CustomButton(
+                    () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AdminDashboardScreen1()));
+                },
+                "Dashboard1...",
+                40,
+                200,
+              ),
+              SizedBox(
+                height: 20,
               ),
             ],
           ),
