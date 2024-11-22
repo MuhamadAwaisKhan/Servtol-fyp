@@ -12,6 +12,7 @@ import 'package:servtol/categoriescustomer.dart';
 import 'package:servtol/chatcustomer.dart';
 import 'package:servtol/homecustomer.dart';
 import 'package:servtol/logincustomer.dart';
+import 'package:servtol/loginprovider.dart';
 import 'package:servtol/profilecustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 
@@ -50,6 +51,37 @@ class _CustomerMainScreenState extends State<CustomerMainScreen>
     _backPressTimer?.cancel();
     super.dispose();
   }
+  Future<bool> logout() async {
+    final shouldLogout = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout Confirmation'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    ) ??
+        false;
+
+    if (shouldLogout) {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => loginprovider()),
+      );
+      Fluttertoast.showToast(msg: "Logged out successfully");
+    }
+
+    return shouldLogout;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +92,7 @@ class _CustomerMainScreenState extends State<CustomerMainScreen>
           // If on the first tab
           if (_isBackPressedOnce) {
             _backPressTimer?.cancel();
-            return await _showLogoutDialog(); // Show logout dialog
+            return await logout(); // Show logout dialog
           } else {
             _isBackPressedOnce = true;
             _backPressTimer = Timer(const Duration(seconds: 2), () {
@@ -127,31 +159,31 @@ class _CustomerMainScreenState extends State<CustomerMainScreen>
   }
 
   // Function to show a logout confirmation dialog
-  Future<bool> _showLogoutDialog() async {
-    return await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Logout Confirmation'),
-            content: const Text('Are you sure you want to log out?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => logincustomer()));
-                  Fluttertoast.showToast(msg: "Logged out successfully");
-                },
-                child: const Text('Logout'),
-              )
-            ],
-          ),
-        ) ??
-        false;
-  }
+  // Future<bool> _showLogoutDialog() async {
+  //   return await showDialog(
+  //         context: context,
+  //         builder: (context) => AlertDialog(
+  //           title: const Text('Logout Confirmation'),
+  //           content: const Text('Are you sure you want to log out?'),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () => Navigator.of(context).pop(false),
+  //               child: const Text('Cancel'),
+  //             ),
+  //             TextButton(
+  //               onPressed: () async {
+  //                 await FirebaseAuth.instance.signOut();
+  //                 Navigator.pushReplacement(context,
+  //                     MaterialPageRoute(builder: (context) => logincustomer()));
+  //                 Fluttertoast.showToast(msg: "Logged out successfully");
+  //               },
+  //               child: const Text('Logout'),
+  //             )
+  //           ],
+  //         ),
+  //       ) ??
+  //       false;
+  // }
 
   Future<void> _fetchCustomerId() async {
     try {

@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:motion_tab_bar/MotionTabBarController.dart';
 import 'package:motion_tab_bar/motiontabbar.dart';
 
 import 'package:servtol/bookingprovider.dart';
 import 'package:servtol/homeprovider.dart';
+import 'package:servtol/loginprovider.dart';
 import 'package:servtol/paymentprovider.dart';
 import 'package:servtol/profileprovider.dart';
 import 'package:servtol/servicescreenprovider.dart';
@@ -45,6 +48,37 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout>
     _backPressTimer?.cancel();
     super.dispose();
   }
+  Future<bool> logout() async {
+    final shouldLogout = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout Confirmation'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    ) ??
+        false;
+
+    if (shouldLogout) {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => loginprovider()),
+      );
+      Fluttertoast.showToast(msg: "Logged out successfully");
+    }
+
+    return shouldLogout;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +89,7 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout>
           // If on the first tab
           if (_isBackPressedOnce) {
             _backPressTimer?.cancel();
-            return await _showLogoutDialog(); // Show logout dialog
+            return await logout(); // Show logout dialog
           } else {
             _isBackPressedOnce = true;
             _backPressTimer = Timer(const Duration(seconds: 2), () {
@@ -120,27 +154,27 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout>
   }
 
   // Function to show a logout confirmation dialog
-  Future<bool> _showLogoutDialog() async {
-    return await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Logout Confirmation'),
-            content: const Text('Are you sure you want to log out?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                  // Perform logout or any other action here
-                },
-                child: const Text('Logout'),
-              )
-            ],
-          ),
-        ) ??
-        false;
-  }
+  // Future<bool> _showLogoutDialog() async {
+  //   return await showDialog(
+  //         context: context,
+  //         builder: (context) => AlertDialog(
+  //           title: const Text('Logout Confirmation'),
+  //           content: const Text('Are you sure you want to log out?'),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () => Navigator.of(context).pop(false),
+  //               child: const Text('Cancel'),
+  //             ),
+  //             TextButton(
+  //               onPressed: () {
+  //                 Navigator.of(context).pop(true);
+  //                 // Perform logout or any other action here
+  //               },
+  //               child: const Text('Logout'),
+  //             )
+  //           ],
+  //         ),
+  //       ) ??
+  //       false;
+  // }
 }
