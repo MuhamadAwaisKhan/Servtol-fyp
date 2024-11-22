@@ -138,8 +138,7 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
       Map<String, dynamic> result = {};
 
       // Fetch booking details
-      var bookingData =
-      await fetchDocument('bookings', paymentData['bookingId']);
+      var bookingData = await fetchDocument('bookings', paymentData['bookingId']);
 
       // Fetch customer details
       var customerData =
@@ -151,6 +150,7 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
       result['amount'] = bookingData['total']; // Amount from booking
       result['customerName'] =
       "${customerData!['FirstName']} ${customerData['LastName']}";
+      result['bookingId'] = paymentData['bookingId']; // Include bookingId
 
       return result;
     } catch (e) {
@@ -167,8 +167,7 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
         title: Text(
           data['customerName'] ?? 'Unknown Customer',
           style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'Poppins'), // Using your font and white color
+              color: Colors.white, fontFamily: 'Poppins'), // Using your font and white color
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,16 +176,31 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Payment ID:',
+                  'Booking ID:',
                   style: TextStyle(
-                      color: Colors.black,
-                      fontFamily: 'Poppins'), // Using your font and a lighter grey
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                Text(
+                  '${data['bookingId'] ?? 'N/A'}', // Display bookingId
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Payment ID:',
+                  style: TextStyle(color: Colors.black, fontFamily: 'Poppins'),
                 ),
                 Text(
                   '${data['paymentId'] ?? 'N/A'}',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontFamily: 'Poppins'), // Using your font and a lighter grey
+                  style: TextStyle(color: Colors.black, fontFamily: 'Poppins'),
                 ),
               ],
             ),
@@ -195,13 +209,11 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
               children: [
                 Text(
                   'Status:',
-                  style: TextStyle(
-                      color: Colors.black, fontFamily: 'Poppins'), // Same as above
+                  style: TextStyle(color: Colors.black, fontFamily: 'Poppins'),
                 ),
                 Text(
                   '${data['status'] ?? 'N/A'}',
-                  style: TextStyle(
-                      color: Colors.black, fontFamily: 'Poppins'), // Same as above
+                  style: TextStyle(color: Colors.black, fontFamily: 'Poppins'),
                 ),
               ],
             ),
@@ -210,13 +222,11 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
               children: [
                 Text(
                   'Method:',
-                  style: TextStyle(
-                      color: Colors.black, fontFamily: 'Poppins'), // Same as above
+                  style: TextStyle(color: Colors.black, fontFamily: 'Poppins'),
                 ),
                 Text(
                   '${data['method'] ?? 'N/A'}',
-                  style: TextStyle(
-                      color: Colors.black, fontFamily: 'Poppins'), // Same as above
+                  style: TextStyle(color: Colors.black, fontFamily: 'Poppins'),
                 ),
               ],
             ),
@@ -230,13 +240,12 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    ' \$${(data['amount'] != null ? data['amount'].toStringAsFixed(2) : '0.00')}',
+                    '\$${(data['amount'] != null ? data['amount'].toStringAsFixed(2) : '0.00')}',
                     style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
                   ),
                 ],
               ),
-            ),
-          ],
+            ),          ],
         ),
       ),
     );

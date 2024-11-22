@@ -6,6 +6,7 @@ import 'package:servtol/adminbooking.dart';
 import 'package:servtol/adminreviews.dart';
 import 'package:servtol/adminservices.dart';
 import 'package:servtol/allservicescustomers.dart';
+import 'package:servtol/paymentradmin.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -325,14 +326,36 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     dataFetcher: getCashPayments,
                     icon: FontAwesomeIcons.moneyBillWave,
                     color: Colors.purple,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => paymentadmin(
+                            paymentMethod: 'OnCash',
+                            title:'Cash Payment'// Pass the payment method
+                          ),
+                        ),
+                      );
+                      },
                   ),
                   _buildDashboardTile(
                     title: 'Card Payments',
                     dataFetcher: getCardPayments,
                     icon: FontAwesomeIcons.creditCard,
                     color: Colors.deepOrange,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => paymentadmin(
+                            paymentMethod: 'Paid by Card',
+                            title: 'Card Payments',// Pass the payment method
+                          ),
+                        ),
+                      );
+
+
+                    },
                   ),
                 ],
               ),

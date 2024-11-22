@@ -178,8 +178,10 @@ class _MessageScreenState extends State<MessageScreen> {
         'messageType': imageUrl != null ? 'image' : 'text',
         'senderId': currentUser.uid,
         'sentAt': FieldValue.serverTimestamp(),
-        'read': false,
         'replyTo': _replyingToMessage,
+        'replyToType': _replyingToMessage != null && _replyingToMessage!.startsWith('https')
+            ? 'image'
+            : 'text',
       };
 
       await _firestore
@@ -306,7 +308,7 @@ class _MessageScreenState extends State<MessageScreen> {
                     final messageContent =
                         messageData['messageContent'] ?? '[Message missing]';
                     final messageType = messageData['messageType'] ?? 'text';
-                    final replyTo = messageData['replyTo'];
+                    // final replyTo = messageData['replyTo'];
                     final timestamp = messageData['sentAt'];
                     final isRead =
                         messageData['read'] ?? false; // Get the read status
@@ -319,10 +321,50 @@ class _MessageScreenState extends State<MessageScreen> {
                       messageDate =
                           DateTime.now(); // or any other default value
                     }
+                    final replyTo = messageData['replyTo'];
+                    final replyToType = messageData['replyToType'] ?? 'text'; // Get reply type
 
                     final localMessageDate = messageDate.toLocal();
                     final now = DateTime.now();
+                    if (replyTo != null) {
+                      if (replyTo.startsWith('https'))
+                        Column(
+                          crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Replying with an image:',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            Image.network(
+                              replyTo,
+                              height: 100,
+                              // Adjust the height as needed
+                              width: 100,
+                              // Adjust the width as needed
+                              fit: BoxFit.cover,
+                              errorBuilder:
+                                  (context, error, stackTrace) {
+                                return const Text(
+                                  'Error loading image',
+                                  style: TextStyle(fontSize: 10),
+                                );
+                              },
+                            ),
+                          ],
+                        );
 
+                  } else
+                        Text(
+                          'Replying to: $replyTo',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        );
                     // Determine date label
                     String dateLabel;
                     if (isSameDate(localMessageDate, now)) {
