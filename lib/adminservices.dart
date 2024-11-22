@@ -2,15 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
+import 'package:servtol/ServiceScreenDetail.dart';
 import 'package:servtol/Servicecustomerdetail.dart';
 import 'package:servtol/util/AppColors.dart';
+class AdminServicesScreen extends StatefulWidget {
+   AdminServicesScreen({super.key});
 
-class ServicesScreen extends StatefulWidget {
   @override
-  _ServicesScreenState createState() => _ServicesScreenState();
+  State<AdminServicesScreen> createState() => _AdminServicesScreenState();
 }
 
-class _ServicesScreenState extends State<ServicesScreen> {
+class _AdminServicesScreenState extends State<AdminServicesScreen> {
+
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   TextEditingController searchController = TextEditingController();
   String searchQuery = ''; // The current search query
@@ -68,7 +71,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
       }
 
       var subcategorySnapshot =
-          await _firestore.collection('Subcategory').get();
+      await _firestore.collection('Subcategory').get();
       final subcategoryType = <String>{};
       for (var doc in subcategorySnapshot.docs) {
         if (doc['Name'] != null) {
@@ -85,7 +88,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
       }
 
       var serviceTypesSnapshot =
-          await _firestore.collection('ServiceTypes').get();
+      await _firestore.collection('ServiceTypes').get();
       final serviceTypeSet = <String>{};
       for (var doc in serviceTypesSnapshot.docs) {
         if (doc['Name'] != null) {
@@ -203,15 +206,15 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 labelText: 'Search Services',
                 labelStyle: TextStyle(fontFamily: 'Poppins'),
                 prefixIcon:
-                    Icon(FontAwesomeIcons.magnifyingGlass, color: Colors.grey),
+                Icon(FontAwesomeIcons.magnifyingGlass, color: Colors.grey),
                 suffixIcon: searchController.text.isNotEmpty
                     ? GestureDetector(
-                        child: Icon(Icons.clear, color: Colors.grey),
-                        onTap: () {
-                          searchController.clear();
-                          setState(() {});
-                        },
-                      )
+                  child: Icon(Icons.clear, color: Colors.grey),
+                  onTap: () {
+                    searchController.clear();
+                    setState(() {});
+                  },
+                )
                     : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
@@ -220,7 +223,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 filled: true,
                 fillColor: Colors.white,
                 contentPadding:
-                    EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                EdgeInsets.symmetric(vertical: 0, horizontal: 20),
               ),
               onChanged: (value) {
                 setState(() {});
@@ -288,7 +291,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       ),
                       child: ListTile(
                         contentPadding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                        EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                         leading: Lottie.asset(
                           _getLottieAnimationPath(serviceData['Category']),
                           height: 100,
@@ -317,7 +320,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  Servicecustomerdetail(service: serviceDoc),
+                                  ServiceDetailScreen(service: serviceDoc),
                             ),
                           );
                         },
@@ -403,7 +406,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       value: _tempSelectedServiceType,
                       onChanged: (newValue) {
                         setDialogState(
-                            () => _tempSelectedServiceType = newValue);
+                                () => _tempSelectedServiceType = newValue);
                       },
                       items: ['All', ...serviceTypes].map((type) {
                         return DropdownMenuItem<String>(

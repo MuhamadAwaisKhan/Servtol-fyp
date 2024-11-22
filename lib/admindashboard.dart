@@ -1,8 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:servtol/adminbooking.dart';
+import 'package:servtol/adminreviews.dart';
+import 'package:servtol/adminservices.dart';
+import 'package:servtol/allservicescustomers.dart';
+import 'package:servtol/util/AppColors.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -112,73 +116,73 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
-  Widget _buildSummaryChart(String title, List<Future<int>> dataFetchers,
-      List<String> labels, List<Color> colors) {
-    return Container(
-      height: 200,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 6,
-            offset: const Offset(2, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: FutureBuilder<List<int>>(
-              future: Future.wait(dataFetchers),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                if (snapshot.hasError) {
-                  return const Center(
-                    child: Text('Error loading chart data'),
-                  );
-                }
-
-                final data =
-                    snapshot.data ?? List.filled(dataFetchers.length, 0);
-
-                return PieChart(
-                  PieChartData(
-                    sections: List.generate(data.length, (index) {
-                      return PieChartSectionData(
-                        value: data[index].toDouble(),
-                        color: colors[index],
-                        title: '${data[index]} ${labels[index]}',
-                        radius: 50,
-                        titleStyle: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      );
-                    }),
-                    sectionsSpace: 2,
-                    centerSpaceRadius: 40,
-                    borderData: FlBorderData(show: false),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildSummaryChart(String title, List<Future<int>> dataFetchers,
+  //     List<String> labels, List<Color> colors) {
+  //   return Container(
+  //     height: 200,
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(12),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withOpacity(0.1),
+  //           blurRadius: 6,
+  //           offset: const Offset(2, 4),
+  //         ),
+  //       ],
+  //     ),
+  //     padding: const EdgeInsets.all(16.0),
+  //     child: Column(
+  //       children: [
+  //         Text(
+  //           title,
+  //           style: const TextStyle(fontWeight: FontWeight.bold),
+  //         ),
+  //         const SizedBox(height: 8),
+  //         Expanded(
+  //           child: FutureBuilder<List<int>>(
+  //             future: Future.wait(dataFetchers),
+  //             builder: (context, snapshot) {
+  //               if (snapshot.connectionState == ConnectionState.waiting) {
+  //                 return const Center(
+  //                   child: CircularProgressIndicator(),
+  //                 );
+  //               }
+  //               if (snapshot.hasError) {
+  //                 return const Center(
+  //                   child: Text('Error loading chart data'),
+  //                 );
+  //               }
+  //
+  //               final data =
+  //                   snapshot.data ?? List.filled(dataFetchers.length, 0);
+  //
+  //               return PieChart(
+  //                 PieChartData(
+  //                   sections: List.generate(data.length, (index) {
+  //                     return PieChartSectionData(
+  //                       value: data[index].toDouble(),
+  //                       color: colors[index],
+  //                       title: '${data[index]} ${labels[index]}',
+  //                       radius: 50,
+  //                       titleStyle: GoogleFonts.poppins(
+  //                         color: Colors.white,
+  //                         fontWeight: FontWeight.bold,
+  //                       ),
+  //                     );
+  //                   }),
+  //                   sectionsSpace: 2,
+  //                   centerSpaceRadius: 40,
+  //                   borderData: FlBorderData(show: false),
+  //                 ),
+  //               );
+  //             },
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -190,6 +194,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         backgroundColor: Colors.blueAccent,
         centerTitle: true,
       ),
+      backgroundColor: AppColors.background,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -201,11 +206,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               color: Colors.blue,
               onTap: () {
                 Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          const DetailScreen(title: 'Total Services')),
-                );
+                    context,
+                    MaterialPageRoute(
+                    builder: (context) => AdminServicesScreen(), // Pass the DocumentSnapshot here
+                ),);
               },
             ),
             const SizedBox(height: 16),
@@ -223,11 +227,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     color: Colors.green,
                     onTap: () {
                       Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const DetailScreen(title: 'Booked Services')),
-                      );
+                          context,
+                      MaterialPageRoute(
+                        builder: (context) => adminbooking(bookingStatus: 'All',),
+                      ) );
                     },
                   ),
                   _buildDashboardTile(
@@ -235,29 +238,88 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     dataFetcher: getPendingBookings,
                     icon: FontAwesomeIcons.clock,
                     color: Colors.orange,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => adminbooking(bookingStatus: 'Pending',),
+                          ) );
+                    },
                   ),
                   _buildDashboardTile(
                     title: 'Completed Bookings',
                     dataFetcher: getCompletedBookings,
                     icon: FontAwesomeIcons.circleCheck,
                     color: Colors.lightBlue,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => adminbooking(bookingStatus: 'Complete',),
+                          ) );
+                    },
                   ),
+
                   _buildDashboardTile(
                     title: 'Positive Feedback',
                     dataFetcher: getPositiveFeedback,
                     icon: FontAwesomeIcons.thumbsUp,
                     color: Colors.teal,
-                    onTap: () {},
+                    onTap: () async {
+                      try {
+                        final reviewsSnapshot = await _firestore
+                            .collection('reviews')
+                            .where('emojiRating', isGreaterThanOrEqualTo: 3)
+                            .get();
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => adminfeedback(
+                              reviews: reviewsSnapshot.docs,
+                              title: 'Positive Feedback', // Pass the title
+                            ),
+                          ),
+                        );
+                      } catch (e) {
+                        debugPrint('Error fetching reviews: $e');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error loading reviews. Please try again.')),
+                        );
+                      }
+                    },
                   ),
-                  _buildDashboardTile(
-                    title: 'Negative Feedback',
-                    dataFetcher: getNegativeFeedback,
-                    icon: FontAwesomeIcons.thumbsDown,
-                    color: Colors.redAccent,
-                    onTap: () {},
-                  ),
+
+                _buildDashboardTile(
+                  title: 'Negative Feedback',
+                  dataFetcher: getNegativeFeedback,
+                  icon: FontAwesomeIcons.thumbsUp,
+                  color: Colors.red,
+                  onTap: () async {
+                    try {
+                      final reviewsSnapshot = await _firestore
+                          .collection('reviews')
+                          .where('emojiRating', isLessThanOrEqualTo: 2) // Correct condition
+                          .get();
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => adminfeedback(
+                            reviews: reviewsSnapshot.docs,
+                            title: 'Negative Feedback', // Pass the title
+                          ),
+                        ),
+                      );
+                    } catch (e) {
+                      debugPrint('Error fetching reviews: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error loading reviews. Please try again.')),
+                      );
+                    }
+                  },
+                ),
+
                   _buildDashboardTile(
                     title: 'Cash Payments',
                     dataFetcher: getCashPayments,
@@ -276,20 +338,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            _buildSummaryChart(
-                'Bookings',
-                [getCompletedBookings(), getPendingBookings()],
-                ['Completed', 'Pending'],
-                [Colors.lightBlue, Colors.orange]),
-            // Bookings chart
-            const SizedBox(height: 16),
-            _buildSummaryChart(
-                'Payments',
-                [getCardPayments(), getCashPayments()],
-                ['Card', 'Cash'],
-                [Colors.purple, Colors.deepOrange]),
-            // Payments chart
-            // Add the summary chart here.
+
           ],
         ),
       ),
