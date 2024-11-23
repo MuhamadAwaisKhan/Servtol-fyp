@@ -1,18 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:servtol/NotificationProvider.dart';
 import 'package:servtol/ServiceScreenDetail.dart';
 import 'package:servtol/bookingprovider.dart';
 import 'package:servtol/bookingproviderdetail.dart';
 import 'package:servtol/chatprovider.dart';
+import 'package:servtol/monthlyearning.dart';
 import 'package:servtol/servicescreenprovider.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:servtol/wallethistory.dart';
 
 class HomeProvider extends StatefulWidget {
   Function onBackPress;
@@ -84,7 +86,7 @@ class _HomeProviderState extends State<HomeProvider> {
         setState(() {
           _userName = name ?? 'Name not available';
           providerPicUrl = profilePic; // Can be null if not available
-       providerId = snapshot.docs.first.id; // Store providerId here
+          providerId = snapshot.docs.first.id; // Store providerId here
         });
       }
     } catch (e) {
@@ -95,6 +97,7 @@ class _HomeProviderState extends State<HomeProvider> {
       print(e); // Print the error to the console for debugging
     }
   }
+
   int unreadCount = 0;
 
   // Function to listen for unread notifications
@@ -169,12 +172,12 @@ class _HomeProviderState extends State<HomeProvider> {
       Map<String, dynamic> result = {};
 
       var providerData =
-      await fetchDocument('provider', bookingData['providerId']);
+          await fetchDocument('provider', bookingData['providerId']);
       var customerData =
-      await fetchDocument('customer', bookingData['customerId']);
+          await fetchDocument('customer', bookingData['customerId']);
       var couponData = await fetchDocument('coupons', bookingData['couponId']);
       var serviceData =
-      await fetchDocument('service', bookingData['serviceId']);
+          await fetchDocument('service', bookingData['serviceId']);
 
       result['provider'] = providerData ?? {};
       result['coupon'] = couponData ?? {};
@@ -196,11 +199,11 @@ class _HomeProviderState extends State<HomeProvider> {
     }
   }
 
-  Future<Map<String, dynamic>?> fetchDocument(String collection,
-      String documentId) async {
+  Future<Map<String, dynamic>?> fetchDocument(
+      String collection, String documentId) async {
     try {
       var snapshot =
-      await _firestore.collection(collection).doc(documentId).get();
+          await _firestore.collection(collection).doc(documentId).get();
       if (snapshot.exists && snapshot.data() != null) {
         return snapshot.data();
       } else {
@@ -231,11 +234,13 @@ class _HomeProviderState extends State<HomeProvider> {
         actions: <Widget>[
           IconButton(
             icon: FaIcon(FontAwesomeIcons.message),
-            onPressed: () =>
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MessageLogProviderScreen(providerId: providerId,)),
-                ),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => MessageLogProviderScreen(
+                        providerId: providerId,
+                      )),
+            ),
           ),
           StreamBuilder<List<QuerySnapshot>>(
             stream: CombineLatestStream.list([
@@ -264,8 +269,8 @@ class _HomeProviderState extends State<HomeProvider> {
               if (snapshot.hasData) {
                 // Combine unread counts from all three collections
                 unreadCount = snapshot.data![0].docs.length + // notifications
-                    snapshot.data![1].docs.length;  // payment notifications
-                    //+ snapshot.data![2].docs.length;  // review notifications
+                    snapshot.data![1].docs.length; // payment notifications
+                //+ snapshot.data![2].docs.length;  // review notifications
               }
 
               return Stack(
@@ -311,7 +316,6 @@ class _HomeProviderState extends State<HomeProvider> {
               );
             },
           ),
-
         ],
       ),
       backgroundColor: AppColors.background,
@@ -331,8 +335,7 @@ class _HomeProviderState extends State<HomeProvider> {
     );
   }
 
-  Widget providerInfoSection() =>
-      Row(
+  Widget providerInfoSection() => Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Padding(
@@ -347,18 +350,17 @@ class _HomeProviderState extends State<HomeProvider> {
           SizedBox(width: 10),
           providerPicUrl != null
               ? CircleAvatar(
-            backgroundImage: NetworkImage(providerPicUrl!),
-            radius: 30,
-          )
+                  backgroundImage: NetworkImage(providerPicUrl!),
+                  radius: 30,
+                )
               : CircleAvatar(
-            child: Icon(Icons.account_circle, size: 60),
-            radius: 30,
-          ),
+                  child: Icon(Icons.account_circle, size: 60),
+                  radius: 30,
+                ),
         ],
       );
 
-  Widget greetingSection() =>
-      Column(
+  Widget greetingSection() => Column(
         children: [
           SizedBox(height: 15),
           Padding(
@@ -374,8 +376,7 @@ class _HomeProviderState extends State<HomeProvider> {
         ],
       );
 
-  Widget earningsSection() =>
-      Padding(
+  Widget earningsSection() => Padding(
         padding: EdgeInsets.symmetric(horizontal: 78.0, vertical: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -396,8 +397,7 @@ class _HomeProviderState extends State<HomeProvider> {
         ),
       );
 
-  Widget customButtonSection() =>
-      Column(
+  Widget customButtonSection() => Column(
         children: [
           SizedBox(
             height: 15,
@@ -406,14 +406,13 @@ class _HomeProviderState extends State<HomeProvider> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               uihelper.CustomButton1(
-                    () {
+                () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          BookingScreenWidget(
-                            onBackPress: widget.onBackPress,
-                          ),
+                      builder: (context) => BookingScreenWidget(
+                        onBackPress: widget.onBackPress,
+                      ),
                     ),
                   );
                 },
@@ -421,17 +420,16 @@ class _HomeProviderState extends State<HomeProvider> {
                 50,
                 190,
                 icon:
-                FaIcon(FontAwesomeIcons.calendarCheck, color: Colors.white),
+                    FaIcon(FontAwesomeIcons.calendarCheck, color: Colors.white),
               ),
               uihelper.CustomButton1(
-                    () {
+                () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          ServiceScreenWidget(
-                            onBackPress: widget.onBackPress,
-                          ),
+                      builder: (context) => ServiceScreenWidget(
+                        onBackPress: widget.onBackPress,
+                      ),
                     ),
                   );
                 },
@@ -447,15 +445,13 @@ class _HomeProviderState extends State<HomeProvider> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               uihelper.CustomButton1(
-                    () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => BookingScreenWidget(
-                  //       onBackPress: widget.onBackPress,
-                  //     ),
-                  //   ),
-                  // );
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MonthlyEarningsScreen(),
+                    ),
+                  );
                 },
                 "Monthly Earning ",
                 50,
@@ -463,21 +459,18 @@ class _HomeProviderState extends State<HomeProvider> {
                 icon: FaIcon(FontAwesomeIcons.dollarSign, color: Colors.white),
               ),
               uihelper.CustomButton1(
-                    () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => ServiceScreenWidget(
-                  //       onBackPress: widget.onBackPress,
-                  //     ),
-                  //   ),
-                  // );
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => WalletHistoryScreen()),
+                  );
                 },
                 "Wallet History ",
                 50,
                 190,
                 icon:
-                FaIcon(FontAwesomeIcons.googleWallet, color: Colors.white),
+                    FaIcon(FontAwesomeIcons.googleWallet, color: Colors.white),
               ),
             ],
           ),
@@ -485,8 +478,7 @@ class _HomeProviderState extends State<HomeProvider> {
         ],
       );
 
-  Widget monthlyRevenueChart() =>
-      Column(
+  Widget monthlyRevenueChart() => Column(
         children: [
           Text("Monthly Revenue",
               style: TextStyle(
@@ -502,9 +494,9 @@ class _HomeProviderState extends State<HomeProvider> {
                 gridData: FlGridData(show: false),
                 titlesData: FlTitlesData(
                   leftTitles:
-                  AxisTitles(sideTitles: SideTitles(showTitles: true)),
+                      AxisTitles(sideTitles: SideTitles(showTitles: true)),
                   bottomTitles:
-                  AxisTitles(sideTitles: SideTitles(showTitles: true)),
+                      AxisTitles(sideTitles: SideTitles(showTitles: true)),
                 ),
                 borderData: FlBorderData(
                     show: true, border: Border.all(color: Colors.black)),
@@ -530,8 +522,7 @@ class _HomeProviderState extends State<HomeProvider> {
         ],
       );
 
-  Widget upcomingBookings() =>
-      Column(children: [
+  Widget upcomingBookings() => Column(children: [
         Text("Upcoming Booking",
             style: TextStyle(
                 fontFamily: 'Poppins',
@@ -560,9 +551,9 @@ class _HomeProviderState extends State<HomeProvider> {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator(
+                  return Center(
+                      child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-
                   ));
                 }
 
@@ -572,7 +563,7 @@ class _HomeProviderState extends State<HomeProvider> {
 
                 return Column(
                   children:
-                  snapshot.data!.docs.map((DocumentSnapshot document) {
+                      snapshot.data!.docs.map((DocumentSnapshot document) {
                     var bookingData = document.data() as Map<String, dynamic>;
                     return Card(
                       margin: EdgeInsets.symmetric(vertical: 8.0),
@@ -600,14 +591,13 @@ class _HomeProviderState extends State<HomeProvider> {
                                     return Center(
                                       child: CircularProgressIndicator(
                                         value: loadingProgress
-                                            .expectedTotalBytes !=
-                                            null
+                                                    .expectedTotalBytes !=
+                                                null
                                             ? loadingProgress
-                                            .cumulativeBytesLoaded /
-                                            loadingProgress
-                                                .expectedTotalBytes!
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
                                             : null,
-
                                       ),
                                     );
                                   },
@@ -624,11 +614,10 @@ class _HomeProviderState extends State<HomeProvider> {
                                 children: [
                                   Row(
                                     mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        '${bookingData['serviceNameLower'] ??
-                                            'No Service'}',
+                                        '${bookingData['serviceNameLower'] ?? 'No Service'}',
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontFamily: 'Poppins',
@@ -700,8 +689,7 @@ class _HomeProviderState extends State<HomeProvider> {
                             decoration: BoxDecoration(
                               color: Colors.grey[200],
                               borderRadius: BorderRadius.circular(10),
-                              border:
-                              Border.all(color: AppColors.heading),
+                              border: Border.all(color: AppColors.heading),
                             ),
                             padding: EdgeInsets.all(8.0),
                             child: Column(
@@ -709,16 +697,16 @@ class _HomeProviderState extends State<HomeProvider> {
                               children: [
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       "Booking Status",
                                       style: TextStyle(
                                         fontSize: 14,
                                         color:
-                                        bookingData['status'] == 'Pending'
-                                            ? Colors.blue
-                                            : Colors.green,
+                                            bookingData['status'] == 'Pending'
+                                                ? Colors.blue
+                                                : Colors.green,
                                       ),
                                     ),
                                     Text(
@@ -726,9 +714,9 @@ class _HomeProviderState extends State<HomeProvider> {
                                       style: TextStyle(
                                         fontSize: 14,
                                         color:
-                                        bookingData['status'] == 'Pending'
-                                            ? Colors.blue
-                                            : Colors.green,
+                                            bookingData['status'] == 'Pending'
+                                                ? Colors.blue
+                                                : Colors.green,
                                       ),
                                     ),
                                   ],
@@ -736,14 +724,14 @@ class _HomeProviderState extends State<HomeProvider> {
                                 Divider(),
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       "Payment Status ",
                                       style: TextStyle(
                                         fontSize: 14,
                                         color: bookingData['paymentstatus'] ==
-                                            'Pending'
+                                                'Pending'
                                             ? Colors.blue
                                             : Colors.green,
                                       ),
@@ -753,7 +741,7 @@ class _HomeProviderState extends State<HomeProvider> {
                                       style: TextStyle(
                                         fontSize: 14,
                                         color: bookingData['paymentstatus'] ==
-                                            'Pending'
+                                                'Pending'
                                             ? Colors.blue
                                             : Colors.green,
                                       ),
@@ -776,10 +764,9 @@ class _HomeProviderState extends State<HomeProvider> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  bookingproviderdetail(
-                                    bookings: document,
-                                  ),
+                              builder: (context) => bookingproviderdetail(
+                                bookings: document,
+                              ),
                             ),
                           );
                         },
@@ -791,7 +778,6 @@ class _HomeProviderState extends State<HomeProvider> {
             )),
         SizedBox(height: 15),
       ]);
-
 
   Widget servicesList() {
     return Column(
@@ -845,7 +831,8 @@ class _HomeProviderState extends State<HomeProvider> {
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator(
+                return Center(
+                    child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                 ));
               }
@@ -893,34 +880,41 @@ class _HomeProviderState extends State<HomeProvider> {
                       lottieAnimationPath = 'assets/images/Retail.json';
                       break;
                     case 'Online Consultation':
-                      lottieAnimationPath = 'assets/images/Online Consultation.json';
+                      lottieAnimationPath =
+                          'assets/images/Online Consultation.json';
                       break;
                     case 'Digital Marketing':
-                      lottieAnimationPath = 'assets/images/Digital Marketing.json';
+                      lottieAnimationPath =
+                          'assets/images/Digital Marketing.json';
                       break;
                     case 'Online Training':
-                      lottieAnimationPath = 'assets/images/Digital Marketing.json';
+                      lottieAnimationPath =
+                          'assets/images/Digital Marketing.json';
                       break;
                     case 'Event Management':
-                      lottieAnimationPath = 'assets/images/Event Management.json';
+                      lottieAnimationPath =
+                          'assets/images/Event Management.json';
                       break;
                     case 'Video Editing':
                       lottieAnimationPath = 'assets/images/Graphic Design.json';
                       break;
                     case 'Home & Maintenance':
-                      lottieAnimationPath = 'assets/images/Home & Maintenance.json';
+                      lottieAnimationPath =
+                          'assets/images/Home & Maintenance.json';
                       break;
                     case 'Hospitality':
                       lottieAnimationPath = 'assets/images/Hospitality.json';
                       break;
                     case 'Social Media Management':
-                      lottieAnimationPath = 'assets/images/Social Media Management.json';
+                      lottieAnimationPath =
+                          'assets/images/Social Media Management.json';
                       break;
                     case 'IT Support':
                       lottieAnimationPath = 'assets/images/IT Support.json';
                       break;
                     case 'Personal & Lifestyle':
-                      lottieAnimationPath = 'assets/images/Personal & Lifestyle.json';
+                      lottieAnimationPath =
+                          'assets/images/Personal & Lifestyle.json';
                       break;
                     case 'Graphic Design':
                       lottieAnimationPath = 'assets/images/Graphic Design.json';
@@ -928,7 +922,7 @@ class _HomeProviderState extends State<HomeProvider> {
                     case 'Finance':
                       lottieAnimationPath = 'assets/images/Finance.json';
                       break;
-                     default:
+                    default:
                       lottieAnimationPath = 'assets/images/default.json';
                   }
 
@@ -937,7 +931,8 @@ class _HomeProviderState extends State<HomeProvider> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ServiceDetailScreen(service: doc),
+                          builder: (context) =>
+                              ServiceDetailScreen(service: doc),
                         ),
                       );
                     },
@@ -963,14 +958,17 @@ class _HomeProviderState extends State<HomeProvider> {
                             // Lottie animation centered in the container
                             Positioned.fill(
                               child: Container(
-                                color: Colors.blueGrey, // Keep the overall container's color
+                                color: Colors.blueGrey,
+                                // Keep the overall container's color
                                 child: Center(
                                   child: Container(
                                     height: 220, // Same as Lottie size
-                                    width: 200,  // Same as Lottie size
+                                    width: 200, // Same as Lottie size
                                     decoration: BoxDecoration(
-                                      color: Colors.indigoAccent, // Set the background of this smaller box to white
-                                      borderRadius: BorderRadius.circular(15), // Add some rounding if needed
+                                      color: Colors.indigoAccent,
+                                      // Set the background of this smaller box to white
+                                      borderRadius: BorderRadius.circular(
+                                          15), // Add some rounding if needed
                                     ),
                                     child: Center(
                                       child: Lottie.asset(
@@ -1046,7 +1044,9 @@ class _HomeProviderState extends State<HomeProvider> {
                                     ),
                                     SizedBox(height: 4),
                                     Text(
-                                      "\$" + (doc['Price']?.toString() ?? 'No Price'),
+                                      "\$" +
+                                          (doc['Price']?.toString() ??
+                                              'No Price'),
                                       style: TextStyle(
                                         color: Colors.lightGreenAccent[400],
                                         fontSize: 14,
