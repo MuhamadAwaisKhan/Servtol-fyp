@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:servtol/AddTributeScreen.dart';
 import 'package:servtol/admindashboard.dart';
 import 'package:servtol/dash2.dart';
 import 'package:servtol/datachart.dart';
@@ -98,6 +99,21 @@ class _datamanagementState extends State<datamanagement> {
                           builder: (context) => ChartScreen()));
                 },
                 "Graphical Data",
+                40,
+                200,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+
+              uihelper.CustomButton(
+                    () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AddTributeScreen()));
+                },
+                "Add Contributor",
                 40,
                 200,
               ),

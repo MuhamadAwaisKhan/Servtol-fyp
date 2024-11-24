@@ -388,7 +388,7 @@ class _HomeProviderState extends State<HomeProvider> {
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                     color: AppColors.heading)),
-            Text("\$0.00",
+            Text("\$7.90",
                 style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 16,
@@ -478,49 +478,132 @@ class _HomeProviderState extends State<HomeProvider> {
         ],
       );
 
+
   Widget monthlyRevenueChart() => Column(
-        children: [
-          Text("Monthly Revenue",
-              style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.heading)),
-          SizedBox(height: 15),
-          Center(
-            child: Container(
-              width: 350,
-              height: 210,
-              child: LineChart(LineChartData(
-                gridData: FlGridData(show: false),
-                titlesData: FlTitlesData(
-                  leftTitles:
-                      AxisTitles(sideTitles: SideTitles(showTitles: true)),
-                  bottomTitles:
-                      AxisTitles(sideTitles: SideTitles(showTitles: true)),
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Title
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 132.0),
+        child: Text(
+          "Monthly Revenue",
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: AppColors.heading,
+
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+      const SizedBox(height: 15),
+      // Chart Container
+      Center(
+        child: Container(
+          width: 350,
+          height: 230,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: LineChart(
+            LineChartData(
+              gridData: FlGridData(
+                show: true,
+                drawVerticalLine: true,
+                horizontalInterval: 1,
+                verticalInterval: 1,
+                getDrawingHorizontalLine: (value) => FlLine(
+                  color: Colors.grey.shade300,
+                  strokeWidth: 1,
                 ),
-                borderData: FlBorderData(
-                    show: true, border: Border.all(color: Colors.black)),
-                lineBarsData: [
-                  LineChartBarData(
-                      spots: [
-                        FlSpot(0, 3),
-                        FlSpot(1, 4),
-                        FlSpot(2, 2),
-                        FlSpot(3, 5),
-                        FlSpot(4, 1)
+                getDrawingVerticalLine: (value) => FlLine(
+                  color: Colors.grey.shade300,
+                  strokeWidth: 1,
+                ),
+              ),
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 40,
+                    getTitlesWidget: (value, meta) {
+                      return Text(
+                        '\$${value.toInt()}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'Poppins',
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      const months = ["Jan", "Feb", "Mar", "Apr", "May"];
+                      return Text(
+                        months[value.toInt()],
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'Poppins',
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              borderData: FlBorderData(
+                show: true,
+                border: Border.all(color: AppColors.heading),
+              ),
+              minX: 0,
+              maxX: 4,
+              minY: 0,
+              maxY: 6,
+              lineBarsData: [
+                LineChartBarData(
+                  spots: [
+                    FlSpot(0, 3),
+                    FlSpot(1, 4),
+                    FlSpot(2, 2),
+                    FlSpot(3, 5),
+                    FlSpot(4, 1),
+                  ],
+                  isCurved: true,
+                  gradient: const LinearGradient(
+                    colors: [Colors.indigo, Colors.blueAccent],
+                  ),
+                  barWidth: 3,
+                  isStrokeCapRound: true,
+                  belowBarData: BarAreaData(
+                    show: true,
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.indigo.withOpacity(0.3),
+                        Colors.blueAccent.withOpacity(0.1),
                       ],
-                      isCurved: false,
-                      color: Colors.cyan,
-                      barWidth: 2,
-                      isStrokeCapRound: true,
-                      belowBarData: BarAreaData(show: true))
-                ],
-              )),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 20),
-        ],
-      );
+        ),
+      ),
+      const SizedBox(height: 20),
+    ],
+  );
 
   Widget upcomingBookings() => Column(children: [
         Text("Upcoming Booking",

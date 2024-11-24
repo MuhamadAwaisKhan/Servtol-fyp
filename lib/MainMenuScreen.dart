@@ -1,6 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:servtol/TributeScreen.dart';
 import 'package:servtol/datamangamentadmin.dart';
+import 'package:servtol/loginadmin.dart';
 import 'package:servtol/logincustomer.dart';
 import 'package:servtol/loginprovider.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -47,19 +48,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => loginprovider()));
-                  // setState(() {
-                  //   isFirstButtonClicked = false; // Reset first button state
-                  //   isSecondButtonClicked =
-                  //   !isSecondButtonClicked; // Toggle second button state
-                  // });
-                },
+                      },
                 "Provider",
                 40,
-                130,
-                // Icons.supervised_user_circle,
-                // Colors.grey, // Specify the default color of the icon
-                // isSecondButtonClicked, // Pass the clicked state to the button
-              ),
+                140,
+                   ),
               SizedBox(
                 height: 30,
               ),
@@ -67,19 +60,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => logincustomer()));
-                  // setState(() {
-                  //   isSecondButtonClicked = false; // Reset second button state
-                  //   isFirstButtonClicked =
-                  //   !isFirstButtonClicked; // Toggle first button state
-                  // });
-                },
+                    },
                 "Customer",
                 40,
-                130,
-                // Icons.contacts_sharp,
-                // Colors.grey, // Specify the default color of the icon
-                // isFirstButtonClicked, // Pass the clicked state to the button
-              ),
+                140,
+                   ),
               SizedBox(
                 height: 30,
               ),
@@ -88,20 +73,27 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => datamanagement()));
-                  // setState(() {
-                  //   isSecondButtonClicked = false; // Reset second button state
-                  //   isFirstButtonClicked =
-                  //   !isFirstButtonClicked; // Toggle first button state
-                  // });
+                          builder: (context) => LoginAdmin()));
+
                 },
                 "Admin",
                 40,
-                130,
-                // Icons.contacts_sharp,
-                // Colors.grey, // Specify the default color of the icon
-                // isFirstButtonClicked, // Pass the clicked state to the button
+                140,
+               ),
+              SizedBox(
+                height: 30,
               ),
+              uihelper.CustomButton(
+                    () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => TributeScreen()));
+                  },
+                "Inspirations",
+                40,
+                140,
+                ),
               SizedBox(
                 height: 30,
               ),
