@@ -362,14 +362,23 @@ class _HomeProviderState extends State<HomeProvider> {
 
   Widget greetingSection() => Column(
         children: [
-          SizedBox(height: 15),
+          SizedBox(height: 7),
           Padding(
-            padding: const EdgeInsets.only(right: 215.0),
+            padding: const EdgeInsets.only(right: 188.0),
             child: Text("Welcome back!",
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  color: AppColors.grey,
-                  fontWeight: FontWeight.bold,
+                  color: Colors.blueGrey,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                  letterSpacing: 1.5,
+                  // shadows: [
+                  //   Shadow(
+                  //     color: Colors.black.withOpacity(0.2),
+                  //     blurRadius: 2,
+                  //     offset: Offset(1, 1),
+                  //   ),
+                  // ],
                 )),
           ),
           SizedBox(height: 5),
@@ -388,10 +397,11 @@ class _HomeProviderState extends State<HomeProvider> {
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                     color: AppColors.heading)),
-            Text("\$7.90",
+            Text("\u20A8 7.90",
                 style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 16,
+                    fontWeight: FontWeight.bold,
                     color: AppColors.grey)),
           ],
         ),
@@ -418,7 +428,7 @@ class _HomeProviderState extends State<HomeProvider> {
                 },
                 "Bookings ",
                 50,
-                190,
+                195,
                 icon:
                     FaIcon(FontAwesomeIcons.calendarCheck, color: Colors.white),
               ),
@@ -435,7 +445,7 @@ class _HomeProviderState extends State<HomeProvider> {
                 },
                 "Total Services ",
                 50,
-                190,
+                195,
                 icon: FaIcon(FontAwesomeIcons.gears, color: Colors.white),
               ),
             ],
@@ -455,8 +465,8 @@ class _HomeProviderState extends State<HomeProvider> {
                 },
                 "Monthly Earning ",
                 50,
-                190,
-                icon: FaIcon(FontAwesomeIcons.dollarSign, color: Colors.white),
+                195,
+                icon: FaIcon(FontAwesomeIcons.rupeeSign, color: Colors.white),
               ),
               uihelper.CustomButton1(
                 () {
@@ -468,7 +478,7 @@ class _HomeProviderState extends State<HomeProvider> {
                 },
                 "Wallet History ",
                 50,
-                190,
+                195,
                 icon:
                     FaIcon(FontAwesomeIcons.googleWallet, color: Colors.white),
               ),
@@ -478,132 +488,172 @@ class _HomeProviderState extends State<HomeProvider> {
         ],
       );
 
-
   Widget monthlyRevenueChart() => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      // Title
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 132.0),
-        child: Text(
-          "Monthly Revenue",
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: AppColors.heading,
-
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-      const SizedBox(height: 15),
-      // Chart Container
-      Center(
-        child: Container(
-          width: 350,
-          height: 230,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 132.0),
+            child: Text(
+              "Monthly Revenue",
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: AppColors.heading,
               ),
-            ],
-          ),
-          child: LineChart(
-            LineChartData(
-              gridData: FlGridData(
-                show: true,
-                drawVerticalLine: true,
-                horizontalInterval: 1,
-                verticalInterval: 1,
-                getDrawingHorizontalLine: (value) => FlLine(
-                  color: Colors.grey.shade300,
-                  strokeWidth: 1,
-                ),
-                getDrawingVerticalLine: (value) => FlLine(
-                  color: Colors.grey.shade300,
-                  strokeWidth: 1,
-                ),
-              ),
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 40,
-                    getTitlesWidget: (value, meta) {
-                      return Text(
-                        '\$${value.toInt()}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontFamily: 'Poppins',
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) {
-                      const months = ["Jan", "Feb", "Mar", "Apr", "May"];
-                      return Text(
-                        months[value.toInt()],
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontFamily: 'Poppins',
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              borderData: FlBorderData(
-                show: true,
-                border: Border.all(color: AppColors.heading),
-              ),
-              minX: 0,
-              maxX: 4,
-              minY: 0,
-              maxY: 6,
-              lineBarsData: [
-                LineChartBarData(
-                  spots: [
-                    FlSpot(0, 3),
-                    FlSpot(1, 4),
-                    FlSpot(2, 2),
-                    FlSpot(3, 5),
-                    FlSpot(4, 1),
-                  ],
-                  isCurved: true,
-                  gradient: const LinearGradient(
-                    colors: [Colors.indigo, Colors.blueAccent],
-                  ),
-                  barWidth: 3,
-                  isStrokeCapRound: true,
-                  belowBarData: BarAreaData(
-                    show: true,
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.indigo.withOpacity(0.3),
-                        Colors.blueAccent.withOpacity(0.1),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+              textAlign: TextAlign.center,
             ),
           ),
-        ),
-      ),
-      const SizedBox(height: 20),
-    ],
-  );
+          const SizedBox(height: 15),
+          // Chart Container
+          Center(
+            child: Container(
+              width: 350,
+              height: 230,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: true,
+                    horizontalInterval: 1000,
+                    // Grid line every 1000 PKR
+                    verticalInterval: 1,
+                    getDrawingHorizontalLine: (value) => FlLine(
+                      color: Colors.grey.shade300,
+                      strokeWidth: 1,
+                    ),
+                    getDrawingVerticalLine: (value) => FlLine(
+                      color: Colors.grey.shade300,
+                      strokeWidth: 1,
+                    ),
+                  ),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          if (value >= 1000) {
+                            return Text(
+                              '\u20A8${(value / 1000).toStringAsFixed(0)}K',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                              ),
+                            );
+                          } else {
+                            return Text(
+                              '\u20A8${value.toInt()}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          // Define the months list here
+                          const months = [
+                            "Jan",
+                            "Feb",
+                            "Mar",
+                            "Apr",
+                            "May",
+                            "Jun",
+                            "July",
+                            "Aug",
+                            "Sep",
+                            "Oct",
+                            "Nov",
+                            "Dec"
+                          ];
+
+                          // 1. Calculate the interval between x-axis values
+                          double interval =
+                              (meta.max - meta.min) / (months.length - 1);
+
+                          // 2. Determine the index based on the value and interval
+                          int index = (value / interval).round();
+
+                          // 3. Return the corresponding month
+                          if (index >= 0 && index < months.length) {
+                            return Text(
+                              months[index],
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                              ),
+                            );
+                          } else {
+                            return const SizedBox
+                                .shrink(); // Return an empty widget if out of range
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  borderData: FlBorderData(
+                    show: true,
+                    border: Border.all(
+                        color: Colors.blueGrey), // Changed border color
+                  ),
+                  minX: 0,
+                  maxX: 6,
+                  minY: 0,
+                  maxY: 10000,
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: [
+                        const FlSpot(0, 5000),
+                        const FlSpot(1, 6500),
+                        const FlSpot(2, 2500),
+                        const FlSpot(3, 7000),
+                        const FlSpot(4, 4800),
+                        const FlSpot(5, 2000),
+                        const FlSpot(6, 8800),
+                      ],
+                      isCurved: true,
+                      gradient: const LinearGradient(
+                        colors: [Colors.indigo, Colors.blueAccent],
+                      ),
+                      barWidth: 3,
+                      isStrokeCapRound: true,
+                      belowBarData: BarAreaData(
+                        show: true,
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.indigo.withOpacity(0.3),
+                            Colors.blueAccent.withOpacity(0.1),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      );
 
   Widget upcomingBookings() => Column(children: [
         Text("Upcoming Booking",
@@ -1127,7 +1177,7 @@ class _HomeProviderState extends State<HomeProvider> {
                                     ),
                                     SizedBox(height: 4),
                                     Text(
-                                      "\$" +
+                                      "\u20A8 " +
                                           (doc['Price']?.toString() ??
                                               'No Price'),
                                       style: TextStyle(
@@ -1150,7 +1200,9 @@ class _HomeProviderState extends State<HomeProvider> {
               );
             },
           ),
+
         ),
+        SizedBox(height: 20,)
       ],
     );
   }

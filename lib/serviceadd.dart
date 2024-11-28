@@ -44,7 +44,7 @@ class _servicetypeaddState extends State<servicetypeadd> {
               fit: BoxFit.fill,
             ),
             SizedBox(height: 20),
-            uihelper.CustomTextField(context,_nameController, "Enter wage type name", Icons.warehouse, false),
+            uihelper.CustomTextField(context,_nameController, "Enter Service type name", Icons.warehouse, false),
             SizedBox(height: 20),
             uihelper.CustomButton(() {
               if (!_isLoading) {  // Prevent multiple submissions

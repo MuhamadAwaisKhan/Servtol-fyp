@@ -208,7 +208,7 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "\$500.00",
+                  "\u20A8500.00",
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 28,
@@ -304,7 +304,7 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          '\$${transaction['amount'].toStringAsFixed(2)}',
+                          '\u20A8${transaction['amount'].toStringAsFixed(2)}',
                           style: GoogleFonts.poppins(
                             color: transaction['isCredit']
                                 ? Colors.green

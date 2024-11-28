@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart'; // Assuming this is your utility class for UI elements
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // Custom class to handle dropdown items
 class DropdownItem {
@@ -342,6 +341,10 @@ class _ServicesAdditionState extends State<ServicesAddition> {
                   //         : null,
                   //   ),
                   // ),
+                  if (_isLoading)  // Conditionally render the loading indicator
+                    Center( // Center the loading indicator
+                      child: CircularProgressIndicator(),
+                    ),
                   SizedBox(height: 20),
                   uihelper.CustomTextField(context,
                       nameController, "Service Name",
@@ -371,13 +374,13 @@ class _ServicesAdditionState extends State<ServicesAddition> {
               ),
             ),
           ),
-          // if (_isLoading)
-          //   Positioned(
-          //     child: Container(
-          //       color: Colors.black45,
-          //       child: Center(child: CircularProgressIndicator()),
-          //     ),
-          //   ),
+          if (_isLoading)
+            Positioned(
+              child: Container(
+                color: Colors.black45,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ),
         ],
       ),
     );

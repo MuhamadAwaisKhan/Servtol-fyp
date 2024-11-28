@@ -48,8 +48,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
         ],
       ),
       backgroundColor: AppColors.background,
-      body: SingleChildScrollView(
-        child: Column(
+      body:  Column(
           children: [
             Padding(
               padding: EdgeInsets.all(10),
@@ -87,24 +86,18 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
             StreamBuilder<QuerySnapshot>(
               stream: (searchController.text.isEmpty)
                   ? FirebaseFirestore.instance
-                      .collection('service')
-                  .orderBy("ServiceName",descending: false)
-                      .where('providerId', isEqualTo: currentUser?.uid)
-                      .snapshots()
+                  .collection('service')
+                  .orderBy("ServiceName", descending: false)
+                  .where('providerId', isEqualTo: currentUser?.uid)
+                  .snapshots()
                   : FirebaseFirestore.instance
-                      .collection('service')
-                  .orderBy("ServiceName",descending: false)
-                  .orderBy("serviceNameLower",descending: false)
-                      .where('providerId', isEqualTo: currentUser?.uid)
-                      .where('ServiceName',
-                          isGreaterThanOrEqualTo: searchController.text)
-                      .where('ServiceName',
-                          isLessThanOrEqualTo: searchController.text + '\uf8ff')
-                      .where('serviceNameLower',
-                          isGreaterThanOrEqualTo: searchController.text)
-                      .where('serviceNameLower',
-                          isLessThanOrEqualTo: searchController.text + '\uf8ff')
-                      .snapshots(),
+                  .collection('service')
+                  .where('providerId', isEqualTo: currentUser?.uid)
+                  .where('serviceNameLower', // Search only on the lowercase field
+                  isGreaterThanOrEqualTo: searchController.text.toLowerCase())
+                  .where('serviceNameLower',
+                  isLessThanOrEqualTo: searchController.text.toLowerCase() + '\uf8ff')
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Text("Error: ${snapshot.error}");
@@ -116,10 +109,11 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                   );
                 }
                 final data = snapshot.requireData;
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: data.docs.length,
-                  itemBuilder: (context, index) {
+                return Expanded( // Wrap ListView.builder with Expanded
+                    child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: data.docs.length,
+                    itemBuilder: (context, index) {
                     var doc = data.docs[index];
                     String category = doc['Category'] ?? 'No category';
                     String lottieAnimationPath;
@@ -222,12 +216,14 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                         subtitle: Text(doc['Category'] ?? 'No category',
                             style: TextStyle(
                                 fontFamily: 'Poppins', color: Colors.white70)),
-                        trailing: Text(
-                            "\$" + (doc['Price']?.toString() ?? 'No Price'),
-                            style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: Colors.amber,
-                                fontWeight: FontWeight.bold)),
+                        trailing:Text(
+                          "\u20A8${(doc['Price']?.toString() ?? 'No Price')}", // Corrected Unicode character
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: Colors.amber,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -237,15 +233,30 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                             ),
                           );
                         },
+                        // Add this to control the bottom padding of the ListTile
+                        // visualDensity: VisualDensity(vertical: -4), // Adjust the value as needed
+
                       ),
+
                     );
+
                   },
+                      padding: EdgeInsets.only(bottom: 10), // Adjust the value as needed
+
+                    ),
+
                 );
+
+
               },
+
+
             ),
+
           ],
         ),
-      ),
+
+
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 68.0),
         child: FloatingActionButton.extended(
@@ -259,7 +270,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
           ),
           icon: Icon(
             FontAwesomeIcons.add,
-            color: Colors.blueGrey, // Set your icon color here
+            color: AppColors.background, // Set your icon color here
           ),
           backgroundColor: AppColors.customButton,
         ),

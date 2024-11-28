@@ -289,6 +289,7 @@ class uihelper {
 
   static detailCard(String title, String value, {bool lastItem = false}) {
     return Card(
+      color: Colors.lightBlueAccent.shade200,
       margin: EdgeInsets.only(
           top: 10, left: 10, right: 10, bottom: lastItem ? 10 : 15),
       // Adjusted for consistency and visual spacing
@@ -311,7 +312,7 @@ class uihelper {
                   style: TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.bold,
-                      color: Colors.lightBlue),
+                      color: AppColors.heading),
                   overflow: TextOverflow
                       .ellipsis, // Ensures text does not break layout
                 ),
@@ -335,6 +336,96 @@ class uihelper {
     );
   }
 
+  static detailCard1(BuildContext context, String title, String value, {bool lastItem = false}) {
+    // Define the maximum number of characters before truncation
+    const int maxCharacters = 7;
+
+    // Determine if truncation is needed
+    bool isTruncated = value.length > maxCharacters;
+
+    // Truncated display text with ellipsis
+    String displayText = isTruncated ? "${value.substring(0, maxCharacters)}..." : value;
+
+    return Card(
+      color: Colors.lightBlueAccent.shade200,
+      margin: EdgeInsets.only(
+          top: 10, left: 10, right: 10, bottom: lastItem ? 10 : 15),
+      elevation: 2, // Adds a subtle shadow for depth
+      child: GestureDetector(
+        onTap: () {
+          // Show a dialog or bottom sheet with full content
+          showDialog(
+            context: context, // Pass the context here
+            builder: (context) => AlertDialog(
+              title: Text(title),
+              content: SingleChildScrollView(
+                child: Text(
+                  value,
+                  style: TextStyle(fontFamily: 'Poppins', fontSize: 16),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text("Close"),
+                ),
+              ],
+            ),
+          );
+        },
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                flex: 2,
+                child: Tooltip(
+                  message: title,
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.heading,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      displayText,
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 16,
+                        color: Colors.black54,
+                      ),
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (isTruncated)
+                      Text(
+                        "Click to view full text",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   static Widget actionButton(
       String label, Color color, IconData icon, VoidCallback onPressed) {
@@ -414,7 +505,7 @@ class uihelper {
 
         style:
             TextStyle(color: Colors.black, fontFamily: 'Poppins', fontSize: 17),
-        icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+        icon: Icon(Icons.arrow_drop_down, color: Colors.blue),
         iconSize: 24,
         elevation: 16,
         isExpanded: true,
@@ -573,7 +664,7 @@ class uihelper {
         decoration: InputDecoration(
           labelText: labelText,
 
-          labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 17),
+          labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 17,color: Colors.blue),
           // suffixIcon: Icon(iconData),
           border: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.blue),
@@ -623,7 +714,7 @@ class uihelper {
         decoration: InputDecoration(
           labelText: labelText,
 
-          labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 17,),
+          labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 17,color: Colors.blue),
 
           // suffixIcon: Icon(iconData),
           border: OutlineInputBorder(

@@ -84,7 +84,7 @@ class MonthlyEarningsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "\$${totalEarnings.toStringAsFixed(2)}",
+                    "\u20A8${totalEarnings.toStringAsFixed(2)}",
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 32,
@@ -134,7 +134,7 @@ class MonthlyEarningsScreen extends StatelessWidget {
                             ),
                              SizedBox(height: 8),
                             Text(
-                              "\$${avgEarnings.toStringAsFixed(2)}",
+                              "\u20A8${avgEarnings.toStringAsFixed(2)}",
                               style: GoogleFonts.poppins(
                                 color: Colors.white,
                                 fontSize: 20,
@@ -191,7 +191,7 @@ class MonthlyEarningsScreen extends StatelessWidget {
                       ),
                     ),
                     trailing: Text(
-                      "\$${earnings['earnings'].toStringAsFixed(2)}",
+                      "\u20A8${earnings['earnings'].toStringAsFixed(2)}",
                       style: GoogleFonts.poppins(
                         color: Colors.green,
                         fontWeight: FontWeight.bold,

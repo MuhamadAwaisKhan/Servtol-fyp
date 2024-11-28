@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart'; // Assuming this is your utility class for UI elements
 
 class ServiceDetailScreen extends StatefulWidget {
@@ -610,11 +611,11 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
             style: TextStyle(
                 fontFamily: 'Poppins',
                 fontWeight: FontWeight.bold,
-                color: Colors.white)),
-        backgroundColor: Colors.teal,
+                color: AppColors.heading)),
+        backgroundColor: AppColors.background,
         centerTitle: true,
       ),
-      backgroundColor: Colors.teal,
+      backgroundColor: AppColors.background,
 
       // actions: [
       //   IconButton(
@@ -673,7 +674,9 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
             uihelper.detailCard(
                 "Category", widget.service.get('Category') ?? 'Not provided'),
             uihelper.detailCard(
-                "Price", widget.service.get('Price') ?? 'Not provided'),
+              "Price",
+              "\u20A8 ${widget.service.get('Price') ?? 'Not provided'}",
+            ),
             uihelper.detailCard("Service Type",
                 widget.service.get('ServiceType') ?? 'Not provided'),
             uihelper.detailCard(
@@ -690,9 +693,12 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 "City", widget.service.get('City') ?? 'Not provided'),
             uihelper.detailCard(
                 "Area", widget.service.get('Area') ?? 'Not provided'),
-            uihelper.detailCard("Description",
-                widget.service.get('Description') ?? 'Not provided',
-                lastItem: true),
+          // In your widget's build method:
+          uihelper.detailCard1(context,  // Pass the context here
+              "Description",
+              widget.service.get('Description') ?? 'Not provided',
+              lastItem: true
+          ),
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,

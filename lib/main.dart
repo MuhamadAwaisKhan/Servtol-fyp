@@ -1,12 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:servtol/startscreen.dart';
-import 'package:servtol/tester%20file.dart';
-import 'package:servtol/feedbackscreen.dart';
 import 'package:servtol/util/theme.dart';
 import 'firebase_options.dart';
-import 'package:flutter/foundation.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'notifications/notificationmessageservice.dart';
 
@@ -28,6 +25,8 @@ Future <void> main() async {
 
   NotificationService().requestNotificationPermission();
    NotificationService().initLocalNotification();
+  FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
+
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     theme:
