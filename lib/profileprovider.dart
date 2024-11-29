@@ -450,6 +450,7 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
     TextEditingController occupationController = TextEditingController(text: data['Occupation'] ?? ''); // New Occupation field
     TextEditingController skillsController = TextEditingController(text: (data['Skills'] ?? []).join(', ')); // New Skills field, initially formatted as comma-separated string
     TextEditingController experienceController = TextEditingController(text: data['Experience']?.toString() ?? ''); // New Experience field
+    TextEditingController addressController = TextEditingController(text: data['Address'] ?? ''); // New About field
 
     showDialog(
       context: context,
@@ -518,6 +519,11 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                             decoration: InputDecoration(labelText: "Experience (years)"),
                             keyboardType: TextInputType.number,
                           ),
+                          TextField(
+                            controller: addressController,
+                            decoration: InputDecoration(labelText: "Address"),
+                          ),
+                          SizedBox(height: 10),
                         ],
                       ),
                     )
@@ -557,6 +563,7 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                       mobileController.text,
                       cnicController.text,
                       aboutController.text,
+                      addressController.text,
                       occupationController.text,
                       skillsController.text.split(',').map((s) => s.trim()).toList(), // Convert to list
                       int.tryParse(experienceController.text) ?? 0,
@@ -584,6 +591,7 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
       String mobile,
       String cnic,
       String about,
+      String address,
       String occupation,
       List<String> skills,
       int experience,
@@ -598,6 +606,7 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
       'Occupation': occupation,
       'Skills': skills,
       'Experience': experience,
+      'Address':address
     };
 
     await FirebaseFirestore.instance

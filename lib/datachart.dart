@@ -87,6 +87,25 @@ class _ChartScreenState extends State<ChartScreen> {
       return 0;
     }
   }
+  Future<int> getTotalCustomers(FirebaseFirestore firestore) async {
+    try {
+      final snapshot = await firestore.collection('customer').get();
+      return snapshot.docs.length;
+    } catch (e) {
+      debugPrint('Error fetching total customers: $e');
+      return 0;
+    }
+  }
+
+  Future<int> getTotalServiceProviders(FirebaseFirestore firestore) async {
+    try {
+      final snapshot = await firestore.collection('provider').get();
+      return snapshot.docs.length;
+    } catch (e) {
+      debugPrint('Error fetching total service providers: $e');
+      return 0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +179,22 @@ class _ChartScreenState extends State<ChartScreen> {
             {'label': 'Total', 'color': Colors.indigoAccent},
             {'label': 'Booked', 'color': Colors.deepOrangeAccent},
           ],
-        )
+        ),
+            const SizedBox(height: 32),
+            _buildPieChart(
+              title: 'Users Overview',
+              futureData: Future.wait([
+                getTotalCustomers(firestore),
+                getTotalServiceProviders(firestore),
+              ]),
+              colors: [Colors.blue, Colors.green],
+              labels: ['Customer', 'Service Providers'],
+              legendLabels: [
+                {'label': 'Customers', 'color': Colors.blue},
+                {'label': 'Providers', 'color': Colors.green},
+              ],
+            ),
+
 
           ],
         ),

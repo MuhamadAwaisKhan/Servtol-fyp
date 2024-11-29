@@ -6,6 +6,7 @@ import 'package:servtol/AddTributeScreen.dart';
 import 'package:servtol/admindashboard.dart';
 import 'package:servtol/dash2.dart';
 import 'package:servtol/datachart.dart';
+import 'package:servtol/dataprofiles.dart';
 import 'package:servtol/loginadmin.dart';
 import 'package:servtol/mainmenuInterface.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -123,6 +124,21 @@ class _datamanagementState extends State<datamanagement> {
                           builder: (context) => AddTributeScreen()));
                 },
                 "Add Contributor",
+                40,
+                200,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              uihelper.CustomButton(
+                    () {
+    Navigator.push(
+    context,
+    MaterialPageRoute(
+    builder: (context) => dataprofiles()));
+
+                },
+                "Profiles",
                 40,
                 200,
               ),
