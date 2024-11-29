@@ -150,7 +150,7 @@ class _TaxScreenState extends State<TaxScreen> {
                                 children: [
                                   Text('${data['rate']}',style: TextStyle(fontSize: 17),
                                   ),
-                                  Text('${isTax ? '%' : '\$'}',style:TextStyle(
+                                  Text('${isTax ? '%' : ' Pkr'}',style:TextStyle(
                                     color: Colors.white,
                                   ) ,),
 

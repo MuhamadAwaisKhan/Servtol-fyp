@@ -1,9 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
 import 'package:servtol/AddTributeScreen.dart';
 import 'package:servtol/admindashboard.dart';
 import 'package:servtol/dash2.dart';
 import 'package:servtol/datachart.dart';
+import 'package:servtol/loginadmin.dart';
 import 'package:servtol/mainmenuInterface.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
@@ -18,6 +21,12 @@ class datamanagement extends StatefulWidget {
 class _datamanagementState extends State<datamanagement> {
   @override
   Widget build(BuildContext context) {
+    void logout() async {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => LoginAdmin()));
+      Fluttertoast.showToast(msg: "Logged out successfully");
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.background,
@@ -114,6 +123,17 @@ class _datamanagementState extends State<datamanagement> {
                           builder: (context) => AddTributeScreen()));
                 },
                 "Add Contributor",
+                40,
+                200,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              uihelper.CustomButton(
+                    () {
+                  logout();
+                },
+                "Log Out",
                 40,
                 200,
               ),
