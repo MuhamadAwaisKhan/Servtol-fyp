@@ -359,7 +359,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
                         Row(
                           children: [
                             Text(
-                              "\$$servicePrice ",
+                              "\u20A8 $servicePrice ",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,

@@ -309,7 +309,7 @@ class _ProviderProfileViewState extends State<ProviderProfileView> {
                         ),
                       ),
                       subtitle: Text(
-                        'Price: \$${service['Price']}',
+                        'Price: \u20A8 ${service['Price']}',
                         style: TextStyle(fontFamily: 'Poppins'),
                       ),
                       trailing: Icon(Icons.arrow_forward_ios,

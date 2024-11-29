@@ -628,7 +628,7 @@ class uihelper {
           labelText: text,
           labelStyle: TextStyle(
               fontFamily: 'Poppins', fontSize: 17, color: Colors.blue),
-          suffixIcon: FaIcon(
+          suffixIcon: Icon(
             iconData,
             color: Theme.of(context).primaryColorDark,
 

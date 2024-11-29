@@ -126,7 +126,7 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout>
           ],
         ),
         bottomNavigationBar: MotionTabBar(
-          labels: const ["Home", "Booking", "Payment", "Service", "Profile"],
+          labels:  ["Home", "Booking", "Payment", "Service", "Profile"],
           initialSelectedTab: "Home",
           controller: _motionTabBarController,
           tabIconColor: Colors.blueGrey,

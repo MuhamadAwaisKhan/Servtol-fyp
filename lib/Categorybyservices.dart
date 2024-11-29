@@ -155,7 +155,7 @@ class _CategoryServicesScreenState extends State<CategoryServicesScreen> {
                 style: TextStyle(fontFamily: 'Poppins', color: Colors.white70),
               ),
               trailing: Text(
-                "\$" + (service['Price']?.toString() ?? 'No Price'),
+                "\u20A8 " + (service['Price']?.toString() ?? 'No Price'),
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   color: Colors.amber,

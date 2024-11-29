@@ -495,11 +495,12 @@ class _HomeCustomerState extends State<HomeCustomer> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        "\$" + servicePrice,
+                        "\u20A8 ${servicePrice}", // Or "\u{20B9}${servicePrice}" for Indian Rupee
                         style: TextStyle(
-                            color: Colors.green[700],
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14),
+                          color: Colors.green[700],
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),

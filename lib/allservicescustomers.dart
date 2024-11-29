@@ -308,7 +308,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                               fontFamily: 'Poppins', color: Colors.white70),
                         ),
                         trailing: Text(
-                          "\$" + (serviceData['Price'] ?? 0).toString(),
+                          "\u20A8 " + (serviceData['Price'] ?? 0).toString(),
                           style: TextStyle(
                               fontFamily: 'Poppins', color: Colors.white),
                         ),

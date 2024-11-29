@@ -737,7 +737,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                                                   100)
                                                               .toInt(),
                                                           // Convert to cents (integer)
-                                                          currency: 'USD',
+                                                          currency: 'PKR',
                                                           serviceDescription:
                                                               bookingDetails[
                                                                           'service']
@@ -1126,9 +1126,29 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                               ),
                             ],
                           ),
-                          subtitle: Text(
-                            "${data['provider']['about'] ?? 'No additional information'}",
-                            style: TextStyle(color: Colors.blue),
+                          subtitle: GestureDetector(
+                            onTap: () {
+                              // Show full data in a dialog or new screen when clicked
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Provider About'),
+                                  content: Text(data['provider']['About'] ?? 'No additional information'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('Close'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            child: Text(
+                              data['provider']['About'] != null && data['provider']['About'].length > 30
+                                  ? "${data['provider']['About'].substring(0, 20)}..."
+                                  : "${data['provider']['About'] ?? 'No additional information'}",
+                              style: TextStyle(color: Colors.blue),
+                            ),
                           ),
                           trailing: Text(
                             "${data['provider']['Occupation'] ?? 'No additional information'}",
@@ -1185,11 +1205,11 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                           children: [
                                             TextSpan(
                                               text:
-                                                  '\$${(double.tryParse(data['service']?['Price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2)} x ${widget.bookings['quantity'].toString()} = ',
+                                                  '\u20A8 ${(double.tryParse(data['service']?['Price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2)} x ${widget.bookings['quantity'].toString()} = ',
                                             ),
                                             TextSpan(
                                               text:
-                                                  '\$${((double.tryParse(data['service']?['Price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2) * (widget.bookings['quantity'] as int? ?? 0))}',
+                                                  '\u20A8 ${((double.tryParse(data['service']?['Price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2) * (widget.bookings['quantity'] as int? ?? 0))}',
                                               style: TextStyle(
                                                 fontFamily: 'Poppins',
                                                 fontWeight: FontWeight.bold,
@@ -1240,7 +1260,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
 
                                     // Right-aligned text for the calculated discount value
                                     Text(
-                                      '-\$${(double.parse(data['service']['Price'] ?? '0') * double.parse(widget.bookings['quantity'].toString()) * (double.parse(data['coupon']['discount'] ?? '0') / 100)).toStringAsFixed(2)}',
+                                      '-\u20A8 ${(double.parse(data['service']['Price'] ?? '0') * double.parse(widget.bookings['quantity'].toString()) * (double.parse(data['coupon']['discount'] ?? '0') / 100)).toStringAsFixed(2)}',
                                       style: TextStyle(
                                         color: Colors.green,
                                         fontSize: 16,
@@ -1281,7 +1301,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                                         title:
                                                             Text('Booking Fee'),
                                                         subtitle: Text(
-                                                            '\$${bookingFee.toStringAsFixed(2)}'),
+                                                            '\u20A8 ${bookingFee.toStringAsFixed(2)}'),
                                                       ),
                                                       ListTile(
                                                         leading: Icon(
@@ -1318,7 +1338,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                               Icon(Icons.info_outline_rounded),
                                         ),
                                         Text(
-                                            ' \$${widget.bookings['tax']?.toStringAsFixed(2) ?? '0.00'}',
+                                            ' \u20A8 ${widget.bookings['tax']?.toStringAsFixed(2) ?? '0.00'}',
                                             style: TextStyle(
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.bold,
@@ -1338,7 +1358,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                           fontWeight: FontWeight.bold,
                                         )),
                                     Text(
-                                        ' \$${widget.bookings['total']?.toStringAsFixed(2) ?? '0.00'}',
+                                        ' \u20A8 ${widget.bookings['total']?.toStringAsFixed(2) ?? '0.00'}',
                                         style: TextStyle(
                                           fontFamily: 'Poppins',
                                           fontWeight: FontWeight.bold,
@@ -1473,7 +1493,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
               SizedBox(height: 5),
               // Provider Bio
               Text(
-                providerData['about'] ?? 'No bio available',
+                providerData['About'] ?? 'No bio available',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.grey[700],

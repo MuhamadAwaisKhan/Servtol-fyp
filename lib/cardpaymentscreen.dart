@@ -36,6 +36,10 @@ class _CustomCardPaymentScreenState extends State<CustomCardPaymentScreen> {
     mask: '##/##',
     filter: {"#": RegExp(r'[0-9]')},
   );
+  final _csvFormatter = MaskTextInputFormatter(
+    mask: '###',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
 
   bool isLoading = false;
   String paymentStatus = 'Pending';
@@ -181,13 +185,13 @@ class _CustomCardPaymentScreenState extends State<CustomCardPaymentScreen> {
                           ),
                           Row(
                             children: [
-                              const Icon(
-                                Icons.attach_money,
-                                size: 28,
-                                color: Colors.white,
-                              ),
+                              // const Icon(
+                              //   Icons.attach_money,
+                              //   size: 28,
+                              //   color: Colors.white,
+                              // ),
                               Text(
-                                '\$${(widget.amount / 100).toStringAsFixed(2)}',
+                                '\u20A8 ${(widget.amount / 100).toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
@@ -272,6 +276,7 @@ class _CustomCardPaymentScreenState extends State<CustomCardPaymentScreen> {
                   label: 'CVV',
                   hint: 'xxx',
                   icon: Icons.lock,
+                  inputFormatters: [_csvFormatter],
                   keyboardType: TextInputType.number,
                   obscureText: true,
                   validator: (value) =>

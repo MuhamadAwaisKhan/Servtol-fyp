@@ -240,7 +240,7 @@ class _PaymentScreenWidgetState extends State<PaymentScreenWidget> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    '\$${(data['amount'] != null ? data['amount'].toStringAsFixed(2) : '0.00')}',
+                    '\u20A8 ${(data['amount'] != null ? data['amount'].toStringAsFixed(2) : '0.00')}',
                     style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
                   ),
                 ],

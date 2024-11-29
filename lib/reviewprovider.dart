@@ -239,41 +239,51 @@ class _ServiceReviewsScreenState extends State<ServiceReviewsScreen> {
                         SizedBox(height: 12),
 
                         // Comments
-                        if (reviewData['notes'] != null &&
-                            reviewData['notes'].isNotEmpty)
-                          Row(
-                            children: [
-                              Text(
-                                'Comments:',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                  fontStyle: FontStyle.italic,
+                        if (reviewData['notes'] != null && reviewData['notes'].isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text('Comments'),
+                                  content: Text(reviewData['notes']),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text("Close"),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              SizedBox(width: 10,),
-                              Text(
-                                reviewData['notes'],
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontFamily: 'Poppins',
-                                  color: Colors.black87,
-                                  fontStyle: FontStyle.italic,
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                Text(
+                                  'Comments:',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                    fontStyle: FontStyle.italic,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          )
-                        else
-                          Text(
-                            'No comments provided.',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontStyle: FontStyle.italic,
-                              color: Colors.grey,
+                                SizedBox(width: 10,),
+                                Text(
+                                  reviewData['notes'].length > 30
+                                      ? '${reviewData['notes'].substring(0, 30)}...'
+                                      : reviewData['notes'],
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: 'Poppins',
+                                    color: Colors.black87,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
+
                       ],
                     ),
                   ),

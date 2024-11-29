@@ -121,7 +121,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           bookingFee = double.tryParse(doc['rate'].toString()) ?? 0.0;
           bookingFeeId = doc.id;
         });
-        print('Fetched Booking Fee: \$${bookingFee}');
+        print('Fetched Booking Fee: \u20A8${bookingFee}');
         print('Booking Fee Document ID: $bookingFeeId');
       } else {
         print('No documents found for Bookingfee.');

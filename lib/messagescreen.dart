@@ -62,7 +62,7 @@ class _MessageScreenState extends State<MessageScreen> {
     final currentUser = _auth.currentUser;
     if (currentUser != null) {
       final conversationId =
-          _generateConversationId(currentUser.uid, widget.chatWithId);
+      _generateConversationId(currentUser.uid, widget.chatWithId);
       setState(() {
         _conversationId = conversationId;
       });
@@ -194,6 +194,7 @@ class _MessageScreenState extends State<MessageScreen> {
         'participants': [currentUser.uid, widget.chatWithId],
         'lastMessage': imageUrl != null ? '[Image]' : messageContent,
         'timestamp': FieldValue.serverTimestamp(),
+        // 'readBy': FieldValue.arrayRemove([currentUser.uid]), // Remove sender from readBy
       }, SetOptions(merge: true));
 
       setState(() {
@@ -227,22 +228,21 @@ class _MessageScreenState extends State<MessageScreen> {
     final currentUser = _auth.currentUser;
     if (currentUser == null) return;
 
-    final messagesRef = _firestore
-        .collection('conversations')
-        .doc(_conversationId)
-        .collection('messages');
+    try {
+      // Fetch the conversation document to get the current 'readBy' array
+      final conversationDoc = await _firestore.collection('conversations').doc(_conversationId).get();
+      final readBy = List<String>.from(conversationDoc.data()?['readBy'] ?? []);
 
-    final unseenMessages = await messagesRef
-        .where('read', isEqualTo: false)
-        .where('senderId', isNotEqualTo: currentUser.uid)
-        .get();
-
-    for (var doc in unseenMessages.docs) {
-      await doc.reference.update({'read': true});
+      // Only update if the current user's ID is not already in 'readBy'
+      if (!readBy.contains(currentUser.uid)) {
+        await _firestore.collection('conversations').doc(_conversationId).update({
+          'readBy': FieldValue.arrayUnion([currentUser.uid]),
+        });
+      }
+    } catch (e) {
+      print("Error updating read receipts: $e");
     }
-  }
-
-  // Helper to compare if two dates are the same
+  }  // Helper to compare if two dates are the same
   bool isSameDate(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
         date1.month == date2.month &&
@@ -302,7 +302,7 @@ class _MessageScreenState extends State<MessageScreen> {
 
                   for (var i = 0; i < messages.length; i++) {
                     final messageData =
-                        messages[i].data() as Map<String, dynamic>;
+                    messages[i].data() as Map<String, dynamic>;
                     final isSentByUser =
                         messageData['senderId'] == _auth.currentUser!.uid;
                     final messageContent =
@@ -311,7 +311,7 @@ class _MessageScreenState extends State<MessageScreen> {
                     // final replyTo = messageData['replyTo'];
                     final timestamp = messageData['sentAt'];
                     final isRead =
-                        messageData['read'] ?? false; // Get the read status
+                        messageData['readBy'] ?? false; // Get the read status
                     DateTime? messageDate;
 
                     if (timestamp != null && timestamp is Timestamp) {
@@ -357,14 +357,14 @@ class _MessageScreenState extends State<MessageScreen> {
                           ],
                         );
 
-                  } else
-                        Text(
-                          'Replying to: $replyTo',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        );
+                    } else
+                      Text(
+                        'Replying to: $replyTo',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      );
                     // Determine date label
                     String dateLabel;
                     if (isSameDate(localMessageDate, now)) {
@@ -421,7 +421,7 @@ class _MessageScreenState extends State<MessageScreen> {
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               color:
-                                  isSentByUser ? Colors.blue : Colors.grey[300],
+                              isSentByUser ? Colors.blue : Colors.grey[300],
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
@@ -432,7 +432,7 @@ class _MessageScreenState extends State<MessageScreen> {
                                   if (replyTo.startsWith('https'))
                                     Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         const Text(
                                           'Replying with an image:',
@@ -516,16 +516,28 @@ class _MessageScreenState extends State<MessageScreen> {
                                     ),
                                     if (isSentByUser)
                                       Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 5.0),
-                                        child: Icon(
-                                          isRead ? Icons.done_all : Icons.done,
-                                          size: 15,
-                                          color: isRead
-                                              ? Colors.amberAccent
-                                              : Colors.black,
+                                        padding: const EdgeInsets.only(left: 5.0),
+                                        child: StreamBuilder<DocumentSnapshot>(
+                                          stream: _firestore.collection('conversations').doc(_conversationId).snapshots(),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.hasData) {
+                                              final data = snapshot.data!.data() as Map<String, dynamic>?;
+                                              final readBy = List<String>.from(data?['readBy'] ?? []);
+
+                                              // Check if the recipient's ID is in the 'readBy' array
+                                              bool isRead = readBy.contains(widget.chatWithId);
+
+                                              return Icon(
+                                                isRead ? Icons.done_all : Icons.done,
+                                                size: 15,
+                                                color: isRead ? Colors.amberAccent : Colors.black,
+                                              );
+                                            }
+                                            return Icon(Icons.done, size: 15); // Default to one tick while loading
+                                          },
                                         ),
                                       ),
+
                                   ],
                                 ),
                               ],
@@ -658,7 +670,7 @@ class _MessageScreenState extends State<MessageScreen> {
                             child: CircularProgressIndicator(
                               value: loadingProgress.expectedTotalBytes != null
                                   ? loadingProgress.cumulativeBytesLoaded /
-                                      (loadingProgress.expectedTotalBytes ?? 1)
+                                  (loadingProgress.expectedTotalBytes ?? 1)
                                   : null,
                             ),
                           );
@@ -807,7 +819,8 @@ class _MessageScreenState extends State<MessageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        title:
+        Row(
           children: [
             CircleAvatar(
               backgroundImage: widget.chatWithPicUrl != null
@@ -818,61 +831,62 @@ class _MessageScreenState extends State<MessageScreen> {
                   : null,
             ),
             const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.chatWithName,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+            Expanded( // Ensures content fits in the remaining space
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.chatWithName,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis, // Avoids overflow
                   ),
-                ),
-                // StreamBuilder for online status
-                StreamBuilder<DocumentSnapshot>(
-                  stream: _firestore
-                      .collection(widget.chatWithId.startsWith('C') ? 'customer' : 'provider')
-                      .doc(widget.chatWithId)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data!.data() != null) {
-                      final userData = snapshot.data!.data() as Map<String, dynamic>;
-                      final userStatus = userData['status'] ?? 'Offline';
-                      print("Fetched status for ${widget.chatWithId}: $userStatus"); // Add this
-                      return Text(
-                        userStatus,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.white70,
-                        ),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-                // StreamBuilder for typing indicator
-                StreamBuilder<DocumentSnapshot>(
-                  stream: _firestore
-                      .collection('conversations')
-                      .doc(_conversationId)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data!.data() is Map<String, dynamic>) {
-                      final conversationData =
-                          snapshot.data!.data() as Map<String, dynamic>;
-                      final isTyping = conversationData['typing']
-                              [widget.chatWithId] ??
-                          false;
-
-                      if (isTyping) {
-                        return Text('${widget.chatWithName} is typing...');
+                  StreamBuilder<DocumentSnapshot>(
+                    stream: _firestore
+                        .collection(widget.chatWithId.startsWith('C') ? 'customer' : 'provider')
+                        .doc(widget.chatWithId)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data!.data() != null) {
+                        final userData = snapshot.data!.data() as Map<String, dynamic>;
+                        final userStatus = userData['status'] ?? 'Offline';
+                        return Text(
+                          userStatus,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white70,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        );
                       }
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ],
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                  StreamBuilder<DocumentSnapshot>(
+                    stream: _firestore
+                        .collection('conversations')
+                        .doc(_conversationId)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data?.data() != null) {
+                        final conversationData = snapshot.data!.data() as Map<String, dynamic>;
+
+                        // Safely access the 'typing' field and its contents
+                        final typingData = conversationData['typing'] as Map<String, dynamic>?;
+
+                        if (typingData != null && typingData[widget.chatWithId] == true) {
+                          return Text('${widget.chatWithName} is typing...');
+                        }
+                      }
+
+                      // Return an empty widget or placeholder when there's no typing indicator
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),

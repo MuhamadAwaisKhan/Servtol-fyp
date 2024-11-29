@@ -214,7 +214,7 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('\$${serviceData['Price']}',
+                  Text('\u20A8 ${serviceData['Price']}',
                       style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -292,9 +292,29 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                       providerData['FirstName'] ?? 'No Provider Name',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    subtitle: Text(
-                      providerData['About'] ?? 'No additional information',
-                      style: TextStyle(color: Colors.blue[700]),
+                    subtitle: GestureDetector(
+                      onTap: () {
+                        // Show full data in a dialog or new screen when clicked
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Provider Details'),
+                            content: Text(providerData['About'] ?? 'No additional information'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Close'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: Text(
+                        providerData['About'] != null && providerData['About'].length > 30
+                            ? "${providerData['About'].substring(0, 20)}..."
+                            : providerData['About'] ?? 'No additional information',
+                        style: TextStyle(color: Colors.blue[700]),
+                      ),
                     ),
                     trailing: IconButton(
                       icon: FaIcon(FontAwesomeIcons.solidMessage, color: Colors.blue),

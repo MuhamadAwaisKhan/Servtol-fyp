@@ -338,7 +338,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                       Row(
                         children: [
                           Text(
-                            "\$$servicePrice ",
+                            "\u20A8$servicePrice ",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,

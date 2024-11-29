@@ -134,7 +134,7 @@ class _CustomerReviewByProviderState extends State<CustomerReviewByProvider> {
                         ),
                       ),
                       subtitle: Text(
-                        'Price: \$${service['Price']}',
+                        'Price: \u20A8 ${service['Price']}',
                         style: TextStyle(fontFamily: 'Poppins'),
                       ),
                       trailing: Icon(Icons.arrow_forward_ios,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -824,11 +825,11 @@ final now=DateTime.now();
                                           children: [
                                             TextSpan(
                                               text:
-                                                  '\$${(double.tryParse(data['service']?['Price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2)} x ${widget.bookings['quantity'].toString()} = ',
+                                                  '\u20A8${(double.tryParse(data['service']?['Price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2)} x ${widget.bookings['quantity'].toString()} = ',
                                             ),
                                             TextSpan(
                                               text:
-                                                  '\$${((double.tryParse(data['service']?['Price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2) * (widget.bookings['quantity'] as int? ?? 0))}',
+                                                  '\u20A8${((double.tryParse(data['service']?['Price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2) * (widget.bookings['quantity'] as int? ?? 0))}',
                                               style: TextStyle(
                                                 fontFamily: 'Poppins',
                                                 fontWeight: FontWeight.bold,
@@ -879,7 +880,7 @@ final now=DateTime.now();
 
                                     // Right-aligned text for the calculated discount value
                                     Text(
-                                      '-\$${(double.parse(data['service']['Price'] ?? '0') * double.parse(widget.bookings['quantity'].toString()) * (double.parse(data['coupon']['discount'] ?? '0') / 100)).toStringAsFixed(2)}',
+                                      '-\u20A8${(double.parse(data['service']['Price'] ?? '0') * double.parse(widget.bookings['quantity'].toString()) * (double.parse(data['coupon']['discount'] ?? '0') / 100)).toStringAsFixed(2)}',
                                       style: TextStyle(
                                         color: Colors.green,
                                         fontSize: 16,
@@ -914,13 +915,13 @@ final now=DateTime.now();
                                                     children: [
                                                       ListTile(
                                                         leading: Icon(
-                                                            Icons.attach_money,
+                                                            FontAwesomeIcons.rupeeSign,
                                                             color:
                                                                 Colors.green),
                                                         title:
                                                             Text('Booking Fee'),
                                                         subtitle: Text(
-                                                            '\$${bookingFee.toStringAsFixed(2)}'),
+                                                            '\u20A8${bookingFee.toStringAsFixed(2)}'),
                                                       ),
                                                       ListTile(
                                                         leading: Icon(
@@ -955,7 +956,7 @@ final now=DateTime.now();
                                               Icon(Icons.info_outline_rounded),
                                         ),
                                         Text(
-                                            ' \$${widget.bookings['tax']?.toStringAsFixed(2) ?? '0.00'}',
+                                            ' \u20A8${widget.bookings['tax']?.toStringAsFixed(2) ?? '0.00'}',
                                             style: TextStyle(
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.bold,
@@ -975,7 +976,7 @@ final now=DateTime.now();
                                           fontWeight: FontWeight.bold,
                                         )),
                                     Text(
-                                        ' \$${widget.bookings['total']?.toStringAsFixed(2) ?? '0.00'}',
+                                        ' \u20A8${widget.bookings['total']?.toStringAsFixed(2) ?? '0.00'}',
                                         style: TextStyle(
                                           fontFamily: 'Poppins',
                                           fontWeight: FontWeight.bold,
