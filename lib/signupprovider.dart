@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
+import 'package:servtol/emailverify.dart';
 import 'package:servtol/loginprovider.dart';
 import 'package:servtol/providermain.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -54,15 +55,10 @@ class _SignupProviderState extends State<SignupProvider> {
         'CNIC': cnicController.text,
         'Occupation': occuController.text,
         'status': 'Offline',
-
+        'userType':'provider',
+        'CreatedAt': FieldValue.serverTimestamp(),
       });
       Fluttertoast.showToast(msg: 'Account Created Successfully');
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => ProviderMainLayout(onBackPress: () {
-                    Navigator.of(context).pop();
-                  })));
     } catch (e) {
       Fluttertoast.showToast(msg: 'Failed to Create Account: $e');
     }
@@ -85,16 +81,70 @@ class _SignupProviderState extends State<SignupProvider> {
       Fluttertoast.showToast(msg: 'Please fill all the fields.');
       return;
     }
+    if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(emailController.text.trim())) {
+      Fluttertoast.showToast(msg: 'Please enter a valid email address.');
+      return;
+    }
+
+    if (passwordController.text.length < 6) {
+      Fluttertoast.showToast(
+          msg: 'Password must be at least 6 characters long.');
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
+
     FirebaseAuth.instance
         .createUserWithEmailAndPassword(
-            email: emailController.text, password: passwordController.text)
-        .then((UserCredential userCredential) {
-      _addData(userCredential.user!.uid);
+            email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+    )
+        .then((UserCredential userCredential) async {
+      User? user = userCredential.user;
+
+      if (user != null) {
+        // Send email verification
+        await user.sendEmailVerification();
+        Fluttertoast.showToast(
+            msg: 'Verification email sent. Please verify your email.');
+
+        // Save user data to Firestore
+        await _addData(user.uid);
+
+        // Navigate to a confirmation screen or show a message
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => EmailVerificationScreen(
+              onVerified: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProviderMainLayout(
+                      onBackPress: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+        Fluttertoast.showToast(msg: 'Signup successful! Please verify your email.');
+      }
     }).catchError((error) {
-      Fluttertoast.showToast(msg: 'Failed to Sign Up: ${error.message}');
+      String errorMessage = 'Failed to Sign Up. Please try again.';
+      if (error is FirebaseAuthException) {
+        if (error.code == 'email-already-in-use') {
+          errorMessage = 'The email is already in use. Try another one.';
+        } else if (error.code == 'weak-password') {
+          errorMessage = 'The password is too weak. Please use a stronger password.';
+        }
+      }
+      Fluttertoast.showToast(msg: errorMessage);
     }).whenComplete(() {
       setState(() {
         _isLoading = false;

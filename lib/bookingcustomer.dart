@@ -162,7 +162,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
       case 'Complete':
         return Colors
             .green[900]!;
-        case 'Payment Pending':
+      case 'Payment Pending':
         return Colors
             .deepPurple[900]!; // A dark green to represent finality and success.
 
@@ -189,7 +189,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
 
       case 'Paid by Card':
         return Colors.green;
-        case 'OnCash':
+      case 'OnCash':
         return Colors.teal;
       case 'Failed':
         return Colors.red;
@@ -218,44 +218,65 @@ class _BookingCustomerState extends State<BookingCustomer> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Lottie.asset('assets/images/bookingc.json', height: 200),
           Expanded(
-            child: StreamBuilder<QuerySnapshot>(
+            child:StreamBuilder<QuerySnapshot>(
               stream: _firestore
                   .collection('bookings')
                   .where('customerId', isEqualTo: customerId)
-                  .snapshots(), // Fixed here
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
+                  return Center(child: Text('Error: ${snapshot.error}'));
                 }
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 }
-                return ListView(
-                  children:
-                  snapshot.data!.docs.map((DocumentSnapshot document) {
-                    return FutureBuilder<Map<String, dynamic>>(
-                      future: fetchBookingDetails(
-                          document.data() as Map<String, dynamic>),
-                      builder: (context, detailSnapshot) {
-                        if (detailSnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        }
-                        if (detailSnapshot.hasError ||
-                            detailSnapshot.data == null) {
-                          return Text('Error: Failed to fetch booking details');
-                        }
-                        return bookingCard(detailSnapshot.data!, document);
-                      },
-                    );
-                  }).toList(),
+
+                // Check if there are no bookings
+                bool hasBookings = snapshot.data != null && snapshot.data!.docs.isNotEmpty;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Lottie Animation based on booking availability
+                    hasBookings
+                        ? Lottie.asset('assets/images/bookingc.json', height: 200)
+                        : Lottie.asset('assets/images/nobooking.json', height: 200),
+                    Expanded(
+                      child: hasBookings
+                          ? ListView(
+                        children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                          return FutureBuilder<Map<String, dynamic>>(
+                            future: fetchBookingDetails(document.data() as Map<String, dynamic>),
+                            builder: (context, detailSnapshot) {
+                              if (detailSnapshot.connectionState == ConnectionState.waiting) {
+                                return Center(child: CircularProgressIndicator());
+                              }
+                              if (detailSnapshot.hasError || detailSnapshot.data == null) {
+                                return Text('Error: Failed to fetch booking details');
+                              }
+                              return bookingCard(detailSnapshot.data!, document);
+                            },
+                          );
+                        }).toList(),
+                      )
+                          : Center(
+                        child: Text(
+                          'No bookings found.',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.heading,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               },
             ),
           ),
-        ],
+            ],
       ),
     );
   }

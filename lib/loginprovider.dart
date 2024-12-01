@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
+import 'package:servtol/emailverify.dart';
 import 'package:servtol/forgetpassword.dart';
 import 'package:servtol/providermain.dart';
 import 'package:servtol/signupprovider.dart';
@@ -20,7 +22,7 @@ class loginprovider extends StatefulWidget {
 }
 
 class _loginproviderState extends State<loginprovider> {
-  TextEditingController emailcontroller = TextEditingController(text:'qwerty@123.com');
+  TextEditingController emailcontroller = TextEditingController(text:'fgdnv146@gmail.com');
   TextEditingController passwordcontroller = TextEditingController(text:'123456789');
   bool _hidePassword = false;
   bool _rememberMe = false;
@@ -45,25 +47,70 @@ class _loginproviderState extends State<loginprovider> {
       });
       return;
     }
-
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+      // Firebase Authentication to sign in user
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
       QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('provider').where('Email', isEqualTo: email).get();
 
-      if (snapshot.docs.isNotEmpty) {
-        NotificationService().uploadFcmToken(); // Call FCM token upload after successful login
+      User? user = userCredential.user;
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => ProviderMainLayout(onBackPress: () {
-            Navigator.of(context).pop();
-          })),
-        );
-      } else {
-        uihelper.CustomAlertbox(context, "No account found with this email.");
+      if (user != null) {
+        // Check if email is verified
+        if (!user.emailVerified) {
+          await user.sendEmailVerification(); // Optionally resend verification email
+          Fluttertoast.showToast(msg: "Your email is not verified. Please verify your email.");
+
+          // Navigate to the EmailVerificationScreen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => EmailVerificationScreen(
+                onVerified: () {
+                  // Navigate to the next screen after email verification
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => ProviderMainLayout(onBackPress: () {
+                      Navigator.of(context).pop();
+                    })),
+                  );
+                },
+              ),
+            ),
+          );
+
+          return;
+        }
+
+        // Fetch user data from Firestore using UID for faster lookup
+        DocumentSnapshot<Map<String, dynamic>> userDoc = await FirebaseFirestore.instance
+            .collection('provider')
+            .doc(user.uid)
+            .get();
+
+        if (userDoc.exists) {
+          // User found in Firestore
+          NotificationService().uploadFcmToken(); // Call FCM token upload after successful login
+
+          // Navigate to the main customer screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ProviderMainLayout(
+                onBackPress: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+          );
+        } else {
+          // No user found in Firestore
+          uihelper.CustomAlertbox(context, "No account found with this email.");
+        }
       }
     } on FirebaseAuthException catch (ex) {
       String errorMessage = "An error occurred. Please try again.";
+      // Customize error messages based on FirebaseAuthException codes
       if (ex.code == 'user-not-found') {
         errorMessage = "No user found for that email.";
       } else if (ex.code == 'wrong-password') {
@@ -72,8 +119,11 @@ class _loginproviderState extends State<loginprovider> {
 
       uihelper.CustomAlertbox(context, errorMessage);
     } catch (e) {
+      // Catch any other general errors
       print('Login error: ${e.toString()}');
+      uihelper.CustomAlertbox(context, "An unexpected error occurred. Please try again.");
     } finally {
+      // Hide loading indicator
       setState(() {
         _isLoading = false;
       });

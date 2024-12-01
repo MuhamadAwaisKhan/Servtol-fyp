@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
 import 'package:servtol/PhoneAuth.dart';
 import 'package:servtol/customermain.dart';
+import 'package:servtol/emailverify.dart';
 import 'package:servtol/forgetpassword.dart';
 import 'package:servtol/homecustomer.dart';
 import 'package:servtol/homeprovider.dart';
@@ -37,66 +39,117 @@ class _logincustomerState extends State<logincustomer> {
       //       context, MaterialPageRoute(builder: (context) => logincustomer()));
     }
   }
-  TextEditingController emailcontroller = TextEditingController(text:'qwerty@awais.com');
+  TextEditingController emailcontroller = TextEditingController(text:'lodhiawais123@gmail.com');
   TextEditingController passwordcontroller = TextEditingController(text:'123456789');
   bool _hidePassword = false;
   bool _rememberMe = false;
   bool _isLoading = false;
   // GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
-  void login(String email, String password) async {
+void login(String email, String password) async {
+  setState(() {
+    _isLoading = true;
+  });
+
+  // Input validation for email and password
+  if (email.isEmpty || password.isEmpty) {
+    uihelper.CustomAlertbox(context, "Please enter all required fields.");
     setState(() {
-      _isLoading = true;
+      _isLoading = false;
     });
+    return;
+  }
 
-    if (email.isEmpty || password.isEmpty) {
-      uihelper.CustomAlertbox(context, "Please enter all required fields.");
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
+  if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email)) {
+    uihelper.CustomAlertbox(context, "Please enter a valid email address.");
+    setState(() {
+      _isLoading = false;
+    });
+    return;
+  }
 
-    if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email)) {
-      uihelper.CustomAlertbox(context, "Please enter a valid email address.");
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
+  try {
+    // Firebase Authentication to sign in user
+    UserCredential userCredential = await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password);
+    QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('customer').where('Email', isEqualTo: email).get();
 
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('customer').where('Email', isEqualTo: email).get();
+    User? user = userCredential.user;
 
-      if (snapshot.docs.isNotEmpty) {
+    if (user != null) {
+      // Check if email is verified
+      if (!user.emailVerified) {
+        await user.sendEmailVerification(); // Optionally resend verification email
+        Fluttertoast.showToast(msg: "Your email is not verified. Please verify your email.");
+
+        // Navigate to the EmailVerificationScreen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => EmailVerificationScreen(
+              onVerified: () {
+                // Navigate to the next screen after email verification
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => CustomerMainScreen(onBackPress: () {
+                    Navigator.of(context).pop();
+                  })),
+                );
+              },
+            ),
+          ),
+        );
+
+        return;
+      }
+
+      // Fetch user data from Firestore using UID for faster lookup
+      DocumentSnapshot<Map<String, dynamic>> userDoc = await FirebaseFirestore.instance
+          .collection('customer')
+          .doc(user.uid)
+          .get();
+
+      if (userDoc.exists) {
+        // User found in Firestore
         NotificationService().uploadFcmToken(); // Call FCM token upload after successful login
 
+        // Navigate to the main customer screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => CustomerMainScreen(onBackPress: () {
-            Navigator.of(context).pop();
-          })),
+          MaterialPageRoute(
+            builder: (_) => CustomerMainScreen(
+              onBackPress: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
         );
       } else {
+        // No user found in Firestore
         uihelper.CustomAlertbox(context, "No account found with this email.");
       }
-    } on FirebaseAuthException catch (ex) {
-      String errorMessage = "An error occurred. Please try again.";
-      if (ex.code == 'user-not-found') {
-        errorMessage = "No user found for that email.";
-      } else if (ex.code == 'wrong-password') {
-        errorMessage = "Wrong password provided for that user.";
-      }
-
-      uihelper.CustomAlertbox(context, errorMessage);
-    } catch (e) {
-      print('Login error: ${e.toString()}');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
-  }  // Future<void> _handleSignIn() async {
+  } on FirebaseAuthException catch (ex) {
+    String errorMessage = "An error occurred. Please try again.";
+    // Customize error messages based on FirebaseAuthException codes
+    if (ex.code == 'user-not-found') {
+      errorMessage = "No user found for that email.";
+    } else if (ex.code == 'wrong-password') {
+      errorMessage = "Wrong password provided for that user.";
+    }
+
+    uihelper.CustomAlertbox(context, errorMessage);
+  } catch (e) {
+    // Catch any other general errors
+    print('Login error: ${e.toString()}');
+    uihelper.CustomAlertbox(context, "An unexpected error occurred. Please try again.");
+  } finally {
+    // Hide loading indicator
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
+  // Future<void> _handleSignIn() async {
   //   try {
   //     await _googleSignIn.signIn();
   //     // After sign in, you can get the user's information like this:
