@@ -21,6 +21,12 @@ class _AddEditCEOScreenState extends State<AddEditCEOScreen> {
   String message = '';
   File? profileImage;
   String? profileImageUrl;
+  // Add social media links variables
+  String facebookLink = '';
+  String instagramLink = '';
+  String linkedinLink = '';
+  String githubLink = '';
+
 
   // Fetching existing data from Firestore
   Future<DocumentSnapshot> _getCEODocument() async {
@@ -126,6 +132,11 @@ class _AddEditCEOScreenState extends State<AddEditCEOScreen> {
       'journey': journey,
       'achievements': achievements,
       'message': message,
+      'facebook': facebookLink,
+      'instagram': instagramLink,
+      'linkedin': linkedinLink,
+      'github': githubLink,
+
     });
 
     Navigator.pop(context);
@@ -169,7 +180,12 @@ class _AddEditCEOScreenState extends State<AddEditCEOScreen> {
           journey = data['journey'] ?? '';
           achievements = List<String>.from(data['achievements'] ?? []);
           message = data['message'] ?? '';
+          // Pre-populating social media links
+          facebookLink = data['facebook'] ?? '';
+          instagramLink = data['instagram'] ?? '';
+          githubLink = data['github'] ?? '';
 
+          linkedinLink = data['linkedin'] ?? '';
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Form(
@@ -242,6 +258,31 @@ class _AddEditCEOScreenState extends State<AddEditCEOScreen> {
                     initialValue: message,
                     maxLines: 3,
                     onSave: (value) => message = value!,
+                  ),
+                  SizedBox(height: 15),
+
+                  _buildTextField(
+                    label: "Facebook Profile Link",
+                    initialValue: facebookLink,
+                    onSave: (value) => facebookLink = value!,
+                  ),
+                  SizedBox(height: 15),
+                  _buildTextField(
+                    label: "Instagram Profile Link",
+                    initialValue: instagramLink,
+                    onSave: (value) => instagramLink = value!,
+                  ),
+                  SizedBox(height: 15),
+                  _buildTextField(
+                    label: "Github Profile Link",
+                    initialValue: instagramLink,
+                    onSave: (value) => instagramLink = value!,
+                  ),
+                  SizedBox(height: 15),
+                  _buildTextField(
+                    label: "LinkedIn Profile Link",
+                    initialValue: linkedinLink,
+                    onSave: (value) => linkedinLink = value!,
                   ),
                   SizedBox(height: 30),
                   // Save Button

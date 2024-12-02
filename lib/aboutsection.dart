@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:servtol/util/AppColors.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutCEOScreen extends StatelessWidget {
   @override
@@ -49,6 +50,10 @@ class AboutCEOScreen extends StatelessWidget {
           }
 
           var data = snapshot.data!;
+          final facebookLink = data['facebook'] ?? '';
+          final instagramLink = data['instagram'] ?? '';
+          final linkedinLink = data['linkedin'] ?? '';
+          final githubinLink = data['github'] ?? '';
 
           // Default placeholders for missing fields
           final profilePicUrl = data['profile_pic_url'] ??
@@ -155,6 +160,47 @@ class AboutCEOScreen extends StatelessWidget {
                     message,
                     style: GoogleFonts.poppins(fontSize: 16),
                   ),
+                  SizedBox(height: 20),
+
+                  // Social Media Links Section
+                  _buildSectionHeader(
+                      title: "Social Media", icon: FontAwesomeIcons.shareNodes),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Facebook
+                      if (facebookLink.isNotEmpty)
+                        IconButton(
+                          icon: Icon(FontAwesomeIcons.facebook,
+                              color: Colors.blue[700]),
+                          onPressed: () => _launchURL(facebookLink),
+                        ),
+
+                      // Instagram
+                      if (instagramLink.isNotEmpty)
+                        IconButton(
+                          icon: Icon(FontAwesomeIcons.instagram,
+                              color: Colors.pink),
+                          onPressed: () => _launchURL(instagramLink),
+                        ),
+                      // Github
+                      if (githubinLink.isNotEmpty)
+                        IconButton(
+                          icon: Icon(FontAwesomeIcons.github,
+                              color: Colors.black),
+                          onPressed: () => _launchURL(githubinLink),
+                        ),
+
+                      // LinkedIn
+                      if (linkedinLink.isNotEmpty)
+                        IconButton(
+                          icon: Icon(FontAwesomeIcons.linkedin,
+                              color: Colors.blue[800]),
+                          onPressed: () => _launchURL(linkedinLink),
+                        ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -176,5 +222,13 @@ class AboutCEOScreen extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+// Helper function to launch URLs
+Future<void> _launchURL(String url) async {
+  final Uri uri = Uri.parse(url);
+  if (!await launchUrl(uri)) {
+    throw Exception('Could not launch $uri');
+
   }
 }
