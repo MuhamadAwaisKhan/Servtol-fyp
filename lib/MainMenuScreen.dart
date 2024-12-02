@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:servtol/TributeScreen.dart';
+import 'package:servtol/aboutsection.dart';
 import 'package:servtol/datamangamentadmin.dart';
 import 'package:servtol/loginadmin.dart';
 import 'package:servtol/logincustomer.dart';
@@ -94,6 +95,20 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 40,
                 140,
                 ),
+              SizedBox(
+                height: 30,
+              ),
+              uihelper.CustomButton(
+                    () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AboutCEOScreen()));
+                },
+                "About",
+                40,
+                140,
+              ),
               SizedBox(
                 height: 30,
               ),

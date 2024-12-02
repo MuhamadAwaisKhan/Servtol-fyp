@@ -45,6 +45,13 @@ class _logincustomerState extends State<logincustomer> {
   bool _rememberMe = false;
   bool _isLoading = false;
   // GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+void showError(String message) {
+  setState(() {
+    _isLoading = false;
+  });
+  uihelper.CustomAlertbox(context, message);
+}
+
 void login(String email, String password) async {
   setState(() {
     _isLoading = true;

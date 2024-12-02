@@ -27,6 +27,13 @@ class _loginproviderState extends State<loginprovider> {
   bool _hidePassword = false;
   bool _rememberMe = false;
   bool _isLoading = false;
+  void showError(String message) {
+    setState(() {
+      _isLoading = false;
+    });
+    uihelper.CustomAlertbox(context, message);
+  }
+ 
   void login(String email, String password) async {
     setState(() {
       _isLoading = true;

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
 import 'package:servtol/AddTributeScreen.dart';
+import 'package:servtol/aboutadd.dart';
 import 'package:servtol/admindashboard.dart';
-import 'package:servtol/dash2.dart';
 import 'package:servtol/datachart.dart';
 import 'package:servtol/dataprofiles.dart';
 import 'package:servtol/loginadmin.dart';
@@ -28,6 +28,7 @@ class _datamanagementState extends State<datamanagement> {
           context, MaterialPageRoute(builder: (context) => LoginAdmin()));
       Fluttertoast.showToast(msg: "Logged out successfully");
     }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.background,
@@ -62,33 +63,31 @@ class _datamanagementState extends State<datamanagement> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-          Padding(
-          padding: EdgeInsets.all(20.0),
-          child: Lottie.asset(
-            'assets/images/datamanagement.json',
-            height: 200,
-            fit: BoxFit.cover,
-          ), ),
+              Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Lottie.asset(
+                  'assets/images/datamanagement.json',
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
+              ),
               SizedBox(
                 height: 15,
               ),
-
               uihelper.CustomButton(
                 () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => MainInterface()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => MainInterface()));
                 },
                 "Data Management",
                 40,
                 200,
-             ),
+              ),
               SizedBox(
                 height: 20,
               ),
               uihelper.CustomButton(
-                    () {
+                () {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -102,11 +101,9 @@ class _datamanagementState extends State<datamanagement> {
                 height: 20,
               ),
               uihelper.CustomButton(
-                    () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ChartScreen()));
+                () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ChartScreen()));
                 },
                 "Graphical Data",
                 40,
@@ -115,9 +112,8 @@ class _datamanagementState extends State<datamanagement> {
               SizedBox(
                 height: 20,
               ),
-
               uihelper.CustomButton(
-                    () {
+                () {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -131,12 +127,23 @@ class _datamanagementState extends State<datamanagement> {
                 height: 20,
               ),
               uihelper.CustomButton(
-                    () {
-    Navigator.push(
-    context,
-    MaterialPageRoute(
-    builder: (context) => dataprofiles()));
-
+                () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AddEditCEOScreen()));
+                },
+                "Add About",
+                40,
+                200,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              uihelper.CustomButton(
+                () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => dataprofiles()));
                 },
                 "Profiles",
                 40,
@@ -146,7 +153,7 @@ class _datamanagementState extends State<datamanagement> {
                 height: 20,
               ),
               uihelper.CustomButton(
-                    () {
+                () {
                   logout();
                 },
                 "Log Out",
@@ -156,7 +163,6 @@ class _datamanagementState extends State<datamanagement> {
               SizedBox(
                 height: 20,
               ),
-
             ],
           ),
         ),
