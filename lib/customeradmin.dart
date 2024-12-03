@@ -46,10 +46,11 @@ class CustomerScreen extends StatelessWidget {
                 child: ListTile(
                   leading: CircleAvatar(
                     radius: 25,
-                    backgroundImage: NetworkImage(customer['ProfilePic']),
-                    onBackgroundImageError: (_, __) =>
-                        AssetImage('assets/images/fallback_image.png'),
+                    backgroundImage: customer.data().containsKey('ProfilePic') && customer['ProfilePic'] != null
+                        ? NetworkImage(customer['ProfilePic'])
+                        : AssetImage('assets/images/fallback_image.png') as ImageProvider,
                   ),
+
                   title: Text(
                     customer['FirstName'],
                     style: TextStyle(

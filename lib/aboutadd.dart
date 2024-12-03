@@ -51,6 +51,41 @@ class _AddEditCEOScreenState extends State<AddEditCEOScreen> {
   }
 
   // Show confirmation dialog before saving data
+
+  Future<void> _saveData() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    _formKey.currentState!.save();
+    String profilePicUrl = '';
+
+    if (profileImage != null) {
+      profilePicUrl = await _uploadImage(profileImage!);
+    } else {
+      profilePicUrl = profileImageUrl ?? '';
+    }
+
+    await FirebaseFirestore.instance.collection('about_ceo').doc('ceo_info').set({
+      'name': name,
+      'title': title,
+      'profile_pic_url': profilePicUrl,
+      'vision_mission': visionMission,
+      'journey': journey,
+      'achievements': achievements,
+      'message': message,
+      'facebook': facebookLink,
+      'instagram': instagramLink,
+      'linkedin': linkedinLink,
+      'github': githubLink,
+
+    });
+
+    Navigator.pop(context);
+  }
+
+  Future<void> _deleteData() async {
+    await FirebaseFirestore.instance.collection('about_ceo').doc('ceo_info').delete();
+    Navigator.pop(context);
+  }
   Future<void> _showSaveConfirmationDialog() async {
     bool shouldSave = await showDialog(
       context: context,
@@ -111,42 +146,6 @@ class _AddEditCEOScreenState extends State<AddEditCEOScreen> {
       await _deleteData();
     }
   }
-
-  Future<void> _saveData() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    _formKey.currentState!.save();
-    String profilePicUrl = '';
-
-    if (profileImage != null) {
-      profilePicUrl = await _uploadImage(profileImage!);
-    } else {
-      profilePicUrl = profileImageUrl ?? '';
-    }
-
-    await FirebaseFirestore.instance.collection('about_ceo').doc('ceo_info').set({
-      'name': name,
-      'title': title,
-      'profile_pic_url': profilePicUrl,
-      'vision_mission': visionMission,
-      'journey': journey,
-      'achievements': achievements,
-      'message': message,
-      'facebook': facebookLink,
-      'instagram': instagramLink,
-      'linkedin': linkedinLink,
-      'github': githubLink,
-
-    });
-
-    Navigator.pop(context);
-  }
-
-  Future<void> _deleteData() async {
-    await FirebaseFirestore.instance.collection('about_ceo').doc('ceo_info').delete();
-    Navigator.pop(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -166,26 +165,38 @@ class _AddEditCEOScreenState extends State<AddEditCEOScreen> {
             return Center(child: CircularProgressIndicator());
           }
 
-          if (!snapshot.hasData || snapshot.data == null) {
-            return Center(child: Text('No data available.'));
+          if (!snapshot.hasData || snapshot.data == null || !snapshot.data!.exists) {
+            // If no data exists, initialize empty fields for adding new details
+            profileImageUrl = null;
+            name = '';
+            title = '';
+            visionMission = '';
+            journey = '';
+            achievements = [];
+            message = '';
+            facebookLink = '';
+            instagramLink = '';
+            linkedinLink = '';
+            githubLink = '';
+          } else {
+            // If data exists, populate the fields
+            var data = snapshot.data!;
+            profileImageUrl = data['profile_pic_url'] ?? null;
+            name = data['name'] ?? '';
+            title = data['title'] ?? '';
+            visionMission = data['vision_mission'] ?? '';
+            journey = data['journey'] ?? '';
+            achievements = data['achievements'] != null
+                ? List<String>.from(data['achievements'])
+                : [];
+            message = data['message'] ?? '';
+            facebookLink = data['facebook'] ?? '';
+            instagramLink = data['instagram'] ?? '';
+            linkedinLink = data['linkedin'] ?? '';
+            githubLink = data['github'] ?? '';
           }
 
-          var data = snapshot.data!;
-          profileImageUrl = data['profile_pic_url'];
-
-          // Pre-populating the fields with existing data
-          name = data['name'] ?? '';
-          title = data['title'] ?? '';
-          visionMission = data['vision_mission'] ?? '';
-          journey = data['journey'] ?? '';
-          achievements = List<String>.from(data['achievements'] ?? []);
-          message = data['message'] ?? '';
-          // Pre-populating social media links
-          facebookLink = data['facebook'] ?? '';
-          instagramLink = data['instagram'] ?? '';
-          githubLink = data['github'] ?? '';
-
-          linkedinLink = data['linkedin'] ?? '';
+          // Show the form regardless of data existence
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Form(
@@ -260,7 +271,6 @@ class _AddEditCEOScreenState extends State<AddEditCEOScreen> {
                     onSave: (value) => message = value!,
                   ),
                   SizedBox(height: 15),
-
                   _buildTextField(
                     label: "Facebook Profile Link",
                     initialValue: facebookLink,
@@ -275,8 +285,8 @@ class _AddEditCEOScreenState extends State<AddEditCEOScreen> {
                   SizedBox(height: 15),
                   _buildTextField(
                     label: "Github Profile Link",
-                    initialValue: instagramLink,
-                    onSave: (value) => instagramLink = value!,
+                    initialValue: githubLink,
+                    onSave: (value) => githubLink = value!,
                   ),
                   SizedBox(height: 15),
                   _buildTextField(
