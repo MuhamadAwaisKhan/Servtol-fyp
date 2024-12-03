@@ -12,7 +12,7 @@ class AboutCEOScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         title: Text(
-          "About CEO/Founder",
+          "About",
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold,color:AppColors.heading ),
         ),
         centerTitle: true,
@@ -73,26 +73,39 @@ class AboutCEOScreen extends StatelessWidget {
                 children: [
                   // Profile Picture
                   GestureDetector(
-                      onTap: () {
-                        if (profilePicUrl !=
-                            "https://via.placeholder.com/150") {
-                          showDialog(
-                            context: context,
-                            builder: (context) => Dialog(
-                              child: Container(
-                                child: Image.network(profilePicUrl),
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                      child: Center(
-                        child: CircleAvatar(
-                          radius: 70,
-                          backgroundImage: NetworkImage(profilePicUrl),
+                    onTap: () {
+                      if (profilePicUrl != "https://via.placeholder.com/150") {
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            child: Image.network(profilePicUrl),
+                          ),
+                        );
+                      }
+                    },
+                    child: Center(
+                      child: CircleAvatar(
+                        radius: 70,
+                        backgroundColor: Colors.grey[300], // Optional background color
+                        child: ClipOval(
+                          child: Image.network(
+                            profilePicUrl,
+                            width: 350, // Diameter of the CircleAvatar
+                            height: 350, // Diameter of the CircleAvatar
+                            fit: BoxFit.contain, // Ensures the image fits the circle
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.person, // Placeholder icon if image fails to load
+                                size: 70,
+                                color: Colors.grey,
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
+                  ),
+
 
                   SizedBox(height: 16),
                   // Name and Title

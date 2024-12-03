@@ -211,30 +211,30 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
             ),
             detailItem(FontAwesomeIcons.mapMarkerAlt, 'Address', data['Address']),
             SizedBox(height: 24),
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: _isDeleting
-                    ? null
-                    : () async {
-                  await _deleteProvider(context, widget.provider.id);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                ),
-                icon: _isDeleting
-                    ? CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                )
-                    : Icon(FontAwesomeIcons.trashAlt, size: 16, color: Colors.white),
-                label: _isDeleting
-                    ? SizedBox()
-                    : Text(
-                  'Delete Provider',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
-            ),
+            // Center(
+            //   child: ElevatedButton.icon(
+            //     onPressed: _isDeleting
+            //         ? null
+            //         : () async {
+            //       await _deleteProvider(context, widget.provider.id);
+            //     },
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: Colors.red,
+            //       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+            //     ),
+            //     icon: _isDeleting
+            //         ? CircularProgressIndicator(
+            //       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            //     )
+            //         : Icon(FontAwesomeIcons.trashAlt, size: 16, color: Colors.white),
+            //     label: _isDeleting
+            //         ? SizedBox()
+            //         : Text(
+            //       'Delete Provider',
+            //       style: TextStyle(fontSize: 16, color: Colors.white),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

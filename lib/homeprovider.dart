@@ -339,7 +339,7 @@ class _HomeProviderState extends State<HomeProvider> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Padding(
-            padding: const EdgeInsets.only(right: 100.0),
+            padding: const EdgeInsets.only(right: 00.0),
             child: Text("Hello  $_userName  ",
                 style: TextStyle(
                     fontFamily: 'Poppins',

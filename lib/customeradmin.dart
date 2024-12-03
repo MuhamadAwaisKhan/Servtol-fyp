@@ -131,27 +131,27 @@ class CustomerDetailsScreen extends StatelessWidget {
             detailItem(FontAwesomeIcons.phone, 'Mobile', data['Mobile']),
             // Spacer(),
             SizedBox(height: 20,),
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  FirebaseFirestore.instance
-                      .collection('customer')
-                      .doc(customer.id)
-                      .delete();
-                  Navigator.pop(context);
-                },
-                icon: Icon(FontAwesomeIcons.trashAlt, size: 16),
-                label: Text('Delete Customer'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                ),
-              ),
-            ),
+            // Center(
+            //   child: ElevatedButton.icon(
+            //     onPressed: () {
+            //       FirebaseFirestore.instance
+            //           .collection('customer')
+            //           .doc(customer.id)
+            //           .delete();
+            //       Navigator.pop(context);
+            //     },
+            //     icon: Icon(FontAwesomeIcons.trashAlt, size: 16),
+            //     label: Text('Delete Customer'),
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: Colors.red,
+            //       foregroundColor: Colors.white,
+            //       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(25),
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

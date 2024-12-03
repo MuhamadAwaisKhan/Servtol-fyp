@@ -327,7 +327,7 @@ class _MessageScreenState extends State<MessageScreen> {
                     final localMessageDate = messageDate.toLocal();
                     final now = DateTime.now();
                     if (replyTo != null) {
-                      if (replyTo.startsWith('https'))
+                      if (replyTo.startsWith('https')) {
                         Column(
                           crossAxisAlignment:
                           CrossAxisAlignment.start,
@@ -356,6 +356,7 @@ class _MessageScreenState extends State<MessageScreen> {
                             ),
                           ],
                         );
+                      }
 
                     } else
                       Text(
@@ -713,10 +714,7 @@ class _MessageScreenState extends State<MessageScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: Text(
-                    'Replying to: $_replyingToMessage',
-                    style: const TextStyle(fontSize: 14, color: Colors.black54),
-                  ),
+                  child: getReplyView(_replyingToMessage),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
@@ -900,5 +898,47 @@ class _MessageScreenState extends State<MessageScreen> {
         ],
       ),
     );
+  }
+
+  getReplyView(String? replyTo) {
+    if (replyTo!=null && replyTo.startsWith('https')) {
+      return Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Replying with an image:',
+            style: TextStyle(
+              fontSize: 10,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+          Image.network(
+            replyTo,
+            height: 100,
+            // Adjust the height as needed
+            width: 100,
+            // Adjust the width as needed
+            fit: BoxFit.cover,
+            errorBuilder:
+                (context, error, stackTrace) {
+              return const Text(
+                'Error loading image',
+                style: TextStyle(fontSize: 10),
+              );
+            },
+          ),
+        ],
+      );
+    }
+
+   else
+  return Text(
+  'Replying to: $replyTo',
+  style: const TextStyle(
+  fontSize: 10,
+  fontStyle: FontStyle.italic,
+  ),
+  );
   }
 }
