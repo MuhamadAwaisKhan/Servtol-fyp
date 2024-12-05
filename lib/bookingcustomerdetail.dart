@@ -651,74 +651,117 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
 
                                                 if (_selectedMethod != null) {
                                                   // Handle the selected payment method
-                                                  print("Selected Payment Method: $_selectedMethod");
+                                                  print(
+                                                      "Selected Payment Method: $_selectedMethod");
 
                                                   // 1. Get necessary data
-                                                  String bookingId = widget.bookings.id;
-                                                  String customerId = widget.bookings['customerId'];
-                                                  String providerId = widget.bookings['providerId'];
+                                                  String bookingId =
+                                                      widget.bookings.id;
+                                                  String customerId = widget
+                                                      .bookings['customerId'];
+                                                  String providerId = widget
+                                                      .bookings['providerId'];
                                                   String notificationMessage;
                                                   String notificationMessage1;
                                                   String paymentStatus;
 
-                                                  if (_selectedMethod == PaymentMethod.cash) {
+                                                  if (_selectedMethod ==
+                                                      PaymentMethod.cash) {
                                                     // 2. Create or Update PaymentNotification
-                                                    final paymentNotificationRef = FirebaseFirestore.instance
-                                                        .collection('paymentnotification')
-                                                        .doc(bookingId);
+                                                    final paymentNotificationRef =
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                'paymentnotification')
+                                                            .doc(bookingId);
 
-                                                    paymentNotificationRef.get().then((snapshot) async {
+                                                    paymentNotificationRef
+                                                        .get()
+                                                        .then((snapshot) async {
                                                       if (!snapshot.exists) {
                                                         // Create a new payment notification if it doesn't exist
-                                                        await paymentNotificationRef.set({
-                                                          'providerId': providerId,
-                                                          'customerId': customerId,
-                                                          'bookingId': bookingId,
-                                                          'message': "Customer has selected On Cash as payment method",
-                                                          'message1': "You have selected to pay On Cash",
+                                                        await paymentNotificationRef
+                                                            .set({
+                                                          'providerId':
+                                                              providerId,
+                                                          'customerId':
+                                                              customerId,
+                                                          'bookingId':
+                                                              bookingId,
+                                                          'message':
+                                                              "Customer has selected On Cash as payment method",
+                                                          'message1':
+                                                              "You have selected to pay On Cash",
                                                           'isRead': false,
                                                           'isRead1': false,
-                                                          'paymentstatus': 'OnCash', // Set payment status to 'OnCash'
-                                                          'timestamp': FieldValue.serverTimestamp(),
+                                                          'paymentstatus':
+                                                              'OnCash',
+                                                          // Set payment status to 'OnCash'
+                                                          'timestamp': FieldValue
+                                                              .serverTimestamp(),
                                                         });
                                                       } else {
                                                         // Update the existing payment notification if it exists
-                                                        await paymentNotificationRef.update({
-                                                          'paymentstatus': 'OnCash', // Set payment status to 'OnCash'
-                                                          'timestamp': FieldValue.serverTimestamp(),
+                                                        await paymentNotificationRef
+                                                            .update({
+                                                          'paymentstatus':
+                                                              'OnCash',
+                                                          // Set payment status to 'OnCash'
+                                                          'timestamp': FieldValue
+                                                              .serverTimestamp(),
                                                         });
                                                       }
                                                     });
 
                                                     // 3. Create Payment Document
-                                                    final paymentRef = FirebaseFirestore.instance.collection('payments').doc();
+                                                    final paymentRef =
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                'payments')
+                                                            .doc();
                                                     paymentRef.set({
                                                       'bookingId': bookingId,
                                                       'customerId': customerId,
                                                       'providerId': providerId,
-                                                      'paymentId': generateUniquePaymentId(),
-                                                      'transactionId': generateUniqueTransactionId(),
-                                                      'paymentstatus': 'Pending', // Set payment status to 'Pending' (or similar) for cash
+                                                      'paymentId':
+                                                          generateUniquePaymentId(),
+                                                      'transactionId':
+                                                          generateUniqueTransactionId(),
+                                                      'paymentstatus':
+                                                          'Pending',
+                                                      // Set payment status to 'Pending' (or similar) for cash
                                                       'Method': 'OnCash',
                                                     });
 
                                                     // 4. Update Booking Status in Firestore
-                                                    FirebaseFirestore.instance.collection('bookings').doc(bookingId).update({
+                                                    FirebaseFirestore.instance
+                                                        .collection('bookings')
+                                                        .doc(bookingId)
+                                                        .update({
                                                       'paymentstatus': 'OnCash',
-                                                      'status': 'Ready to Service',
+                                                      'status':
+                                                          'Ready to Service',
                                                     }).then((_) {
                                                       // This block will execute after the booking status is updated
 
                                                       // Pop the dialogs
-                                                      Navigator.of(context)..pop()..pop(); // Pop the AlertDialog
+                                                      Navigator.of(context)
+                                                        ..pop()
+                                                        ..pop()
+                                                        ..pop(); // Pop the AlertDialog
                                                       // Pop the PaymentMethod selection dialog
 
                                                       // Trigger a UI refresh
                                                       setState(() {});
 
                                                       // Show a success message
-                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                        const SnackBar(content: Text('Payment method selected. Service is ready to begin.')),
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        const SnackBar(
+                                                            content: Text(
+                                                                'Payment method selected. Service is ready to begin.')),
                                                       );
                                                     });
                                                   } else if (_selectedMethod ==
@@ -969,15 +1012,25 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Booking ID ',
+                          // Wrap the first Text widget with Flexible
+                          Flexible(
+                            child: Text(
+                              'Booking ID ',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
-                              )),
-                          Text('${widget.bookings.id}',
+                              ),
+                            ),
+                          ),
+                          // Wrap the second Text widget with Flexible
+                          Flexible(
+                            child: Text(
+                              '${widget.bookings.id}',
                               style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ],
                       ),
                       SizedBox(height: 10),
@@ -1094,75 +1147,108 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                       SizedBox(height: 5),
                       Card(
                         elevation: 4.0,
-                        // Adds shadow under the card
-                        margin: EdgeInsets.all(8.0),
-                        // Adds margin around the card
+                        margin: EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 16.0),
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(10.0), // Rounded corners
+                          borderRadius: BorderRadius.circular(12.0),
                         ),
                         child: ListTile(
                           leading: CircleAvatar(
-                            radius: 25,
+                            radius: 30,
                             backgroundImage: NetworkImage(
                               data['provider']['ProfilePic'] ??
-                                  'https://via.placeholder.com/150', // Ensure this URL points to a valid placeholder
+                                  'https://via.placeholder.com/150',
                             ),
                           ),
-                          title: Row(
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Provider Name
+                              Row(
+                                children: [
+                                  Text(
+                                    '${data['provider']['FirstName'] ?? 'Unknown'} ',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                    // overflow: TextOverflow.ellipsis,
+                                  ),
+                                  SizedBox(width: 18),
+                                  GestureDetector(
+                                    onTap: () {
+                                      showProviderDetails(context);
+                                    },
+                                    child: Icon(
+                                      Icons.info,
+                                      size: 28,
+                                      color: Colors.blueAccent,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 2),
+                              // Provider Occupation
                               Text(
-                                '${data['provider']['FirstName'] ?? 'Unknown'} ${data['provider']['LastName'] ?? ''}',
+                                "${data['provider']['Occupation'] ?? 'No occupation listed'}",
                                 style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                                overflow: TextOverflow
-                                    .ellipsis, // Prevents text from overflowing
+                                  fontSize: 12,
+                                  color: Colors.grey[700],
+                                ),
                               ),
-                              IconButton(
-                                onPressed: () {
-                                  showProviderDetails(context);
-                                },
-                                icon: Icon(Icons.info),
-                              ),
+                              SizedBox(height: 5),
                             ],
                           ),
-                          subtitle: GestureDetector(
-                            onTap: () {
-                              // Show full data in a dialog or new screen when clicked
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Provider About'),
-                                  content: Text(data['provider']['About'] ?? 'No additional information'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('Close'),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Provider About'),
+                                      content: Text(
+                                        data['provider']['About'] ?? 'No additional information',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: Text('Close'),
+                                        ),
+                                      ],
                                     ),
+                                  );
+                                },
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      data['provider']['About'] != null &&
+                                          data['provider']['About'].length > 35
+                                          ? "${data['provider']['About'].substring(0, 35)}..."
+                                          : "${data['provider']['About'] ?? 'No additional information'}",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.blueAccent,
+                                      ),
+                                    ),
+                                    SizedBox(height: 10), // Add spacing here
                                   ],
                                 ),
-                              );
-                            },
-                            child: Text(
-                              data['provider']['About'] != null && data['provider']['About'].length > 30
-                                  ? "${data['provider']['About'].substring(0, 20)}..."
-                                  : "${data['provider']['About'] ?? 'No additional information'}",
-                              style: TextStyle(color: Colors.blue),
-                            ),
+                              ),
+
+                              SizedBox(height: 2),
+                              // Properly placed SizedBox for spacing
+                            ],
                           ),
-                          trailing: Text(
-                            "${data['provider']['Occupation'] ?? 'No additional information'}",
-                            style: TextStyle(
-                              color: Colors.grey[700],
-                              fontSize: 12,
-                            ),
-                          ),
+
+                          trailing: Icon(FontAwesomeIcons.arrowRight,
+                              size: 22, color: Colors.blueGrey),
                           onTap: () {
                             final providerId =
                                 widget.bookings['providerId'] ?? 'default_id';
-
-                            // print(providerId);
-                            // Navigate to provider profile view
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -1170,10 +1256,10 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                     ProviderProfileView(providerId: providerId),
                               ),
                             );
-                            // Define what happens when you tap this ListTile
                           },
                         ),
                       ),
+
                       SizedBox(height: 10),
                       Text('Price Detail',
                           style: TextStyle(
@@ -1468,72 +1554,74 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
       backgroundColor: AppColors.background,
       context: context,
       builder: (BuildContext context) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Profile Picture
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: NetworkImage(
-                  providerData['ProfilePic'] ??
-                      'https://via.placeholder.com/150',
-                ),
-              ),
-              SizedBox(height: 10),
-              // Provider Name
-              Text(
-                '${providerData['FirstName'] ?? 'Unknown'} ${providerData['LastName'] ?? 'Provider'}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 5),
-              // Provider Bio
-              Text(
-                providerData['About'] ?? 'No bio available',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey[700],
-                ),
-              ),
-              SizedBox(height: 15),
-              // Rating derived from reviews
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.star, color: Colors.amber, size: 24),
-                  SizedBox(width: 5),
-                  Text(
-                    averageRating != 0
-                        ? averageRating.toStringAsFixed(1)
-                        : 'N/A',
-                    style: TextStyle(fontSize: 16),
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Profile Picture
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: NetworkImage(
+                    providerData['ProfilePic'] ??
+                        'https://via.placeholder.com/150',
                   ),
-                ],
-              ),
-              // SizedBox(height: 10),
-              // Services (if available)
-              // Text(
-              //   "Services: ${providerData['services'] ?? 'No services listed'}",
-              //   style: TextStyle(fontSize: 14, color: Colors.blue),
-              //   textAlign: TextAlign.center,
-              // ),
-              SizedBox(height: 20),
-              // Close Button
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Close the bottom sheet
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  foregroundColor: Colors.white,
                 ),
-                child: Text('Close'),
-              ),
-            ],
+                SizedBox(height: 10),
+
+                // Provider Name
+                Text(
+                  '${providerData['FirstName'] ?? 'Unknown'} ${providerData['LastName'] ?? 'Provider'}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 5),
+
+                // Provider Bio
+                Text(
+                  providerData['About'] ?? 'No bio available',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                  ),
+                  overflow: TextOverflow.ellipsis, // Truncate long text
+                  maxLines: 3, // Limit to 3 lines
+                ),
+                SizedBox(height: 05),
+
+                // Rating derived from reviews
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.star, color: Colors.amber, size: 24),
+                    SizedBox(width: 5),
+                    Text(
+                      averageRating != 0
+                          ? averageRating.toStringAsFixed(1)
+                          : 'N/A',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+
+                // Close Button
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the bottom sheet
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text('Close'),
+                ),
+              ],
+            ),
           ),
         );
       },

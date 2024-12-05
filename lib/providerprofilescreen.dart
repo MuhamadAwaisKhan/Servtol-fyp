@@ -234,10 +234,12 @@ class _ProviderProfileViewState extends State<ProviderProfileView> {
                 ],
               ),
               SizedBox(height: 10),
-              Row(
-
+              Wrap(
+                spacing: 10, // Horizontal spacing between items
+                runSpacing: 5, // Vertical spacing between lines
                 children: [
                   Row(
+                    mainAxisSize: MainAxisSize.min, // Keeps the row compact
                     children: [
                       Icon(FontAwesomeIcons.tools, color: Colors.blue),
                       SizedBox(width: 10),
@@ -247,14 +249,12 @@ class _ProviderProfileViewState extends State<ProviderProfileView> {
                       ),
                     ],
                   ),
-                  SizedBox(width: 05,),
-
                   Text(
                     ' ${providerData['Skills']?.join(', ') ?? 'N/A'}',
                     style: TextStyle(fontFamily: 'Poppins'),
                   ),
                 ],
-              ),
+              )
             ],
           ),
         ),

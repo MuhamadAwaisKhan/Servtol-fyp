@@ -80,7 +80,7 @@ class _CustomerReviewByProviderState extends State<CustomerReviewByProvider> {
         centerTitle: true,
       ),
       backgroundColor: AppColors.background,
-      body: _buildServicesList(),
+      body: SingleChildScrollView(child: _buildServicesList()),
     );
   }
 

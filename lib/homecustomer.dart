@@ -76,32 +76,48 @@ class _HomeCustomerState extends State<HomeCustomer> {
 
   int unreadCount = 0;
 
+
   void listenForUnreadNotifications() {
-    FirebaseFirestore.instance
+    // Stream for booking notifications
+    Stream<int> bookingStream = FirebaseFirestore.instance
         .collection('bookingnotifications')
         .where('customerId', isEqualTo: currentUser?.uid)
         .where('isRead1', isEqualTo: false)
-        .orderBy('timestamp', descending: true)
         .snapshots()
-        .listen((snapshot) {
-      int notificationUnreadCount = snapshot.docs.length;
+        .map((snapshot) => snapshot.docs.length);
 
-      FirebaseFirestore.instance
-          .collection('paymentnotification')
-          .where('customerId', isEqualTo: currentUser?.uid)
-          .where('isRead1', isEqualTo: false)
-          .orderBy('timestamp', descending: true)
-          .snapshots()
-          .listen((snapshot) {
-        int paymentNotificationUnreadCount = snapshot.docs.length;
+    // Stream for payment notifications
+    Stream<int> paymentStream = FirebaseFirestore.instance
+        .collection('paymentnotification')
+        .where('customerId', isEqualTo: currentUser?.uid)
+        .where('isRead1', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
 
-        setState(() {
-          unreadCount = notificationUnreadCount + paymentNotificationUnreadCount;
-        });
-      });
-    });
+    // Stream for review notifications
+    Stream<int> reviewStream = FirebaseFirestore.instance
+        .collection('notifications_review')
+        .where('customerId', isEqualTo: currentUser?.uid)
+        .where('isRead1', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
+    reviewStream.listen((event) => print("review:${event}"));
+
+    // Combine all three streams
+    // Rx.combineLatest3<int, int, int, int>(
+    //   bookingStream,
+    //   paymentStream,
+    //   reviewStream,
+    //   (bookingCount, paymentCount, reviewCount) =>
+    //   bookingCount + paymentCount + reviewCount,
+    // ).listen((totalUnreadCount) {
+    //   // Update the state with the combined unread count
+    //   setState(() {
+    //     unreadCount = totalUnreadCount;
+    //   });
+    // });
   }
-
+    
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,12 +145,18 @@ class _HomeCustomerState extends State<HomeCustomer> {
                   .where('isRead1', isEqualTo: false)
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
+              FirebaseFirestore.instance
+                  .collection('notifications_review')
+                  .where('customerId', isEqualTo: currentUser?.uid)
+                  .where('isRead1', isEqualTo: false)
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
             ]),
             builder: (context, snapshot) {
               int unreadCount = 0;
 
               if (snapshot.hasData) {
-                unreadCount = snapshot.data![0].docs.length + snapshot.data![1].docs.length;
+                unreadCount = snapshot.data![0].docs.length + snapshot.data![1].docs.length+ snapshot.data![2].docs.length;
               }
 
               return Stack(
@@ -480,16 +502,13 @@ class _HomeCustomerState extends State<HomeCustomer> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        serviceName,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Colors.blue[800]),
-                      ),
-                    ],
+                  Text(
+                    serviceName,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Colors.blue[800]),
+                    textAlign: TextAlign.center,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -506,6 +525,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                   ),
                   Text(
                     subcategory,
+                    textAlign: TextAlign.justify,
                     style: TextStyle(fontSize: 12, fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.blueGrey),
                   ),
                 ],
@@ -519,10 +539,10 @@ class _HomeCustomerState extends State<HomeCustomer> {
                     backgroundImage: NetworkImage(providerPic),
                     radius: 15,
                   ),
-                  SizedBox(width: 20),
+                  SizedBox(width: 05),
                   Text(
                     providerName,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                   ),
                 ],
               ),

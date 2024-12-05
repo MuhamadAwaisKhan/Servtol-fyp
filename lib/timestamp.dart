@@ -108,7 +108,7 @@ class _timestampState extends State<timestamp> {
                     Divider(color: Colors.grey),
                 itemBuilder: (context, index) {
                   var timestamp = data.docs[index];
-                  int duration = timestamp['Name']; // Get the duration in minutes
+                  var name = timestamp['Name']; // Ensure correct type handling
                   return Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -127,7 +127,7 @@ class _timestampState extends State<timestamp> {
                         child: Text('${index + 1}',
                             style: TextStyle(color: Colors.white)),
                       ),
-                      title: Text('${timestamp['Name'].toString()} minutes',  // Correct string interpolation
+                      title: Text('$name',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontFamily: 'Poppins',

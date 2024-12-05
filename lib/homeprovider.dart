@@ -1031,7 +1031,7 @@ class _HomeProviderState extends State<HomeProvider> {
                     case 'Video Editing':
                       lottieAnimationPath = 'assets/images/Graphic Design.json';
                       break;
-                    case 'Home & Maintenance':
+                    case 'Home & Maintenance ':
                       lottieAnimationPath =
                           'assets/images/Home & Maintenance.json';
                       break;
@@ -1045,7 +1045,7 @@ class _HomeProviderState extends State<HomeProvider> {
                     case 'IT Support':
                       lottieAnimationPath = 'assets/images/IT Support.json';
                       break;
-                    case 'Personal & Lifestyle':
+                    case 'Personal & Lifestyle ':
                       lottieAnimationPath =
                           'assets/images/Personal & Lifestyle.json';
                       break;
@@ -1141,19 +1141,17 @@ class _HomeProviderState extends State<HomeProvider> {
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(bottom: 40),
+                              padding: EdgeInsets.only(bottom: 20),
                               child: Align(
                                 alignment: Alignment.bottomCenter,
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+                                  crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
                                   children: [
                                     Text(
                                       doc['ServiceName'] ?? 'No name',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge
-                                          ?.copyWith(
+                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                         color: Colors.white,
                                         shadows: [
                                           Shadow(
@@ -1173,19 +1171,18 @@ class _HomeProviderState extends State<HomeProvider> {
                                           ),
                                         ],
                                       ),
-                                      textAlign: TextAlign.center,
+                                      textAlign: TextAlign.center, // Center-align text
                                     ),
-                                    SizedBox(height: 4),
+                                    SizedBox(height: 8), // Reduced space between text
                                     Text(
-                                      "\u20A8 " +
-                                          (doc['Price']?.toString() ??
-                                              'No Price'),
+                                      "\u20A8 " + (doc['Price']?.toString() ?? 'No Price'),
                                       style: TextStyle(
                                         color: Colors.lightGreenAccent[400],
                                         fontSize: 14,
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.bold,
                                       ),
+                                      textAlign: TextAlign.center, // Center-align price
                                     ),
                                   ],
                                 ),

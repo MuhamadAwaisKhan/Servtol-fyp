@@ -296,7 +296,7 @@ class _CategoryServicesScreenState extends State<CategoryServicesScreen> {
         return 'assets/images/Event Management.json';
       case 'Video Editing':
         return 'assets/images/Graphic Design.json';
-      case 'Home & Maintenance':
+      case 'Home & Maintenance ':
         return 'assets/images/Home & Maintenance.json';
       case 'Hospitality':
         return 'assets/images/Hospitality.json';
@@ -304,7 +304,7 @@ class _CategoryServicesScreenState extends State<CategoryServicesScreen> {
         return 'assets/images/Social Media Management.json';
       case 'IT Support':
         return 'assets/images/IT Support.json';
-      case 'Personal & Lifestyle':
+      case 'Personal & Lifestyle ':
         return 'assets/images/Personal & Lifestyle.json';
       case 'Graphic Design':
         return 'assets/images/Graphic Design.json';

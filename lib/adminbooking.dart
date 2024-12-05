@@ -363,7 +363,7 @@ class _adminbookingState extends State<adminbooking> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(right: 115.0),
+                    padding: const EdgeInsets.only(right: 40.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -371,7 +371,9 @@ class _adminbookingState extends State<adminbooking> {
                           serviceName,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: 18,
+                            fontFamily: 'Poppins',
+
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -418,7 +420,7 @@ class _adminbookingState extends State<adminbooking> {
                     data['date'] as String? ?? 'No Date',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 14,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.bold,
                     ),
@@ -434,7 +436,7 @@ class _adminbookingState extends State<adminbooking> {
                     data['time'] as String? ?? 'No time',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 14,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.bold,
                     ),
@@ -458,7 +460,7 @@ class _adminbookingState extends State<adminbooking> {
                             Text('Provider',
                                 style: TextStyle(
                                   color: Colors.grey,
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.bold,
                                 )),
@@ -468,7 +470,7 @@ class _adminbookingState extends State<adminbooking> {
                                   ''}",
                               style: TextStyle(
                                 color: Colors.cyan,
-                                fontSize: 16,
+                                fontSize: 12,
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
                               ),
@@ -482,7 +484,7 @@ class _adminbookingState extends State<adminbooking> {
                             Text('Customer',
                                 style: TextStyle(
                                   color: Colors.grey,
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.bold,
                                 )),
@@ -492,7 +494,7 @@ class _adminbookingState extends State<adminbooking> {
                                   ''}",
                               style: TextStyle(
                                 color: Colors.cyan,
-                                fontSize: 16,
+                                fontSize: 12,
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
                               ),
@@ -506,7 +508,7 @@ class _adminbookingState extends State<adminbooking> {
                             Text('Payment Status',
                                 style: TextStyle(
                                   color: Colors.grey,
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.bold,
                                 )),
@@ -515,7 +517,7 @@ class _adminbookingState extends State<adminbooking> {
                               style: TextStyle(
                                 color: _getPaymentStatusColor(data['paymentstatus'] as String? ?? 'No payments'),
 
-                                fontSize: 16,
+                                fontSize: 12,
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
                               ),
@@ -527,20 +529,25 @@ class _adminbookingState extends State<adminbooking> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Your Address',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 14,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.bold,
-                                  )),
                               Text(
-                                data['address'] as String? ?? 'No Address',
+                                'Your Address',
                                 style: TextStyle(
-                                  color: Colors.cyan,
-                                  fontSize: 16,
+                                  color: Colors.grey,
+                                  fontSize: 12,
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(width: 10,),
+                              Flexible( // Added Flexible widget
+                                child: Text(
+                                  data['address'] as String? ?? 'No Address',
+                                  style: TextStyle(
+                                    color: Colors.cyan,
+                                    fontSize: 12,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ],

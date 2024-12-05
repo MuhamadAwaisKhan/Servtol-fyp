@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:servtol/util/AppColors.dart';
 
@@ -163,15 +164,15 @@ class _CustomCardPaymentScreenState extends State<CustomCardPaymentScreen> {
                             child: Row(
                               children: [
                                 const Icon(
-                                  Icons.description,
+                                  FontAwesomeIcons.servicestack,
                                   size: 24,
                                   color: Colors.white,
                                 ),
-                                const SizedBox(width: 8),
+                                 SizedBox(width: 8),
                                 Flexible(
                                   child: Text(
                                     'Service: ${widget.serviceDescription}',
-                                    style: const TextStyle(
+                                    style:  TextStyle(
                                       fontSize: 16,
                                       color: Colors.white,
                                       fontWeight: FontWeight.w500,
@@ -185,24 +186,27 @@ class _CustomCardPaymentScreenState extends State<CustomCardPaymentScreen> {
                           ),
                           Row(
                             children: [
-                              // const Icon(
+                              //  Icon(
                               //   Icons.attach_money,
                               //   size: 28,
                               //   color: Colors.white,
                               // ),
-                              Text(
-                                '\u20A8 ${(widget.amount / 100).toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
+
                             ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 5),
+
+                      Text(
+                        '\u20A8 ${(widget.amount / 100).toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                       SizedBox(height: 16),
 
                       // Extra Info (optional)
                       Row(

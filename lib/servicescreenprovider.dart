@@ -154,7 +154,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                       case 'Video Editing':
                         lottieAnimationPath = 'assets/images/Graphic Design.json';
                         break;
-                      case 'Home & Maintenance':
+                      case 'Home & Maintenance ':
                         lottieAnimationPath = 'assets/images/Home & Maintenance.json';
                         break;
                       case 'Hospitality':
@@ -166,7 +166,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                       case 'IT Support':
                         lottieAnimationPath = 'assets/images/IT Support.json';
                         break;
-                      case 'Personal & Lifestyle':
+                      case 'Personal & Lifestyle ':
                         lottieAnimationPath = 'assets/images/Personal & Lifestyle.json';
                         break;
                       case 'Graphic Design':

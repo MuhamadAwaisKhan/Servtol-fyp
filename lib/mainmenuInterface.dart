@@ -213,26 +213,26 @@ class _MainInterfaceState extends State<MainInterface> {
               SizedBox(
                 height: 20,
               ),
-              // uihelper.CustomButton(
-              //   () {
-              //     Navigator.push(context,
-              //         MaterialPageRoute(builder: (context) => timestamp()));
-              //     // setState(() {
-              //     //   isSecondButtonClicked = false; // Reset second button state
-              //     //   isFirstButtonClicked =
-              //     //   !isFirstButtonClicked; // Toggle first button state
-              //     // });
-              //   },
-              //   "Time Stamp",
-              //   40,
-              //   150,
-              //   // Icons.contacts_sharp,
-              //   // Colors.grey, // Specify the default color of the icon
-              //   // isFirstButtonClicked, // Pass the clicked state to the button
-              // ),
-              // SizedBox(
-              //   height: 20,
-              // ),
+              uihelper.CustomButton(
+                () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => timestamp()));
+                  // setState(() {
+                  //   isSecondButtonClicked = false; // Reset second button state
+                  //   isFirstButtonClicked =
+                  //   !isFirstButtonClicked; // Toggle first button state
+                  // });
+                },
+                "Time Stamp",
+                40,
+                150,
+                // Icons.contacts_sharp,
+                // Colors.grey, // Specify the default color of the icon
+                // isFirstButtonClicked, // Pass the clicked state to the button
+              ),
+              SizedBox(
+                height: 20,
+              ),
             ],
           ),
         ),

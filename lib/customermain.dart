@@ -133,7 +133,7 @@ class _CustomerMainScreenState extends State<CustomerMainScreen>
           ],
         ),
         bottomNavigationBar: MotionTabBar(
-          labels: const ["Home", "Booking", "Category", "Chat", "Profile"],
+          labels:  ["Home", "Booking", "Category", "Chat", "Profile"],
           initialSelectedTab: "Home",
           controller: _motionTabBarController,
           tabIconColor: Colors.blueGrey,

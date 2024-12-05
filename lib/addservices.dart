@@ -68,25 +68,30 @@ class _ServicesAdditionState extends State<ServicesAddition> {
     fetchFirestoreData('ServiceTypes', serviceTypeItems, null);
     fetchFirestoreData('wageTypes', wageTypeItems, null);
     fetchFirestoreData('timestamp', timestampItems, null);
+    print("Fetching timestamp data..."); // Debug print
   }
 
   void fetchFirestoreData(String collection, List<DropdownItem> itemList, Function? postFetch) {
-    FirebaseFirestore.instance
-        .collection(collection)
-        .snapshots()
-        .listen((snapshot) {
-      List<DropdownItem> items = snapshot.docs.map((doc) {
-        print("Fetched item from $collection: ${doc['Name']}"); // Debug log
-        return DropdownItem(id: doc.id, name: doc['Name'] ?? 'N/A');
-      }).toList();
-      setState(() {
-        itemList.clear();
-        itemList.addAll(items);
+    try {
+      FirebaseFirestore.instance
+          .collection(collection)
+          .get() // Use get() instead of snapshots() for initial data fetch
+          .then((snapshot) {
+        List<DropdownItem> items = snapshot.docs.map((doc) {
+          print("Fetched item from $collection: ${doc['Name']}");
+          return DropdownItem(id: doc.id, name: (doc['Name'] ?? 0).toString());        }).toList();
+        setState(() {
+          itemList.clear();
+          itemList.addAll(items);
+        });
+        if (postFetch != null) postFetch();
+      }).catchError((error) {
+        print("Error fetching data from $collection: $error");
       });
-      if (postFetch != null) postFetch();
-    });
+    } catch (e) {
+      print("Error fetching data from $collection: $e");
+    }
   }
-
   void updateCategory() {
     if (selectedCategoryId != null) {
       fetchRelatedData(
@@ -505,15 +510,15 @@ class _ServicesAdditionState extends State<ServicesAddition> {
           items: timestampItems.map((DropdownItem item) {
             return DropdownMenuItem<String>(
               value: item.id,
-              child: Text('${item.name} minutes'), // Concatenate 'minutes' here
+              child: Text('${item.name} minutes'),
             );
           }).toList(),
           onChanged: (String? value) {
             if (value != null) {
               var selectedItem = timestampItems.firstWhere((item) => item.id == value);
               setState(() {
-                selectedtimestampId = value; // Assign to selectedtimestampId
-                selectedtimestampName = '${selectedItem.name} minutes'; // Add 'minutes' here as well
+                selectedtimestampId = value;
+                selectedtimestampName = '${selectedItem.name} minutes';
               });
             }
           },

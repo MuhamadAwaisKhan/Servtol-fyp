@@ -248,7 +248,8 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
         ),
       );
     },
-    child: Card(
+    child:
+    Card(
       margin: EdgeInsets.all(8),
       color: Colors.indigoAccent,
       child: Padding(
@@ -259,33 +260,39 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color:
-                        _getStatusColor(data['status'] as String? ?? 'Pending'),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    data['status'] as String? ?? 'Pending',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
+                Flexible( // Added Flexible to the status container
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(data['status'] as String? ?? 'Pending'),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      data['status'] as String? ?? 'Pending',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-                Text(
-                  '${data['bookingId'] as String? ?? 'Unknown'}',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.bold,
+                Flexible( // Added Flexible to the booking ID text
+                  child: Text(
+                    '${data['bookingId'] as String? ?? 'Unknown'}',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center, // Center align the text
                   ),
                 ),
 
-                // (data['status'] as String? ?? '').toLowerCase() == 'pending' ? IconButton(
+
+
+    // (data['status'] as String? ?? '').toLowerCase() == 'pending' ? IconButton(
                 //   onPressed: () {
                 //     _updateDateTime(context, data['bookingId']);
                 //   },
@@ -323,7 +330,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 115.0),
+                  padding: const EdgeInsets.only(right: 40.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -331,7 +338,9 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                         serviceName,
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: 18,
+                            fontFamily: 'Poppins',
+
                             fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 10),
@@ -341,7 +350,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                             "\u20A8$servicePrice ",
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
+                              fontSize: 12,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold,
                             ),
@@ -350,7 +359,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                             "($discount% Off)",
                             style: TextStyle(
                               color: Colors.amberAccent,
-                              fontSize: 16,
+                              fontSize: 12,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold,
                             ),
@@ -368,7 +377,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                 decoration: BoxDecoration(
                     color: AppColors.heading12,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.deepPurpleAccent)),
+                    border: Border.all(color: Colors.blueAccent)),
                 padding: EdgeInsets.all(8.0),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,20 +386,25 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Your Address',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.bold,
-                                )),
                             Text(
-                              data['address'] as String? ?? 'No Address',
+                              'Your Address',
                               style: TextStyle(
-                                color: Colors.cyan,
-                                fontSize: 14,
+                                color: Colors.grey,
+                                fontSize: 12,
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 15,),
+                            Flexible( // Added Flexible widget
+                              child: Text(
+                                data['address'] as String? ?? 'No Address',
+                                style: TextStyle(
+                                  color: Colors.cyan,
+                                  fontSize: 12,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ],
@@ -404,7 +418,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                             'Date & Time',
                             style: TextStyle(
                               color: Colors.grey,
-                              fontSize: 14,
+                              fontSize: 12,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold,
                             ),
@@ -415,7 +429,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                                 data['date'] as String? ?? 'Pending',
                                 style: TextStyle(
                                   color: Colors.cyan,
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -427,7 +441,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                                 'At',
                                 style: TextStyle(
                                   color: Colors.cyan,
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -439,7 +453,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                                 data['time'] as String? ?? 'Pending',
                                 style: TextStyle(
                                   color: Colors.cyan,
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -455,7 +469,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                           Text('Customer',
                               style: TextStyle(
                                 color: Colors.grey,
-                                fontSize: 14,
+                                fontSize: 12,
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
                               )),
@@ -463,7 +477,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                             "${data['customer']?['FirstName'] as String? ?? 'No First Name'} ${data['customer']?['LastName'] as String? ?? ''}",
                             style: TextStyle(
                               color: Colors.cyan,
-                              fontSize: 16,
+                              fontSize: 12,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold,
                             ),

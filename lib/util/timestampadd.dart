@@ -77,18 +77,19 @@ class _timestampaddState extends State<timestampadd> {
   }
 
   Future<void> _addServiceType() async {
-    if ( _durationController.text.isEmpty) {
+    // Validate the duration input
+    if (_durationController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please Enter duration')),
+        SnackBar(content: Text('Please enter a duration')),
       );
       return;
     }
 
-    // Ensure the duration is a valid number
-
-    if (_durationController == null ) {
+    // Try to parse the duration as an integer
+    int? duration = int.tryParse(_durationController.text.trim());
+    if (duration == null || duration <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter a valid duration (positive number)')),
+        SnackBar(content: Text('Please enter a valid positive duration')),
       );
       return;
     }
@@ -99,13 +100,12 @@ class _timestampaddState extends State<timestampadd> {
 
     try {
       await FirebaseFirestore.instance.collection('timestamp').add({
-        // 'Name': _nameController.text.trim(),
-        'Name': _durationController, // Add duration field
+        'Name': duration, // Save duration as an integer
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Timestamp added successfully')),
       );
-      Navigator.pop(context); // Go back to previous screen
+      Navigator.pop(context); // Go back to the previous screen
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to add timestamp: $e')),

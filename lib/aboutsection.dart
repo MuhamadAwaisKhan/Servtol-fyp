@@ -134,6 +134,8 @@ class AboutCEOScreen extends StatelessWidget {
                   Text(
                     visionMission,
                     style: GoogleFonts.poppins(fontSize: 16),
+                    textAlign: TextAlign.justify, // Justify text
+
                   ),
                   SizedBox(height: 20),
                   // Journey
@@ -144,6 +146,8 @@ class AboutCEOScreen extends StatelessWidget {
                   Text(
                     journey,
                     style: GoogleFonts.poppins(fontSize: 16),
+                    textAlign: TextAlign.justify, // Justify text
+
                   ),
                   SizedBox(height: 20),
                   // Key Achievements
@@ -172,6 +176,8 @@ class AboutCEOScreen extends StatelessWidget {
                   Text(
                     message,
                     style: GoogleFonts.poppins(fontSize: 16),
+                    textAlign: TextAlign.justify, // Justify text
+
                   ),
                   SizedBox(height: 20),
 

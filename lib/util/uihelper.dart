@@ -687,7 +687,7 @@ class uihelper {
                     2.0), // Optional: Styling for when the TextField has an error
           ),
           floatingLabelBehavior: FloatingLabelBehavior.auto,
-          contentPadding: EdgeInsets.only(bottom: 12, left: 115),
+          // contentPadding: EdgeInsets.only(bottom: 12, left: 115),
           // focusedBorder: UnderlineInputBorder(
           //   borderSide: BorderSide(color: Colors.red, width: 2.0),
           //   borderRadius: BorderRadius.circular(25),
