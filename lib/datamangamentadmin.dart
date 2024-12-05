@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
 import 'package:servtol/AddTributeScreen.dart';
+import 'package:servtol/ReleasePaymentScreen.dart';
 import 'package:servtol/aboutadd.dart';
 import 'package:servtol/admindashboard.dart';
 import 'package:servtol/datachart.dart';
 import 'package:servtol/dataprofiles.dart';
 import 'package:servtol/loginadmin.dart';
 import 'package:servtol/mainmenuInterface.dart';
+import 'package:servtol/rules.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 
@@ -30,8 +32,8 @@ class _datamanagementState extends State<datamanagement> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
+      // appBar: AppBar(
+      //   backgroundColor: AppColors.background,
         // title: (isFirstButtonClicked && !isSecondButtonClicked)
         //     ? Center(
         //         child: Text(
@@ -56,7 +58,7 @@ class _datamanagementState extends State<datamanagement> {
         //         )
         //         : null,
         // Text('Default Title'),
-      ),
+      // ),
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
         child: Center(
@@ -101,6 +103,20 @@ class _datamanagementState extends State<datamanagement> {
                 height: 20,
               ),
               uihelper.CustomButton(
+                    () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ReleasePaymentScreen()));
+                },
+                "Payment Release",
+                40,
+                200,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              uihelper.CustomButton(
                 () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => ChartScreen()));
@@ -120,6 +136,20 @@ class _datamanagementState extends State<datamanagement> {
                           builder: (context) => AddTributeScreen()));
                 },
                 "Add Contributor",
+                40,
+                200,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              uihelper.CustomButton(
+                    () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RolesAndRegulationsScreen()));
+                },
+                "Rules & Regulations",
                 40,
                 200,
               ),

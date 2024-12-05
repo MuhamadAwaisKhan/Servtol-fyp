@@ -1,10 +1,12 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:servtol/customerreviewsprovider.dart';
 import 'package:servtol/loginprovider.dart';
 import 'package:servtol/timeslot.dart';
@@ -54,6 +56,46 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                   AlwaysStoppedAnimation<Color>(Colors.blue), // Blue loader
             ))
           : buildProfileScreen(),
+      floatingActionButton: GestureDetector(
+        onTap: () {
+          // Open the bottom sheet for reporting problems
+          showModalBottomSheet(
+            context: context,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            builder: (BuildContext context) {
+              return const ProblemReportForm();
+            },
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              colors: [Colors.blue, Colors.lightBlueAccent],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blue.withOpacity(0.4),
+                spreadRadius: 5,
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(15),
+          // Inner padding for a balanced look
+          child: const FaIcon(
+            FontAwesomeIcons.exclamationTriangle, // Font Awesome icon
+            color: Colors.white,
+            size: 28,
+          ),
+        ),
+      ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.endContained, // Ensures it's at the bottom right
     );
   }
 
@@ -166,22 +208,23 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => CustomerReviewByProvider(
-                          providerId: _auth.currentUser!.uid, // Pass the provider ID
+                          providerId:
+                              _auth.currentUser!.uid, // Pass the provider ID
                         ),
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.customButton,
-                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
-                  child: Text('Customer Reviews',
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
+                  child: Text('Performance Analytics',
                       style: TextStyle(
                           fontSize: 18,
                           fontFamily: 'Poppins', // Added font family
                           color: Colors.white)),
                 ),
                 SizedBox(height: 10),
-
                 ElevatedButton(
                   onPressed: () => showEditProfileDialog(data, docId),
                   style: ElevatedButton.styleFrom(
@@ -201,14 +244,16 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => TimeSlotScreen(
-                          providerId: _auth.currentUser!.uid, // Pass the provider ID
+                          providerId:
+                              _auth.currentUser!.uid, // Pass the provider ID
                         ),
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.customButton,
-                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
                   child: Text('Time Slot',
                       style: TextStyle(
                           fontSize: 18,
@@ -216,7 +261,6 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                           color: Colors.white)),
                 ),
                 SizedBox(height: 10),
-
                 ElevatedButton(
                   onPressed: logout,
                   style: ElevatedButton.styleFrom(
@@ -233,7 +277,6 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
             ),
           );
         });
-
   }
 
   Widget detailItem(String label, String? value) {
@@ -441,16 +484,27 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
   //   );
   // }
   void showEditProfileDialog(Map<String, dynamic> data, String docId) {
-    TextEditingController firstNameController = TextEditingController(text: data['FirstName']);
-    TextEditingController lastNameController = TextEditingController(text: data['LastName']);
-    TextEditingController usernameController = TextEditingController(text: data['Username']);
-    TextEditingController mobileController = TextEditingController(text: data['Mobile']);
-    TextEditingController cnicController = TextEditingController(text: data['CNIC']);
-    TextEditingController aboutController = TextEditingController(text: data['About'] ?? ''); // New About field
-    TextEditingController occupationController = TextEditingController(text: data['Occupation'] ?? ''); // New Occupation field
-    TextEditingController skillsController = TextEditingController(text: (data['Skills'] ?? []).join(', ')); // New Skills field, initially formatted as comma-separated string
-    TextEditingController experienceController = TextEditingController(text: data['Experience']?.toString() ?? ''); // New Experience field
-    TextEditingController addressController = TextEditingController(text: data['Address'] ?? ''); // New About field
+    TextEditingController firstNameController =
+        TextEditingController(text: data['FirstName']);
+    TextEditingController lastNameController =
+        TextEditingController(text: data['LastName']);
+    TextEditingController usernameController =
+        TextEditingController(text: data['Username']);
+    TextEditingController mobileController =
+        TextEditingController(text: data['Mobile']);
+    TextEditingController cnicController =
+        TextEditingController(text: data['CNIC']);
+    TextEditingController aboutController =
+        TextEditingController(text: data['About'] ?? ''); // New About field
+    TextEditingController occupationController = TextEditingController(
+        text: data['Occupation'] ?? ''); // New Occupation field
+    TextEditingController skillsController = TextEditingController(
+        text: (data['Skills'] ?? []).join(
+            ', ')); // New Skills field, initially formatted as comma-separated string
+    TextEditingController experienceController = TextEditingController(
+        text: data['Experience']?.toString() ?? ''); // New Experience field
+    TextEditingController addressController =
+        TextEditingController(text: data['Address'] ?? ''); // New About field
 
     showDialog(
       context: context,
@@ -459,7 +513,8 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
           builder: (context, setState) {
             return AlertDialog(
               title: Text("Edit Profile",
-                  style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                      fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
               ),
@@ -469,13 +524,15 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                     GestureDetector(
                       onTap: () async {
                         await pickImage();
-                        setState(() {}); // Refresh the dialog to show the selected image
+                        setState(
+                            () {}); // Refresh the dialog to show the selected image
                       },
                       child: ListBody(
                         children: <Widget>[
                           TextField(
                             controller: firstNameController,
-                            decoration: InputDecoration(labelText: "First Name"),
+                            decoration:
+                                InputDecoration(labelText: "First Name"),
                           ),
                           SizedBox(height: 10),
                           TextField(
@@ -506,17 +563,20 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
                           SizedBox(height: 10),
                           TextField(
                             controller: occupationController,
-                            decoration: InputDecoration(labelText: "Occupation"),
+                            decoration:
+                                InputDecoration(labelText: "Occupation"),
                           ),
                           SizedBox(height: 10),
                           TextField(
                             controller: skillsController,
-                            decoration: InputDecoration(labelText: "Skills (comma-separated)"),
+                            decoration: InputDecoration(
+                                labelText: "Skills (comma-separated)"),
                           ),
                           SizedBox(height: 10),
                           TextField(
                             controller: experienceController,
-                            decoration: InputDecoration(labelText: "Experience (years)"),
+                            decoration: InputDecoration(
+                                labelText: "Experience (years)"),
                             keyboardType: TextInputType.number,
                           ),
                           TextField(
@@ -532,48 +592,57 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: Text('Cancel', style: TextStyle(fontFamily: 'Poppins', color: Colors.red)),
+                  child: Text('Cancel',
+                      style:
+                          TextStyle(fontFamily: 'Poppins', color: Colors.red)),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 TextButton(
                   child: _isLoading
                       ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                      ),
-                      SizedBox(width: 10),
-                      Text('Saving...'),
-                    ],
-                  )
-                      : Text('Save', style: TextStyle(fontFamily: 'Poppins', color: Colors.green)),
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.blue),
+                            ),
+                            SizedBox(width: 10),
+                            Text('Saving...'),
+                          ],
+                        )
+                      : Text('Save',
+                          style: TextStyle(
+                              fontFamily: 'Poppins', color: Colors.green)),
                   onPressed: _isLoading
                       ? null
                       : () async {
-                    setState(() {
-                      _isLoading = true;
-                    });
+                          setState(() {
+                            _isLoading = true;
+                          });
 
-                    await updateProfileData(
-                      docId,
-                      firstNameController.text,
-                      lastNameController.text,
-                      usernameController.text,
-                      mobileController.text,
-                      cnicController.text,
-                      aboutController.text,
-                      addressController.text,
-                      occupationController.text,
-                      skillsController.text.split(',').map((s) => s.trim()).toList(), // Convert to list
-                      int.tryParse(experienceController.text) ?? 0,
-                    );
+                          await updateProfileData(
+                            docId,
+                            firstNameController.text,
+                            lastNameController.text,
+                            usernameController.text,
+                            mobileController.text,
+                            cnicController.text,
+                            aboutController.text,
+                            addressController.text,
+                            occupationController.text,
+                            skillsController.text
+                                .split(',')
+                                .map((s) => s.trim())
+                                .toList(),
+                            // Convert to list
+                            int.tryParse(experienceController.text) ?? 0,
+                          );
 
-                    setState(() {
-                      _isLoading = false;
-                    });
-                    Navigator.of(context).pop();
-                  },
+                          setState(() {
+                            _isLoading = false;
+                          });
+                          Navigator.of(context).pop();
+                        },
                 ),
               ],
             );
@@ -584,18 +653,18 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
   }
 
   Future<void> updateProfileData(
-      String docId,
-      String firstName,
-      String lastName,
-      String username,
-      String mobile,
-      String cnic,
-      String about,
-      String address,
-      String occupation,
-      List<String> skills,
-      int experience,
-      ) async {
+    String docId,
+    String firstName,
+    String lastName,
+    String username,
+    String mobile,
+    String cnic,
+    String about,
+    String address,
+    String occupation,
+    List<String> skills,
+    int experience,
+  ) async {
     Map<String, dynamic> dataToUpdate = {
       'FirstName': firstName,
       'LastName': lastName,
@@ -606,7 +675,7 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
       'Occupation': occupation,
       'Skills': skills,
       'Experience': experience,
-      'Address':address
+      'Address': address
     };
 
     await FirebaseFirestore.instance
@@ -615,30 +684,222 @@ class _ProfileScreenWidgetState extends State<ProfileScreenWidget> {
         .update(dataToUpdate)
         .then((value) => Fluttertoast.showToast(msg: "Profile Updated"))
         .catchError((error) =>
-        Fluttertoast.showToast(msg: "Failed to update profile: $error"));
+            Fluttertoast.showToast(msg: "Failed to update profile: $error"));
   }
 
-  // Future<void> updateProfileData(
-  //   String docId,
-  //   String firstName,
-  //   String lastName,
-  //   String username,
-  //   String mobile,
-  //   String cnic,
-  // ) async {
-  //   Map<String, dynamic> dataToUpdate = {
-  //     'FirstName': firstName,
-  //     'LastName': lastName,
-  //     'Username': username,
-  //     'Mobile': mobile,
-  //     'CNIC': cnic,
-  //   };
-  //   await FirebaseFirestore.instance
-  //       .collection('provider')
-  //       .doc(docId)
-  //       .update(dataToUpdate)
-  //       .then((value) => Fluttertoast.showToast(msg: "Profile Updated"))
-  //       .catchError((error) =>
-  //           Fluttertoast.showToast(msg: "Failed to update profile: $error"));
-  // }
+// Future<void> updateProfileData(
+//   String docId,
+//   String firstName,
+//   String lastName,
+//   String username,
+//   String mobile,
+//   String cnic,
+// ) async {
+//   Map<String, dynamic> dataToUpdate = {
+//     'FirstName': firstName,
+//     'LastName': lastName,
+//     'Username': username,
+//     'Mobile': mobile,
+//     'CNIC': cnic,
+//   };
+//   await FirebaseFirestore.instance
+//       .collection('provider')
+//       .doc(docId)
+//       .update(dataToUpdate)
+//       .then((value) => Fluttertoast.showToast(msg: "Profile Updated"))
+//       .catchError((error) =>
+//           Fluttertoast.showToast(msg: "Failed to update profile: $error"));
+// }
+}
+
+class ProblemReportForm extends StatefulWidget {
+  const ProblemReportForm({Key? key}) : super(key: key);
+
+  @override
+  _ProblemReportFormState createState() => _ProblemReportFormState();
+}
+
+class _ProblemReportFormState extends State<ProblemReportForm> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _problemDescriptionController =
+  TextEditingController();
+  String _selectedCategory = "Service Issue";
+
+  final List<String> _categories = [
+    "Service Issue",
+    "Payment Problem",
+    "App Bug",
+    "Other"
+  ];
+
+  String _userType =
+      "Provider"; // Simulated user type, dynamically fetched in real-world
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100], // Light background color
+      appBar: AppBar(
+        title: const Text("Report a Problem",
+            style:
+            TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.blueAccent,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              // Problem Category Dropdown
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: DropdownButtonFormField<String>(
+                  value: _selectedCategory,
+                  items: _categories.map((category) {
+                    return DropdownMenuItem<String>(
+                      value: category,
+                      child: Row(
+                        children: [
+                          Icon(_getCategoryIcon(category),
+                              color: Colors.blueAccent),
+                          const SizedBox(width: 8),
+                          Text(category),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCategory = value!;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    labelText: "Problem Category",
+                    labelStyle: TextStyle(color: Colors.blueAccent),
+                    border: InputBorder.none,
+                    contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Problem Description TextField
+              TextFormField(
+                controller: _problemDescriptionController,
+                maxLines: 5,
+                decoration: InputDecoration(
+                  labelText: "Problem Description",
+                  labelStyle: TextStyle(color: Colors.blueAccent),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter a problem description";
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 30),
+
+              // Submit Button
+              Center(
+                child: ElevatedButton.icon(
+                  onPressed: _submitProblem,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    elevation: 5,
+                  ),
+                  icon: const FaIcon(FontAwesomeIcons.paperPlane,
+                      color: Colors.white),
+                  label: const Text("Submit",
+                      style: TextStyle(fontFamily: 'Poppins',
+                          fontSize: 16,
+                          color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Function to get icons for the categories
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case "Service Issue":
+        return Icons.settings;
+      case "Payment Problem":
+        return Icons.payment;
+      case "App Bug":
+        return Icons.bug_report;
+      default:
+        return Icons.help_outline;
+    }
+  }
+
+  // Handle the form submission
+  void _submitProblem() {
+    if (_formKey.currentState!.validate()) {
+      String problemDescription = _problemDescriptionController.text;
+      String selectedCategory = _selectedCategory;
+
+      // Store the problem report with userType
+      _storeProblemReport(problemDescription, selectedCategory, _userType);
+    }
+  }
+
+  // Store problem report data (e.g., to Firestore)
+  void _storeProblemReport(String description, String category,
+      String userType) async {
+    try {
+      await FirebaseFirestore.instance.collection('problem_reports').add({
+        'description': description,
+        'category': category,
+        'userType': userType,
+        'timestamp': FieldValue.serverTimestamp(), // Add a timestamp
+      });
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Problem report submitted successfully!")),
+      );
+
+      // Clear the form
+      _problemDescriptionController.clear();
+      Navigator.pop(context); // Close the bottom sheet
+    } catch (error) {
+      print("Failed to store problem report: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to submit report. Please try again.")),
+      );
+    }
+  }
 }

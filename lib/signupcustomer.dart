@@ -1,13 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lottie/lottie.dart';
 import 'package:servtol/customermain.dart';
 import 'package:servtol/emailverify.dart';
+import 'package:servtol/rules.dart';
 
-import 'homecustomer.dart';
 import 'logincustomer.dart';
 import 'util/AppColors.dart';
 import 'util/uihelper.dart';
@@ -51,8 +51,7 @@ class _SignupCustomerState extends State<SignupCustomer> {
         'Mobile': numberController.text.trim(),
         'Username': usernameController.text.trim(),
         'status': 'Offline',
-        'userType':'customer',
-
+        'userType': 'customer',
         'CreatedAt': FieldValue.serverTimestamp(),
       });
       Fluttertoast.showToast(msg: 'Account Created Successfully');
@@ -85,7 +84,8 @@ class _SignupCustomerState extends State<SignupCustomer> {
     }
 
     if (passwordController.text.length < 6) {
-      Fluttertoast.showToast(msg: 'Password must be at least 6 characters long.');
+      Fluttertoast.showToast(
+          msg: 'Password must be at least 6 characters long.');
       return;
     }
 
@@ -131,16 +131,17 @@ class _SignupCustomerState extends State<SignupCustomer> {
           ),
         );
 
-        Fluttertoast.showToast(msg: 'Signup successful! Please verify your email.');
+        Fluttertoast.showToast(
+            msg: 'Signup successful! Please verify your email.');
       }
-
     }).catchError((error) {
       String errorMessage = 'Failed to Sign Up. Please try again.';
       if (error is FirebaseAuthException) {
         if (error.code == 'email-already-in-use') {
           errorMessage = 'The email is already in use. Try another one.';
         } else if (error.code == 'weak-password') {
-          errorMessage = 'The password is too weak. Please use a stronger password.';
+          errorMessage =
+              'The password is too weak. Please use a stronger password.';
         }
       }
       Fluttertoast.showToast(msg: errorMessage);
@@ -150,6 +151,7 @@ class _SignupCustomerState extends State<SignupCustomer> {
       });
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -180,11 +182,9 @@ class _SignupCustomerState extends State<SignupCustomer> {
                 const SizedBox(height: 12),
                 const Text(
                   "Create Your Account for Better Experience",
-
                   style: TextStyle(
                     fontSize: 17,
                     fontFamily: "Poppins",
-
                     color: AppColors.heading,
                   ),
                 ),
@@ -212,8 +212,8 @@ class _SignupCustomerState extends State<SignupCustomer> {
                   Icons.email,
                   false,
                 ),
-                uihelper.CustomNumberField(context,
-                    numberController, "Contact Number", Icons.phone, false),
+                uihelper.CustomNumberField(context, numberController,
+                    "Contact Number", Icons.phone, false),
                 uihelper.CustomTextfieldpassword(
                   context,
                   passwordController,
@@ -227,15 +227,18 @@ class _SignupCustomerState extends State<SignupCustomer> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(right: 58.0),
-                  child: Row( mainAxisAlignment: MainAxisAlignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Checkbox(
-                        fillColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                        fillColor: MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
                           if (states.contains(MaterialState.selected)) {
                             return Colors.blue;
                             // Color when checkbox is checked
                           }
-                          return Colors.transparent; // Color when checkbox is unchecked
+                          return Colors
+                              .transparent; // Color when checkbox is unchecked
                         }),
                         value: _rememberMe,
                         onChanged: (bool? newValue) {
@@ -244,11 +247,14 @@ class _SignupCustomerState extends State<SignupCustomer> {
                           });
                         },
                       ),
-                      SizedBox(width: 8), // Adds some space between the checkbox and the text
+                      SizedBox(width: 8),
+                      // Adds some space between the checkbox and the text
                       RichText(
                         text: TextSpan(
-                          text: 'Agree to ', // First part of the text
-                          style: TextStyle(color: Colors.black), // Default style for the first part
+                          text: 'Agree to ',
+                          // First part of the text
+                          style: TextStyle(color: Colors.black),
+                          // Default style for the first part
                           children: <TextSpan>[
                             TextSpan(
                               text: 'Terms', // Clickable text "Terms"
@@ -257,14 +263,22 @@ class _SignupCustomerState extends State<SignupCustomer> {
                                 fontWeight: FontWeight.bold,
                                 decoration: TextDecoration.underline,
                               ),
-                              recognizer: TapGestureRecognizer()..onTap = () {
-                                // Handle tap for both "Terms & Conditions"
-                                print("Terms & Conditions tapped");
-                              },
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            RolesAndRegulationsScreen(),
+                                      ));
+                                  // Handle tap for both "Terms & Conditions"
+                                  print("Terms & Conditions tapped");
+                                },
                             ),
                             TextSpan(
                               text: ' & ', // Non-clickable text "&"
-                              style: TextStyle(color: Colors.black), // Color stays black
+                              style: TextStyle(
+                                  color: Colors.black), // Color stays black
                             ),
                             TextSpan(
                               text: 'Conditions', // Clickable text "Conditions"
@@ -273,15 +287,21 @@ class _SignupCustomerState extends State<SignupCustomer> {
                                 fontWeight: FontWeight.bold,
                                 decoration: TextDecoration.underline,
                               ),
-                              recognizer: TapGestureRecognizer()..onTap = () {
-                                // Handle tap for both "Terms & Conditions"
-                                print("Terms & Conditions tapped");
-                              },
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          RolesAndRegulationsScreen(),
+                                    ),
+                                  ); // Handle tap for both "Terms & Conditions"
+                                  print("Terms & Conditions tapped");
+                                },
                             ),
                           ],
                         ),
                       )
-
                     ],
                   ),
                 ),

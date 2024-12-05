@@ -7,6 +7,7 @@ import 'package:servtol/adminreviews.dart';
 import 'package:servtol/adminservices.dart';
 import 'package:servtol/allservicescustomers.dart';
 import 'package:servtol/paymentradmin.dart';
+import 'package:servtol/reports.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -184,6 +185,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   //     ),
   //   );
   // }
+  Future<int> getTotalReports() async {
+    try {
+      final snapshot = await _firestore.collection('problem_reports').get();
+      return snapshot.docs.length;
+    } catch (e) {
+      debugPrint('Error fetching total reports: $e');
+      return 0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -357,10 +367,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
                     },
                   ),
+                  _buildDashboardTile(
+                    title: 'Reports Insight',
+                    dataFetcher: getTotalReports, // Fetches the total number of reports
+                    icon: FontAwesomeIcons.exclamationCircle,
+                    color: Colors.redAccent,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AdminReportScreen(),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
+            // Inside the GridView.count in AdminDashboardScreen
+
             const SizedBox(height: 16),
+
 
           ],
         ),

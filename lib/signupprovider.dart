@@ -7,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:servtol/emailverify.dart';
 import 'package:servtol/loginprovider.dart';
 import 'package:servtol/providermain.dart';
+import 'package:servtol/rules.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:servtol/util/uihelper.dart';
 
@@ -244,6 +245,13 @@ class _SignupProviderState extends State<SignupProvider> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                  builder: (_) => RolesAndRegulationsScreen(
+
+                              ),
+                              ), );
                               // Handle tap for both "Terms & Conditions"
                               print("Terms & Conditions tapped");
                             },
@@ -262,6 +270,13 @@ class _SignupProviderState extends State<SignupProvider> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                  builder: (_) => RolesAndRegulationsScreen(
+
+                              ),
+                              ), );
                               // Handle tap for both "Terms & Conditions"
                               print("Terms & Conditions tapped");
                             },

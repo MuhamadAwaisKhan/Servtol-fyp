@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:servtol/favouriteservice.dart';
 import 'package:servtol/logincustomer.dart';
@@ -55,6 +55,47 @@ class _profilecustomerState extends State<profilecustomer> {
                   AlwaysStoppedAnimation<Color>(Colors.blue), // Blue loader
             ))
           : buildProfileScreen(),
+      floatingActionButton: GestureDetector(
+        onTap: () {
+          // Open the bottom sheet for reporting problems
+          showModalBottomSheet(
+            context: context,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            builder: (BuildContext context) {
+              return const ProblemReportForm();
+            },
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              colors: [Colors.blue, Colors.lightBlueAccent],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blue.withOpacity(0.4),
+                spreadRadius: 5,
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(15), // Inner padding for a balanced look
+          child: const FaIcon(
+            FontAwesomeIcons.exclamationTriangle, // Font Awesome icon
+            color: Colors.white,
+            size: 28,
+          ),
+        ),
+
+      ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.endContained, // Ensures it's at the bottom right
+
     );
   }
 
@@ -186,7 +227,8 @@ class _profilecustomerState extends State<profilecustomer> {
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.customButton,
-                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
                   child: Text('Favourite Service',
                       style: TextStyle(
                           fontSize: 18,
@@ -437,3 +479,182 @@ class _profilecustomerState extends State<profilecustomer> {
             Fluttertoast.showToast(msg: "Failed to update profile: $error"));
   }
 }
+
+
+class ProblemReportForm extends StatefulWidget {
+  const ProblemReportForm({Key? key}) : super(key: key);
+
+  @override
+  _ProblemReportFormState createState() => _ProblemReportFormState();
+}
+
+class _ProblemReportFormState extends State<ProblemReportForm> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _problemDescriptionController = TextEditingController();
+  String _selectedCategory = "Service Issue";
+
+  final List<String> _categories = [
+    "Service Issue",
+    "Payment Problem",
+    "App Bug",
+    "Other"
+  ];
+
+  String _userType = "Customer"; // Simulated user type, dynamically fetched in real-world
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100], // Light background color
+      appBar: AppBar(
+        title: const Text("Report a Problem", style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.blueAccent,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              // Problem Category Dropdown
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: DropdownButtonFormField<String>(
+                  value: _selectedCategory,
+                  items: _categories.map((category) {
+                    return DropdownMenuItem<String>(
+                      value: category,
+                      child: Row(
+                        children: [
+                          Icon(_getCategoryIcon(category), color: Colors.blueAccent),
+                          const SizedBox(width: 8),
+                          Text(category),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCategory = value!;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    labelText: "Problem Category",
+                    labelStyle: TextStyle(color: Colors.blueAccent),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Problem Description TextField
+              TextFormField(
+                controller: _problemDescriptionController,
+                maxLines: 5,
+                decoration: InputDecoration(
+                  labelText: "Problem Description",
+                  labelStyle: TextStyle(color: Colors.blueAccent),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter a problem description";
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 30),
+
+              // Submit Button
+              Center(
+                child: ElevatedButton.icon(
+                  onPressed: _submitProblem,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    elevation: 5,
+                  ),
+                  icon: const FaIcon(FontAwesomeIcons.paperPlane, color: Colors.white),
+                  label: const Text("Submit", style: TextStyle(fontFamily: 'Poppins',  color: Colors.white, fontSize: 16)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Function to get icons for the categories
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case "Service Issue":
+        return Icons.settings;
+      case "Payment Problem":
+        return Icons.payment;
+      case "App Bug":
+        return Icons.bug_report;
+      default:
+        return Icons.help_outline;
+    }
+  }
+
+  // Handle the form submission
+  void _submitProblem() {
+    if (_formKey.currentState!.validate()) {
+      String problemDescription = _problemDescriptionController.text;
+      String selectedCategory = _selectedCategory;
+
+      // Store the problem report with userType
+      _storeProblemReport(problemDescription, selectedCategory, _userType);
+    }
+  }
+
+  // Store problem report data (e.g., to Firestore)
+  void _storeProblemReport(String description, String category, String userType) async {
+    try {
+      await FirebaseFirestore.instance.collection('problem_reports').add({
+        'description': description,
+        'category': category,
+        'userType': userType,
+        'timestamp': FieldValue.serverTimestamp(), // Add a timestamp
+      });
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Problem report submitted successfully!")),
+      );
+
+      // Clear the form
+      _problemDescriptionController.clear();
+      Navigator.pop(context); // Close the bottom sheet
+    } catch (error) {
+      print("Failed to store problem report: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to submit report. Please try again.")),
+      );
+    }
+  }}
