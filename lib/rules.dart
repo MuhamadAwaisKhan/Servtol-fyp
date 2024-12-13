@@ -50,7 +50,7 @@ class _RolesAndRegulationsScreenState extends State<RolesAndRegulationsScreen> {
                     Text(
                       "Rules & Regulations",
                       style: GoogleFonts.poppins(
-                        fontSize: 24,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),

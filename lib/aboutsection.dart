@@ -113,7 +113,7 @@ class AboutCEOScreen extends StatelessWidget {
                     child: Text(
                       name,
                       style: GoogleFonts.poppins(
-                          fontSize: 28,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.blue),
                     ),
@@ -122,7 +122,7 @@ class AboutCEOScreen extends StatelessWidget {
                     child: Text(
                       title,
                       style: GoogleFonts.poppins(
-                          fontSize: 18, color: Colors.grey[600]),
+                          fontSize: 14, color: Colors.grey[600]),
                     ),
                   ),
                   SizedBox(height: 20),
@@ -133,7 +133,7 @@ class AboutCEOScreen extends StatelessWidget {
                   ),
                   Text(
                     visionMission,
-                    style: GoogleFonts.poppins(fontSize: 16),
+                    style: GoogleFonts.poppins(fontSize: 14),
                     textAlign: TextAlign.justify, // Justify text
 
                   ),
@@ -145,7 +145,7 @@ class AboutCEOScreen extends StatelessWidget {
                   ),
                   Text(
                     journey,
-                    style: GoogleFonts.poppins(fontSize: 16),
+                    style: GoogleFonts.poppins(fontSize: 14),
                     textAlign: TextAlign.justify, // Justify text
 
                   ),
@@ -163,7 +163,7 @@ class AboutCEOScreen extends StatelessWidget {
                       ),
                       title: Text(
                         achievement,
-                        style: GoogleFonts.poppins(fontSize: 16),
+                        style: GoogleFonts.poppins(fontSize: 14),
                       ),
                     ),
                   )),
@@ -175,7 +175,7 @@ class AboutCEOScreen extends StatelessWidget {
                   ),
                   Text(
                     message,
-                    style: GoogleFonts.poppins(fontSize: 16),
+                    style: GoogleFonts.poppins(fontSize: 14),
                     textAlign: TextAlign.justify, // Justify text
 
                   ),
@@ -237,7 +237,7 @@ class AboutCEOScreen extends StatelessWidget {
         Text(
           title,
           style: GoogleFonts.poppins(
-              fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.heading),
+              fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.heading),
         ),
       ],
     );

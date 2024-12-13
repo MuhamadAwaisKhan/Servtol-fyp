@@ -381,12 +381,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       );
                     },
                   ),
+
                 ],
               ),
+
             ),
             // Inside the GridView.count in AdminDashboardScreen
+            SizedBox(height: 15),
 
-            const SizedBox(height: 16),
 
 
           ],
@@ -424,7 +426,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             children: [
               Icon(
                 icon,
-                size: 48,
+                size: 40,
                 color: Colors.white,
               ),
               const SizedBox(height: 8),
@@ -432,7 +434,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 title,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
-                  fontSize: 16,
+                  fontSize: 14,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),

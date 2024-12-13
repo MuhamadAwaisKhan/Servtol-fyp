@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:servtol/util/AppColors.dart';
 
 class uihelper {
@@ -82,6 +84,56 @@ class uihelper {
       ),
     );
   }
+  static Widget CustomNumberField1(
+      BuildContext context,
+      TextEditingController controller,
+      String text,
+      IconData iconData,
+      bool toHide,
+      String hintText,
+      MaskTextInputFormatter maskFormatter, // Use MaskTextInputFormatter
+      ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 25),
+      child: TextField(
+        controller: controller,
+        keyboardType: TextInputType.number, // Numeric keyboard
+        obscureText: toHide,
+        inputFormatters: [maskFormatter], // Apply the mask formatter
+        decoration: InputDecoration(
+          labelText: text,
+          hintText: hintText,
+          hintStyle:  TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 15,
+            color: Colors.blue,
+          ),
+          labelStyle:  TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 17,
+            color: Colors.blue,
+          ),
+          suffixIcon: Icon(
+            iconData,
+            color: Theme.of(context).primaryColorDark,
+          ),
+          border: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+      ),
+    );
+  }
+    
 
   static CustomTextfieldpassword(
     BuildContext context,
@@ -770,7 +822,7 @@ class uihelper {
           style: TextStyle(
             color: Colors.white,
             fontFamily: "Poppins",
-            fontSize: 15,
+            fontSize: 12,
           ),
         ),
         style: ElevatedButton.styleFrom(

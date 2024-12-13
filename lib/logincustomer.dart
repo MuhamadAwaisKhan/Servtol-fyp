@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -305,7 +304,7 @@ void login(String email, String password) async {
                         style: TextStyle(
                           color: Colors.indigo,
                           fontFamily: 'Poppins',
-                          fontSize: 17,
+                          fontSize: 15,
                         ),
                       ),
                     ],
@@ -370,7 +369,7 @@ void login(String email, String password) async {
                 //   MaterialPageRoute(
                 //       builder: (context) => homecustomer()));
       },
-                  "Login",50,190),
+                  "Login",40,150),
               SizedBox(
                 height: 20,
               ),

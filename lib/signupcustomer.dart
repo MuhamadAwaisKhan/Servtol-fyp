@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:servtol/customermain.dart';
 import 'package:servtol/emailverify.dart';
 import 'package:servtol/rules.dart';
@@ -29,6 +30,11 @@ class _SignupCustomerState extends State<SignupCustomer> {
   bool _hidePassword = false;
   bool _rememberMe = false;
   bool _isLoading = false;
+// Formatter for phone number: 0300-0000000
+  final phoneFormatter = MaskTextInputFormatter(
+    mask: '####-#######',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
 
   @override
   void dispose() {
@@ -175,7 +181,7 @@ class _SignupCustomerState extends State<SignupCustomer> {
                   style: TextStyle(
                     fontFamily: "Poppins",
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 17,
                     color: AppColors.heading,
                   ),
                 ),
@@ -187,6 +193,7 @@ class _SignupCustomerState extends State<SignupCustomer> {
                     fontFamily: "Poppins",
                     color: AppColors.heading,
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
                 uihelper.CustomTextField(
@@ -212,8 +219,15 @@ class _SignupCustomerState extends State<SignupCustomer> {
                   Icons.email,
                   false,
                 ),
-                uihelper.CustomNumberField(context, numberController,
-                    "Contact Number", Icons.phone, false),
+                uihelper.CustomNumberField1(
+                  context,
+                  numberController,
+                  "Phone Number",
+                  Icons.phone,
+                  false,
+                  "0300-0000000",
+                  phoneFormatter, // Apply the phone number formatter
+                ),
                 uihelper.CustomTextfieldpassword(
                   context,
                   passwordController,
@@ -317,7 +331,7 @@ class _SignupCustomerState extends State<SignupCustomer> {
                   _signup();
 
                   // print("Entered phone number: ${numbercontroller.text}");
-                }, "Sign Up", 50, 190),
+                }, "Sign Up", 40, 150),
                 SizedBox(height: 15),
                 Row(
                   // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -335,7 +349,7 @@ class _SignupCustomerState extends State<SignupCustomer> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(left: 15.0),
+                      padding: const EdgeInsets.only(left: 5.0),
                       child: GestureDetector(
                         onTap: () {
                           // Replace the below line with your navigation logic

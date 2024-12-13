@@ -45,7 +45,7 @@ class _startingscreenState extends State<startingscreen> {
                   fontFamily: 'Poppins',
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: AppColors.heading,
                 ),
               ),
               SizedBox(height: 10),
@@ -75,13 +75,13 @@ class _startingscreenState extends State<startingscreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  padding: EdgeInsets.symmetric(horizontal: 25,  vertical: 15),
                 ),
                 child: Text(
                   'Let\'s Get Started',
                   style: TextStyle(
                     fontFamily: 'Poppins',
-                    fontSize: 18,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

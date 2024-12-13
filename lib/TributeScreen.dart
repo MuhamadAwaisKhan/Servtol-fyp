@@ -80,7 +80,7 @@ class TributeScreen extends StatelessWidget {
                               Text(
                                 tribute['name'],
                                 style: GoogleFonts.poppins(
-                                  fontSize: 18,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.blueAccent,
                                 ),
@@ -90,7 +90,7 @@ class TributeScreen extends StatelessWidget {
                               Text(
                                 tribute['occupation'],
                                 style: GoogleFonts.poppins(
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   color: Colors.grey[700],
                                 ),
                               ),

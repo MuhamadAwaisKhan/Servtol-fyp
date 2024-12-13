@@ -117,9 +117,9 @@ class _TaxScreenState extends State<TaxScreen> {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding:  EdgeInsets.all(8.0),
             child: Text(title,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                style: TextStyle(fontSize: 18,color: AppColors.heading, fontWeight: FontWeight.bold)),
           ),
           StreamBuilder<QuerySnapshot>(
             stream: _firestore.collection(collectionPath).snapshots(),
@@ -150,7 +150,7 @@ class _TaxScreenState extends State<TaxScreen> {
                                 children: [
                                   Text('${data['rate']}',style: TextStyle(fontSize: 17),
                                   ),
-                                  Text('${isTax ? '%' : ' Pkr'}',style:TextStyle(
+                                  Text('${isTax ? ' %' : ' Pkr'}',style:TextStyle(
                                     color: Colors.white,
                                   ) ,),
 
@@ -201,6 +201,7 @@ class _TaxScreenState extends State<TaxScreen> {
             color: AppColors.heading,
           ),
         ),
+        centerTitle: true,
         backgroundColor: AppColors.background,
       ),
       backgroundColor: AppColors.background,

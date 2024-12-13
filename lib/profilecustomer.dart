@@ -206,10 +206,10 @@ class _profilecustomerState extends State<profilecustomer> {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.customButton,
                       padding:
-                          EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
+                          EdgeInsets.symmetric(horizontal: 30, vertical: 15)),
                   child: Text('Edit Profile',
                       style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 14,
                           fontFamily: 'Poppins',
                           color: Colors.white)),
                 ),
@@ -228,10 +228,10 @@ class _profilecustomerState extends State<profilecustomer> {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.customButton,
                       padding:
-                          EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
+                          EdgeInsets.symmetric(horizontal: 30, vertical: 15)),
                   child: Text('Favourite Service',
                       style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 14,
                           fontFamily: 'Poppins',
                           color: Colors.white)),
                 ),
@@ -241,10 +241,10 @@ class _profilecustomerState extends State<profilecustomer> {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       padding:
-                          EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
+                          EdgeInsets.symmetric(horizontal: 30, vertical: 15)),
                   child: Text('Logout',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 14,
                         color: Colors.white,
                         fontFamily: 'Poppins',
                       )),
@@ -381,24 +381,126 @@ class _profilecustomerState extends State<profilecustomer> {
                       },
                       child: ListBody(
                         children: <Widget>[
-                          TextField(
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 9, horizontal: 3),
+                            child: TextField(
                               controller: firstNameController,
-                              decoration:
-                                  InputDecoration(labelText: "First Name")),
-                          SizedBox(height: 10),
-                          TextField(
+                              decoration: InputDecoration(
+                                labelText: "First Name",
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blue),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.blue, width: 2.0),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blue),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+
+                                labelStyle: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 17,
+                                  color: Colors.blue,
+                                ),
+
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 9, horizontal: 3),
+                            child: TextField(
                               controller: lastNameController,
-                              decoration:
-                                  InputDecoration(labelText: "Last Name")),
-                          SizedBox(height: 10),
-                          TextField(
+                              decoration: InputDecoration(
+                                labelText: "Last Name",
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blue),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.blue, width: 2.0),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blue),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+
+                                labelStyle: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 17,
+                                  color: Colors.blue,
+                                ),
+
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 9, horizontal: 3),
+                            child: TextField(
                               controller: usernameController,
-                              decoration:
-                                  InputDecoration(labelText: "Username")),
-                          SizedBox(height: 10),
-                          TextField(
+                              decoration: InputDecoration(
+                                labelText: "Username",
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blue),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.blue, width: 2.0),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blue),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+
+                                labelStyle: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 17,
+                                  color: Colors.blue,
+                                ),
+
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 9, horizontal: 3),
+                            child: TextField(
                               controller: mobileController,
-                              decoration: InputDecoration(labelText: "Mobile")),
+                              decoration: InputDecoration(
+                                labelText: "Mobile",
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blue),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.blue, width: 2.0),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blue),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+
+                                labelStyle: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 17,
+                                  color: Colors.blue,
+                                ),
+
+                              ),
+                            ),
+                          ),
                           SizedBox(height: 10),
                         ],
                       ),

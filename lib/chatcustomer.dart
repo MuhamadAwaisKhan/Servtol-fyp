@@ -139,7 +139,7 @@ class _CustomerLogScreenState extends State<CustomerLogScreen> {
                             style: const TextStyle(
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.w600,
-                              fontSize: 18,
+                              fontSize: 14,
                               color: AppColors.primaryTextColor,
                             ),
                           ),

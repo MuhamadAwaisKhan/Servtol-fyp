@@ -225,7 +225,7 @@ class _HomeProviderState extends State<HomeProvider> {
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,
-            fontSize: 17,
+            fontSize: 14,
             color: AppColors.heading,
           ),
         ),
@@ -343,7 +343,7 @@ class _HomeProviderState extends State<HomeProvider> {
             child: Text("Hello  $_userName  ",
                 style: TextStyle(
                     fontFamily: 'Poppins',
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: AppColors.heading)),
           ),
@@ -370,7 +370,7 @@ class _HomeProviderState extends State<HomeProvider> {
                   fontFamily: 'Poppins',
                   color: Colors.blueGrey,
                   fontWeight: FontWeight.w900,
-                  fontSize: 16,
+                  fontSize: 15,
                   letterSpacing: 1.5,
                   // shadows: [
                   //   Shadow(
@@ -386,7 +386,7 @@ class _HomeProviderState extends State<HomeProvider> {
       );
 
   Widget earningsSection() => Padding(
-        padding: EdgeInsets.symmetric(horizontal: 78.0, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 48.0, vertical: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -397,10 +397,10 @@ class _HomeProviderState extends State<HomeProvider> {
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                     color: AppColors.heading)),
-            Text("\u20A8 7.90",
+            Text("\u20A8 712.90",
                 style: TextStyle(
                     fontFamily: 'Poppins',
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: AppColors.grey)),
           ],
@@ -428,7 +428,7 @@ class _HomeProviderState extends State<HomeProvider> {
                 },
                 "Bookings ",
                 50,
-                195,
+                170,
                 icon:
                     FaIcon(FontAwesomeIcons.calendarCheck, color: Colors.white),
               ),
@@ -445,7 +445,7 @@ class _HomeProviderState extends State<HomeProvider> {
                 },
                 "Total Services ",
                 50,
-                195,
+                170,
                 icon: FaIcon(FontAwesomeIcons.gears, color: Colors.white),
               ),
             ],
@@ -465,7 +465,7 @@ class _HomeProviderState extends State<HomeProvider> {
                 },
                 "Monthly Earning ",
                 50,
-                195,
+                170,
                 icon: FaIcon(FontAwesomeIcons.rupeeSign, color: Colors.white),
               ),
               uihelper.CustomButton1(
@@ -478,7 +478,7 @@ class _HomeProviderState extends State<HomeProvider> {
                 },
                 "Wallet History ",
                 50,
-                195,
+                170,
                 icon:
                     FaIcon(FontAwesomeIcons.googleWallet, color: Colors.white),
               ),
@@ -927,7 +927,7 @@ class _HomeProviderState extends State<HomeProvider> {
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
                   color: AppColors.heading,
-                  fontSize: 18,
+                  fontSize: 15,
                 ),
               ),
               GestureDetector(
@@ -947,7 +947,7 @@ class _HomeProviderState extends State<HomeProvider> {
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.bold,
                     color: AppColors.heading,
-                    fontSize: 16,
+                    fontSize: 15,
                   ),
                 ),
               ),
@@ -1133,7 +1133,7 @@ class _HomeProviderState extends State<HomeProvider> {
                                   category,
                                   style: TextStyle(
                                     color: Colors.amber[700],
-                                    fontSize: 12,
+                                    fontSize: 10,
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -1152,6 +1152,7 @@ class _HomeProviderState extends State<HomeProvider> {
                                     Text(
                                       doc['ServiceName'] ?? 'No name',
                                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        fontSize: 15,
                                         color: Colors.white,
                                         shadows: [
                                           Shadow(
@@ -1178,7 +1179,7 @@ class _HomeProviderState extends State<HomeProvider> {
                                       "\u20A8 " + (doc['Price']?.toString() ?? 'No Price'),
                                       style: TextStyle(
                                         color: Colors.lightGreenAccent[400],
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.bold,
                                       ),

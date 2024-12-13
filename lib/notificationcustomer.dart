@@ -222,14 +222,14 @@ class _customernotificationState extends State<customernotification> {
                                             : 'Booking Update',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 18,
+                                      fontSize: 14,
                                     ),
                                   ),
                                   if (!isPaymentNotification)
                                     Text(
                                       "${notification['bookingId']}",
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 14,
                                         color: Colors.grey[700],
                                       ),
                                     ),
@@ -243,7 +243,7 @@ class _customernotificationState extends State<customernotification> {
                                     message,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 14,
+                                      fontSize: 12,
                                     ),
                                   ),
                                   SizedBox(height: 4),
@@ -251,7 +251,7 @@ class _customernotificationState extends State<customernotification> {
                                     Text(
                                       "Payment Status: ${notification['paymentstatus']}",
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 12,
                                         color: _getPaymentStatusColor(
                                             notification['paymentstatus']),
                                       ),
@@ -260,7 +260,7 @@ class _customernotificationState extends State<customernotification> {
                                     Text(
                                       "Feedback Status: ${notification['status']}",
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 12,
                                         color: _getStatusColor(
                                             notification['status']),
                                       ),
@@ -269,7 +269,7 @@ class _customernotificationState extends State<customernotification> {
                                     Text(
                                       "Payment Status: ${notification['status']}",
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 12,
                                         color: _getStatusColor(
                                             notification['status']),
                                       ),

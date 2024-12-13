@@ -186,7 +186,7 @@ class _LoginAdminState extends State<LoginAdmin> {
             SizedBox(height: 30),
             uihelper.CustomButton(() {
               login(emailcontroller.text.toString().trim(), passwordcontroller.text.toString().trim());
-            }, "Login", 50, 190),
+            }, "Login", 40, 150),
             SizedBox(height: 20),
           ],
         ),

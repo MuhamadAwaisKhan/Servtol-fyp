@@ -1169,23 +1169,14 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                   Text(
                                     '${data['provider']['FirstName'] ?? 'Unknown'} ',
                                     style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: 12,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black87,
                                     ),
                                     // overflow: TextOverflow.ellipsis,
                                   ),
-                                  SizedBox(width: 18),
-                                  GestureDetector(
-                                    onTap: () {
-                                      showProviderDetails(context);
-                                    },
-                                    child: Icon(
-                                      Icons.info,
-                                      size: 28,
-                                      color: Colors.blueAccent,
-                                    ),
-                                  ),
+
+
                                 ],
                               ),
                               SizedBox(height: 2),
@@ -1226,8 +1217,8 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                   children: [
                                     Text(
                                       data['provider']['About'] != null &&
-                                          data['provider']['About'].length > 35
-                                          ? "${data['provider']['About'].substring(0, 35)}..."
+                                          data['provider']['About'].length > 23
+                                          ? "${data['provider']['About'].substring(0, 23)}..."
                                           : "${data['provider']['About'] ?? 'No additional information'}",
                                       style: TextStyle(
                                         fontSize: 12,
@@ -1244,8 +1235,16 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                             ],
                           ),
 
-                          trailing: Icon(FontAwesomeIcons.arrowRight,
-                              size: 22, color: Colors.blueGrey),
+                          trailing:  GestureDetector(
+                            onTap: () {
+                              showProviderDetails(context);
+                            },
+                            child: Icon(
+                              Icons.info,
+                              size: 22,
+                              color: Colors.blueAccent,
+                            ),
+                          ),
                           onTap: () {
                             final providerId =
                                 widget.bookings['providerId'] ?? 'default_id';

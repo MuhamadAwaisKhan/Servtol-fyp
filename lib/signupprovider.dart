@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:servtol/emailverify.dart';
 import 'package:servtol/loginprovider.dart';
 import 'package:servtol/providermain.dart';
@@ -31,6 +32,18 @@ class _SignupProviderState extends State<SignupProvider> {
   bool _rememberMe = false;
   bool _isLoading = false;
 
+  // Formatter for phone number: 0300-0000000
+  final phoneFormatter = MaskTextInputFormatter(
+    mask: '####-#######',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
+
+// Formatter for CNIC: 36502-1234567-8
+  final cnicFormatter = MaskTextInputFormatter(
+    mask: '#####-#######-#',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
+
   @override
   void dispose() {
     firstController.dispose();
@@ -56,7 +69,7 @@ class _SignupProviderState extends State<SignupProvider> {
         'CNIC': cnicController.text,
         'Occupation': occuController.text,
         'status': 'Offline',
-        'userType':'provider',
+        'userType': 'provider',
         'CreatedAt': FieldValue.serverTimestamp(),
       });
       Fluttertoast.showToast(msg: 'Account Created Successfully');
@@ -99,8 +112,8 @@ class _SignupProviderState extends State<SignupProvider> {
 
     FirebaseAuth.instance
         .createUserWithEmailAndPassword(
-            email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
     )
         .then((UserCredential userCredential) async {
       User? user = userCredential.user;
@@ -134,7 +147,8 @@ class _SignupProviderState extends State<SignupProvider> {
             ),
           ),
         );
-        Fluttertoast.showToast(msg: 'Signup successful! Please verify your email.');
+        Fluttertoast.showToast(
+            msg: 'Signup successful! Please verify your email.');
       }
     }).catchError((error) {
       String errorMessage = 'Failed to Sign Up. Please try again.';
@@ -142,7 +156,8 @@ class _SignupProviderState extends State<SignupProvider> {
         if (error.code == 'email-already-in-use') {
           errorMessage = 'The email is already in use. Try another one.';
         } else if (error.code == 'weak-password') {
-          errorMessage = 'The password is too weak. Please use a stronger password.';
+          errorMessage =
+              'The password is too weak. Please use a stronger password.';
         }
       }
       Fluttertoast.showToast(msg: errorMessage);
@@ -169,21 +184,23 @@ class _SignupProviderState extends State<SignupProvider> {
               "Hello Provider !",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 20,
+                fontSize: 17,
                 fontFamily: "Poppins",
                 color: AppColors.heading,
               ),
             ),
-            const SizedBox(height: 12),
-            const Text(
+             SizedBox(height: 12),
+             Text(
               "Create Your Account for Better Experience",
               style: TextStyle(
                 fontSize: 17,
                 fontFamily: 'Poppins',
                 color: AppColors.heading,
               ),
-            ),
-            const SizedBox(height: 12),
+               textAlign: TextAlign.center,
+
+             ),
+             SizedBox(height: 12),
             uihelper.CustomTextField(context, firstController, "First Name",
                 Icons.account_circle, false),
             uihelper.CustomTextField(context, lastController, "Last Name",
@@ -194,10 +211,24 @@ class _SignupProviderState extends State<SignupProvider> {
                 Icons.business_center, false),
             uihelper.CustomTextField(
                 context, emailController, "Email Address", Icons.email, false),
-            uihelper.CustomNumberField(
-                context, numberController, "Contact", Icons.phone, false),
-            uihelper.CustomNumberField(
-                context, cnicController, "CNIC", Icons.card_membership, false),
+            uihelper.CustomNumberField1(
+              context,
+              numberController,
+              "Phone Number",
+              Icons.phone,
+              false,
+              "0300-0000000",
+              phoneFormatter, // Apply the phone number formatter
+            ),
+            uihelper.CustomNumberField1(
+              context,
+              cnicController,
+              "CNIC",
+              Icons.card_membership,
+              false,
+              "00000-0000000-0",
+              cnicFormatter, // Apply the CNIC formatter
+            ),
             uihelper.CustomTextfieldpassword(
                 context, passwordController, "Password", _hidePassword,
                 (bool value) {
@@ -206,7 +237,7 @@ class _SignupProviderState extends State<SignupProvider> {
               });
             }),
             Padding(
-              padding: const EdgeInsets.only(right: 58.0),
+              padding: EdgeInsets.only(right: 58.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -246,12 +277,11 @@ class _SignupProviderState extends State<SignupProvider> {
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                  builder: (_) => RolesAndRegulationsScreen(
-
-                              ),
-                              ), );
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => RolesAndRegulationsScreen(),
+                                ),
+                              );
                               // Handle tap for both "Terms & Conditions"
                               print("Terms & Conditions tapped");
                             },
@@ -271,12 +301,11 @@ class _SignupProviderState extends State<SignupProvider> {
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                  builder: (_) => RolesAndRegulationsScreen(
-
-                              ),
-                              ), );
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => RolesAndRegulationsScreen(),
+                                ),
+                              );
                               // Handle tap for both "Terms & Conditions"
                               print("Terms & Conditions tapped");
                             },
@@ -298,7 +327,7 @@ class _SignupProviderState extends State<SignupProvider> {
             ),
             uihelper.CustomButton(() {
               _signup();
-            }, "Sign Up", 50, 190),
+            }, "Sign Up", 40, 150),
             SizedBox(
               height: 15,
             ),
@@ -318,7 +347,7 @@ class _SignupProviderState extends State<SignupProvider> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 15.0),
+                  padding: const EdgeInsets.only(left: 5.0),
                   child: GestureDetector(
                     onTap: () {
                       // Replace the below line with your navigation logic

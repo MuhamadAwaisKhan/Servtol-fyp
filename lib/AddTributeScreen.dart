@@ -397,9 +397,9 @@ class _AddTributeScreenState extends State<AddTributeScreen> {
                                   borderRadius: BorderRadius.circular(25),
                                 ),
                               ),
-                              validator: (value) => value!.isEmpty
-                                  ? 'Occupation cannot be empty'
-                                  : null,
+                              // validator: (value) => value!.isEmpty
+                              //     ? 'Occupation cannot be empty'
+                              //     : null,
                             ),
                             SizedBox(height: 16),
                             TextFormField(

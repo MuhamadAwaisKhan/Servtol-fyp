@@ -297,7 +297,7 @@ class _ChartScreenState extends State<ChartScreen> {
                               Text(
                                 legend['label'],
                                 style: GoogleFonts.poppins(
-                                  fontSize: 14,
+                                  fontSize: 10,
                                   color: Colors.black87,
                                 ),
                               ),

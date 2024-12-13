@@ -203,14 +203,14 @@ class _NotificationProviderState extends State<NotificationProvider> {
                           : 'Booking Update',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        fontSize: 14,
                       ),
                     ),
                     if (!isPaymentNotification)
                       Text(
                         "${notification['bookingId']}",
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 14,
                           color: Colors.grey[700],
                         ),
                       ),
@@ -224,7 +224,7 @@ class _NotificationProviderState extends State<NotificationProvider> {
                       message,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 12,
                       ),
                     ),
                     SizedBox(height: 4),
@@ -232,7 +232,7 @@ class _NotificationProviderState extends State<NotificationProvider> {
                       Text(
                         "Payment Status: ${notification['paymentstatus']}",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           color: _getPaymentStatusColor(notification['paymentstatus']),
                         ),
                       )
@@ -240,7 +240,7 @@ class _NotificationProviderState extends State<NotificationProvider> {
                       Text(
                         "Booking Status: ${notification['status']}",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           color: _getStatusColor(notification['status']),
                         ),
                       ),

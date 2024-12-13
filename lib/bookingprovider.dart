@@ -338,7 +338,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                         serviceName,
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 15,
                             fontFamily: 'Poppins',
 
                             fontWeight: FontWeight.bold),

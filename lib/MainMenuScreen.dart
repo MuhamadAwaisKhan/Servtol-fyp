@@ -55,7 +55,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 140,
                    ),
               SizedBox(
-                height: 30,
+                height: 20,
               ),
               uihelper.CustomButton(
                 () {
@@ -67,7 +67,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 140,
                    ),
               SizedBox(
-                height: 30,
+                height: 20,
               ),
               uihelper.CustomButton(
                 () {
@@ -82,7 +82,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 140,
                ),
               SizedBox(
-                height: 30,
+                height: 20,
               ),
               uihelper.CustomButton(
                     () {
@@ -96,7 +96,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 140,
                 ),
               SizedBox(
-                height: 30,
+                height: 20,
               ),
               uihelper.CustomButton(
                     () {
@@ -110,7 +110,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 140,
               ),
               SizedBox(
-                height: 30,
+                height: 20,
               ),
             ],
           ),

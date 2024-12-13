@@ -177,7 +177,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                "\$" + (doc['Price']?.toString() ?? 'No Price'),
+                                "\u20A8" + (doc['Price']?.toString() ?? 'No Price'),
                                 style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
                               ),
                               IconButton(

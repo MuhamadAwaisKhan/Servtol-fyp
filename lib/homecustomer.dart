@@ -1,19 +1,19 @@
 import 'dart:math';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:servtol/Categorybyservices.dart';
 import 'package:servtol/Servicecustomerdetail.dart';
 import 'package:servtol/allservicescustomers.dart';
 import 'package:servtol/categoriescustomer.dart';
+import 'package:servtol/notificationcustomer.dart';
 import 'package:servtol/searchcustomer.dart';
 import 'package:servtol/util/AppColors.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:servtol/notificationcustomer.dart';
-import 'package:rxdart/rxdart.dart';
 
 class HomeCustomer extends StatefulWidget {
   final Function onBackPress;
@@ -76,7 +76,6 @@ class _HomeCustomerState extends State<HomeCustomer> {
 
   int unreadCount = 0;
 
-
   void listenForUnreadNotifications() {
     // Stream for booking notifications
     Stream<int> bookingStream = FirebaseFirestore.instance
@@ -117,7 +116,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
     //   });
     // });
   }
-    
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,7 +155,9 @@ class _HomeCustomerState extends State<HomeCustomer> {
               int unreadCount = 0;
 
               if (snapshot.hasData) {
-                unreadCount = snapshot.data![0].docs.length + snapshot.data![1].docs.length+ snapshot.data![2].docs.length;
+                unreadCount = snapshot.data![0].docs.length +
+                    snapshot.data![1].docs.length +
+                    snapshot.data![2].docs.length;
               }
 
               return Stack(
@@ -204,82 +205,76 @@ class _HomeCustomerState extends State<HomeCustomer> {
           ),
           IconButton(
             icon: FaIcon(FontAwesomeIcons.magnifyingGlass),
-            onPressed: () =>
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SearchScreen())),
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (context) => SearchScreen())),
           ),
         ],
       ),
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
           child: Column(children: [
-            if (_cloudImages.isNotEmpty) ...[
-              servicesCarousel(),
-              const SizedBox(height: 20),
-              AnimatedSmoothIndicator(
-                activeIndex: _current,
-                count: _cloudImages.length,
-                effect: ExpandingDotsEffect(
-                    dotWidth: 10,
-                    dotHeight: 10,
-                    dotColor: Colors.grey,
-                    activeDotColor: Colors.blueAccent),
-                onDotClicked: (index) =>
-                    _carouselController.animateToPage(index),
-              ),
-            ],
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: buildCategoriesHeader(),
-            ),
-            buildHorizontalCategoryList(),
-            servicesList(),
-          ])),
+        if (_cloudImages.isNotEmpty) ...[
+          servicesCarousel(),
+          const SizedBox(height: 20),
+          AnimatedSmoothIndicator(
+            activeIndex: _current,
+            count: _cloudImages.length,
+            effect: ExpandingDotsEffect(
+                dotWidth: 10,
+                dotHeight: 10,
+                dotColor: Colors.grey,
+                activeDotColor: Colors.blueAccent),
+            onDotClicked: (index) => _carouselController.animateToPage(index),
+          ),
+        ],
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: buildCategoriesHeader(),
+        ),
+        buildHorizontalCategoryList(),
+        servicesList(),
+      ])),
     );
   }
 
   Widget servicesCarousel() {
     return CarouselSlider(
       items: _cloudImages
-          .map((item) =>
-          GestureDetector(
-            onTap: () {
-              DocumentSnapshot serviceSnapshot;
-              FirebaseFirestore.instance
-                  .collection('service')
-                  .doc(item['id'])
-                  .get()
-                  .then((doc) {
-                if (doc.exists) {
-                  serviceSnapshot = doc;
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            Servicecustomerdetail(service: serviceSnapshot),
-                      ));
-                } else {
-                  print("Document does not exist.");
-                }
-              });
-            },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width,
-                margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(item['url']),
-                    fit: BoxFit.cover,
+          .map((item) => GestureDetector(
+                onTap: () {
+                  DocumentSnapshot serviceSnapshot;
+                  FirebaseFirestore.instance
+                      .collection('service')
+                      .doc(item['id'])
+                      .get()
+                      .then((doc) {
+                    if (doc.exists) {
+                      serviceSnapshot = doc;
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                Servicecustomerdetail(service: serviceSnapshot),
+                          ));
+                    } else {
+                      print("Document does not exist.");
+                    }
+                  });
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(item['url']),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ))
+              ))
           .toList(),
       options: CarouselOptions(
           autoPlay: true,
@@ -293,47 +288,57 @@ class _HomeCustomerState extends State<HomeCustomer> {
       carouselController: _carouselController,
     );
   }
+
   Widget buildCategoriesHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Categories',
+         Text('Categories',
             style: TextStyle(
-                fontSize: 17,
+                fontSize: 15,
                 color: AppColors.heading,
                 fontFamily: 'Poppins',
                 fontWeight: FontWeight.bold)),
         GestureDetector(
-          onTap: () =>
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          CategoriesCustomer(
-                            onBackPress: widget.onBackPress,
-                          ))),
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => CategoriesCustomer(
+                        onBackPress: widget.onBackPress,
+                      ))),
           child: const Text('View All',
               style: TextStyle(
                   color: AppColors.customButton,
                   fontFamily: 'Poppins',
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold)),
         ),
+
       ],
     );
   }
+
 
   Widget buildHorizontalCategoryList() {
     return categories.isEmpty
         ? Center(child: CircularProgressIndicator())
         : SizedBox(
-      height: 100,
+      height: 70,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: categories.length > 5 ? 5 : categories.length, // Show only up to 5 items
+        itemCount: categories.length > 5 ? 5 : categories.length,
         itemBuilder: (context, index) {
-          String categoryName = categories[index];
-          IconData categoryIcon = categoryIcons[categoryName] ?? FontAwesomeIcons.questionCircle;
+          String originalCategoryName = categories[index]; // Store original name
+          String displayedCategoryName = originalCategoryName;
+
+          // Truncate displayed name for UI
+          if (displayedCategoryName.length > 12) {
+            displayedCategoryName = '${displayedCategoryName.substring(0, 12)}...';
+          }
+
+          // Use original name for icon lookup
+          IconData categoryIcon = categoryIcons[originalCategoryName] ??
+              FontAwesomeIcons.questionCircle;
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -342,10 +347,11 @@ class _HomeCustomerState extends State<HomeCustomer> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CategoryServicesScreen(categoryName: categoryName),
+                    builder: (context) => CategoryServicesScreen(
+                      categoryName: originalCategoryName,
+                    ),
                   ),
                 );
-                // print('Tapped on $categoryName');
               },
               child: Column(
                 children: [
@@ -354,11 +360,14 @@ class _HomeCustomerState extends State<HomeCustomer> {
                     child: Icon(categoryIcon, color: Colors.white),
                   ),
                   const SizedBox(height: 5),
-                  Text(categoryName,
-                      style: const TextStyle(
-                          color: AppColors.heading,
-                          fontFamily: 'Poppins',
-                          fontSize: 10,)),
+                  Text(
+                    displayedCategoryName, // Use truncated name for display
+                    style: const TextStyle(
+                      color: AppColors.heading,
+                      fontFamily: 'Poppins',
+                      fontSize: 10,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -367,8 +376,6 @@ class _HomeCustomerState extends State<HomeCustomer> {
       ),
     );
   }
-
-
   Widget servicesList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,7 +391,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
                   color: AppColors.heading,
-                  fontSize: 17,
+                  fontSize: 15,
                 ),
               ),
               GestureDetector(
@@ -392,7 +399,8 @@ class _HomeCustomerState extends State<HomeCustomer> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ServicesScreen(), // Pass the DocumentSnapshot here
+                      builder: (context) =>
+                          ServicesScreen(), // Pass the DocumentSnapshot here
                     ),
                   );
                 },
@@ -402,7 +410,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.bold,
                     color: AppColors.customButton,
-                    fontSize: 16,
+                    fontSize: 15,
                   ),
                 ),
               ),
@@ -413,9 +421,9 @@ class _HomeCustomerState extends State<HomeCustomer> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('service')
-                .orderBy("ServiceName",descending: false)
-
+            stream: FirebaseFirestore.instance
+                .collection('service')
+                .orderBy("ServiceName", descending: false)
                 .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
@@ -443,11 +451,13 @@ class _HomeCustomerState extends State<HomeCustomer> {
                       if (!providerSnapshot.hasData) {
                         return Center(
                           child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.blue),
                           ),
                         );
                       }
-                      return buildServiceCard(context, serviceDoc, providerSnapshot.data!);
+                      return buildServiceCard(
+                          context, serviceDoc, providerSnapshot.data!);
                     },
                   );
                 },
@@ -457,16 +467,26 @@ class _HomeCustomerState extends State<HomeCustomer> {
         ),
       ],
     );
-
   }
 
-  Widget buildServiceCard(BuildContext context, DocumentSnapshot serviceDoc, DocumentSnapshot providerDoc) {
-    String imageUrl = getDocumentField(serviceDoc, 'ImageUrl', 'default_image_url');
-    String serviceName = getDocumentField(serviceDoc, 'ServiceName', 'No service name');
+  Widget buildServiceCard(BuildContext context, DocumentSnapshot serviceDoc,
+      DocumentSnapshot providerDoc) {
+    String imageUrl =
+        getDocumentField(serviceDoc, 'ImageUrl', 'default_image_url');
+    String serviceName =
+    getDocumentField(serviceDoc, 'ServiceName', 'No service name');
+
+    // Truncate service name to 14 characters with ellipsis
+    if (serviceName.length > 16) {
+      serviceName = '${serviceName.substring(0, 16)}...';
+    }
     String subcategory = getDocumentField(serviceDoc, 'Subcategory', 'General');
-    String servicePrice = getDocumentField(serviceDoc, 'Price', 'Call for price');
-    String providerPic = getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url');
-    String providerName = getDocumentField(providerDoc, 'FirstName', 'No provider name');
+    String servicePrice =
+        getDocumentField(serviceDoc, 'Price', 'Call for price');
+    String providerPic =
+        getDocumentField(providerDoc, 'ProfilePic', 'default_profile_pic_url');
+    String providerName =
+        getDocumentField(providerDoc, 'FirstName', 'No provider name');
 
     return InkWell(
       onTap: () {
@@ -506,7 +526,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                     serviceName,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 12,
                         color: Colors.blue[800]),
                     textAlign: TextAlign.center,
                   ),
@@ -514,11 +534,12 @@ class _HomeCustomerState extends State<HomeCustomer> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        "\u20A8 ${servicePrice}", // Or "\u{20B9}${servicePrice}" for Indian Rupee
+                        "\u20A8 ${servicePrice}",
+                        // Or "\u{20B9}${servicePrice}" for Indian Rupee
                         style: TextStyle(
                           color: Colors.green[700],
                           fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          fontSize: 12,
                         ),
                       ),
                     ],
@@ -526,7 +547,11 @@ class _HomeCustomerState extends State<HomeCustomer> {
                   Text(
                     subcategory,
                     textAlign: TextAlign.justify,
-                    style: TextStyle(fontSize: 12, fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey),
                   ),
                 ],
               ),
@@ -539,10 +564,10 @@ class _HomeCustomerState extends State<HomeCustomer> {
                     backgroundImage: NetworkImage(providerPic),
                     radius: 15,
                   ),
-                  SizedBox(width: 05),
+                  SizedBox(width: 03),
                   Text(
                     providerName,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
                   ),
                 ],
               ),
@@ -553,8 +578,11 @@ class _HomeCustomerState extends State<HomeCustomer> {
     );
   }
 
-  dynamic getDocumentField(DocumentSnapshot doc, String fieldName, [dynamic defaultValue = '']) {
+  dynamic getDocumentField(DocumentSnapshot doc, String fieldName,
+      [dynamic defaultValue = '']) {
     var data = doc.data() as Map<String, dynamic>?;
-    return data != null && data.containsKey(fieldName) ? data[fieldName] : defaultValue;
+    return data != null && data.containsKey(fieldName)
+        ? data[fieldName]
+        : defaultValue;
   }
 }

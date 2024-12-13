@@ -271,7 +271,7 @@ class _loginproviderState extends State<loginprovider> {
                         style: TextStyle(
                           color: Colors.indigo,
                           fontFamily: 'Poppins',
-                          fontSize: 17,
+                          fontSize: 15,
                         ),
                       ),
                     ],
@@ -330,7 +330,7 @@ class _loginproviderState extends State<loginprovider> {
               uihelper.CustomButton(() { login(emailcontroller.text.toString().trim(),
                   passwordcontroller.text.toString().trim());
                 // Navigator.push(context, MaterialPageRoute(builder: (context)=>MyHomePage()));
-              }, "Login",40,190),
+              }, "Login",40,150),
               SizedBox(
                 height: 20,
               ),
