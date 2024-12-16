@@ -11,9 +11,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Servicecustomerdetail extends StatefulWidget {
   final DocumentSnapshot service;
 
-  Servicecustomerdetail({required this.service,
+  Servicecustomerdetail({
+    required this.service,
     // required String serviceId
-
   });
 
   @override
@@ -28,6 +28,7 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
     super.initState();
     checkFavoriteStatus();
   }
+
   // Future<Map<String, dynamic>?> _getProviderDetails(String providerId) async {
   //   final providerDoc = await FirebaseFirestore.instance
   //       .collection('provider')
@@ -72,6 +73,7 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
       await prefs.setStringList('favorites', favorites);
 
       // Save customer-specific favorites to Firestore
+
       await FirebaseFirestore.instance
           .collection('customer')
           .doc(customerId)
@@ -111,9 +113,8 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                   color: isFavorite ? Colors.red : Colors.white,
                   onPressed: () async {
                     // Assuming serviceData contains a proper 'id' field from Firestore document.
-                    String? serviceId = widget.service
-                        .id; // Using the document ID directly if not stored in serviceData.
-
+                    String? serviceId = widget.service.id;
+                    // Using the document ID directly if not stored in serviceData.
                     if (serviceId == null) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(
@@ -146,30 +147,32 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                 ),
               ],
               flexibleSpace: FlexibleSpaceBar(
-                centerTitle: true,
                 title: Text(
                   serviceData['ServiceName'] ?? 'Service Details',
-                  style: theme.textTheme.titleLarge!
-                      .copyWith(color: Colors.white, shadows: [
-                    Shadow(
-                      // Bottom-left shadow
-                      offset: Offset(-1.5, -1.5),
-                      color: Colors.black,
-                      blurRadius: 2,
-                    ),
-                    Shadow(
-                      // Top-right shadow
-                      offset: Offset(1.5, 1.5),
-                      color: Colors.black,
-                      blurRadius: 2,
-                    ),
-                    Shadow(
-                      // Outline style shadow
-                      offset: Offset(0, 0),
-                      color: Colors.black,
-                      blurRadius: 8,
-                    ),
-                  ]),
+                  style: theme.textTheme.titleLarge!.copyWith(
+                      color: Colors.white,
+                      fontSize: 18.0, // Set the desired font size
+                      fontFamily: 'Poppins', // Specify the font family
+                      shadows: [
+                        Shadow(
+                          // Bottom-left shadow
+                          offset: Offset(-1.5, -1.5),
+                          color: Colors.black,
+                          blurRadius: 2,
+                        ),
+                        Shadow(
+                          // Top-right shadow
+                          offset: Offset(1.5, 1.5),
+                          color: Colors.black,
+                          blurRadius: 2,
+                        ),
+                        Shadow(
+                          // Outline style shadow
+                          offset: Offset(0, 0),
+                          color: Colors.black,
+                          blurRadius: 8,
+                        ),
+                      ]),
                 ),
                 background: Hero(
                   tag: 'service_image_${serviceData['ServiceName']}',
@@ -214,9 +217,13 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  SizedBox(
+                    width: 3,
+                  ),
                   Text('\u20A8 ${serviceData['Price']}',
                       style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 15,
+                          fontFamily: 'Poppins',
                           fontWeight: FontWeight.bold,
                           color: primaryColor)),
                   FutureBuilder<double>(
@@ -242,7 +249,8 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                               style: TextStyle(
                                   color: Colors.green,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 20),
+                                  fontFamily: 'Poppins',
+                                  fontSize: 15),
                             ),
                           ],
                         );
@@ -254,9 +262,15 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
               Divider(),
               SizedBox(height: 10),
               Text('Description',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                      fontSize: 18)),
               Text(serviceData['Description'] ?? 'No description provided.',
-                  style: TextStyle(fontSize: 16)),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Poppins',
+                  )),
               SizedBox(height: 10),
               Divider(),
               SizedBox(height: 10),
@@ -278,8 +292,10 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                     );
                   }
 
-                  var providerData = snapshot.data!.data() as Map<String, dynamic>;
-                  final providerName = providerData['FirstName'] ?? 'Unknown Provider';
+                  var providerData =
+                      snapshot.data!.data() as Map<String, dynamic>;
+                  final providerName =
+                      providerData['FirstName'] ?? 'Unknown Provider';
                   final profilePicUrl = providerData['ProfilePic'];
 
                   return ListTile(
@@ -290,7 +306,11 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                     ),
                     title: Text(
                       providerData['FirstName'] ?? 'No Provider Name',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        fontFamily: 'Poppins',
+                      ),
                     ),
                     subtitle: GestureDetector(
                       onTap: () {
@@ -299,7 +319,8 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                           context: context,
                           builder: (context) => AlertDialog(
                             title: const Text('Provider Details'),
-                            content: Text(providerData['About'] ?? 'No additional information'),
+                            content: Text(providerData['About'] ??
+                                'No additional information'),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
@@ -310,14 +331,17 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                         );
                       },
                       child: Text(
-                        providerData['About'] != null && providerData['About'].length > 30
+                        providerData['About'] != null &&
+                                providerData['About'].length > 30
                             ? "${providerData['About'].substring(0, 20)}..."
-                            : providerData['About'] ?? 'No additional information',
+                            : providerData['About'] ??
+                                'No additional information',
                         style: TextStyle(color: Colors.blue[700]),
                       ),
                     ),
                     trailing: IconButton(
-                      icon: FaIcon(FontAwesomeIcons.solidMessage, color: Colors.blue),
+                      icon: FaIcon(FontAwesomeIcons.solidMessage,
+                          color: Colors.blue),
                       onPressed: () {
                         // Navigate to the message screen
                         Navigator.push(
@@ -337,15 +361,14 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ProviderProfileView(providerId: providerId),
+                          builder: (context) =>
+                              ProviderProfileView(providerId: providerId),
                         ),
                       );
                     },
                   );
                 },
               ),
-
-
               SizedBox(height: 10),
               Divider(),
               SizedBox(height: 10),
@@ -443,6 +466,10 @@ class _ServicecustomerdetailState extends State<Servicecustomerdetail> {
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(10.0),
+                                        side: BorderSide( // Add a border
+                                          color: Colors.white, // Border color
+                                          width: 2.0, // Border width
+                                        ),
                                       ),
                                       child: ListTile(
                                         title: Row(

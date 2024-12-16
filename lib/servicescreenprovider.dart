@@ -204,18 +204,21 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
                         contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                         leading: Lottie.asset(
                           lottieAnimationPath,
-                          height: 100,
-                          width: 100,
+                          height: 80,
+                          width: 80,
                           fit: BoxFit.fill,
                         ),
                         title: Text(doc['ServiceName'] ?? 'No name',
                             style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
+                                fontSize: 15,
                                 color: Colors.white)),
                         subtitle: Text(doc['Category'] ?? 'No category',
                             style: TextStyle(
-                                fontFamily: 'Poppins', color: Colors.white70)),
+                                fontFamily: 'Poppins', color: Colors.white70,
+                            fontSize: 14,
+                            )),
                         trailing:Text(
                           "\u20A8${(doc['Price']?.toString() ?? 'No Price')}", // Corrected Unicode character
                           style: TextStyle(

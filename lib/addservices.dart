@@ -75,6 +75,7 @@ class _ServicesAdditionState extends State<ServicesAddition> {
     try {
       FirebaseFirestore.instance
           .collection(collection)
+      .orderBy('Name')
           .get() // Use get() instead of snapshots() for initial data fetch
           .then((snapshot) {
         List<DropdownItem> items = snapshot.docs.map((doc) {

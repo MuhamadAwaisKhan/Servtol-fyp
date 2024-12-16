@@ -72,25 +72,28 @@ class _CategoriesCustomerState extends State<CategoriesCustomer> {
 
   Future<void> _fetchCategories() async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-    // Assuming your categories are stored in the "categories" collection
+    // Assuming your categories are stored in the "Category" collection
     CollectionReference categoriesRef = firestore.collection('Category');
 
     try {
       // Fetch category data from Firebase
       QuerySnapshot snapshot = await categoriesRef.get();
       List<Category> fetchedCategories = snapshot.docs.map((doc) {
-        String categoryName = doc['Name'];
-        IconData? categoryIcon = categoryIconMap[categoryName] ??
-            FontAwesomeIcons.questionCircle; // Default icon if no match
-        // Color categoryColor = categoryColorMap[categoryName] ?? Colors.black; // Default color if no match
+        String categoryName = doc['Name']; // Extract category name from the document
+        IconData categoryIcon = categoryIconMap[categoryName] ?? FontAwesomeIcons.questionCircle; // Use the categoryIconMap to fetch the icon
+
+        // Return a Category object
         return Category(
-          name: categoryName, icon: categoryIcon,
-          // color: categoryColor
+          name: categoryName,
+          icon: categoryIcon,
+          // Uncomment and implement color mapping if needed:
+          // color: categoryColorMap[categoryName] ?? Colors.black,
         );
       }).toList();
 
+      // Update the categories list in the state
       setState(() {
-        categories = fetchedCategories; // Update the categories list
+        categories = fetchedCategories;
       });
     } catch (e) {
       print("Error fetching categories: $e");
@@ -151,17 +154,21 @@ class CategoryWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            category.icon,
-            size: 50,
-            color:Colors.blueAccent
-            // category.color, // Use the color associated with the category
+          CircleAvatar(
+            backgroundColor: Colors.blueAccent,
+            child: FaIcon(category.icon, color: Colors.white),
           ),
-          SizedBox(height: 4),
+          // Icon(
+          //   category.icon,
+          //   size: 50,
+          //   color:Colors.blueAccent
+          //   // category.color, // Use the color associated with the category
+          // ),
+           SizedBox(height: 5),
           Text(
             category.name,
             style: TextStyle(
-                fontSize: 12,
+                fontSize: 10,
                 fontWeight: FontWeight.bold,
                 // color: category.color,
                 color:AppColors.heading,

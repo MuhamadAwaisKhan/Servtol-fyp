@@ -46,7 +46,7 @@ class _dataprofilesState extends State<dataprofiles> {
                 },
                 "Customer Management",
                 40,
-                240,
+                260,
               ),
               SizedBox(
                 height: 20,
@@ -60,7 +60,7 @@ class _dataprofilesState extends State<dataprofiles> {
                     },
                 "Provider Management",
                 40,
-                240,
+                260,
               ),
               SizedBox(
                 height: 20,

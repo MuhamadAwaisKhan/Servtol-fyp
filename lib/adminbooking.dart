@@ -371,7 +371,7 @@ class _adminbookingState extends State<adminbooking> {
                           serviceName,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 14,
                             fontFamily: 'Poppins',
 
                             fontWeight: FontWeight.bold,
@@ -384,7 +384,7 @@ class _adminbookingState extends State<adminbooking> {
                               "\$$servicePrice ",
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
                               ),
@@ -393,7 +393,7 @@ class _adminbookingState extends State<adminbooking> {
                               "($discount% Off)",
                               style: TextStyle(
                                 color: Colors.brown,
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
                               ),

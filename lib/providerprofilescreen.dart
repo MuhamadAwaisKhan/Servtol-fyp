@@ -88,8 +88,10 @@ class _ProviderProfileViewState extends State<ProviderProfileView> {
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,
             color: AppColors.heading,
+            fontSize: 15,
           ),
         ),
+        centerTitle: true,
         backgroundColor: AppColors.background,
       ),
       backgroundColor: AppColors.background,
@@ -154,7 +156,7 @@ class _ProviderProfileViewState extends State<ProviderProfileView> {
             '${providerData['FirstName'] ?? 'Provider Name'} ${providerData['LastName'] ?? ''}',
             style: TextStyle(
               fontFamily: 'Poppins',
-              fontSize: 22,
+              fontSize: 17,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -163,17 +165,17 @@ class _ProviderProfileViewState extends State<ProviderProfileView> {
             providerData['Occupation'] ?? 'Occupation',
             style: TextStyle(
               fontFamily: 'Poppins',
-              fontSize: 16,
+              fontSize: 15,
               color: Colors.white70,
             ),
           ),
+          SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(FontAwesomeIcons.solidStar, color: Colors.amber),
-              SizedBox(width: 5),
+              FaIcon(FontAwesomeIcons.solidStar, color: Colors.amber),
               Text(
-                '${averageRating.toStringAsFixed(1)}/5',
+                ' ${averageRating.toStringAsFixed(1)}/5',
                 style: TextStyle(
                   color: Colors.white,
                   fontFamily: 'Poppins',
@@ -209,6 +211,7 @@ class _ProviderProfileViewState extends State<ProviderProfileView> {
               Text(
                 providerData['About'] ?? 'No description available.',
                 style: TextStyle(fontFamily: 'Poppins', fontSize: 14),
+                textAlign: TextAlign.justify,
               ),
               SizedBox(height: 10),
               Row(
@@ -305,6 +308,7 @@ class _ProviderProfileViewState extends State<ProviderProfileView> {
                         service['ServiceName'] ?? 'Service',
                         style: TextStyle(
                           fontFamily: 'Poppins',
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

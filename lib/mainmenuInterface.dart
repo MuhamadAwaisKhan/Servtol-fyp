@@ -60,7 +60,7 @@ class _MainInterfaceState extends State<MainInterface> {
                 },
                 "Service Type",
                 40,
-                150,
+                170,
                 // Icons.contacts_sharp,
                 // Colors.grey, // Specify the default color of the icon
                 // isFirstButtonClicked, // Pass the clicked state to the button
@@ -77,7 +77,7 @@ class _MainInterfaceState extends State<MainInterface> {
                 },
                 "Wage Type",
                 40,
-                150,
+                170,
                 // Icons.contacts_sharp,
                 // Colors.grey, // Specify the default color of the icon
                 // isFirstButtonClicked, // Pass the clicked state to the button
@@ -94,7 +94,7 @@ class _MainInterfaceState extends State<MainInterface> {
                 },
                 "Category",
                 40,
-                150,
+                170,
                 // Icons.contacts_sharp,
                 // Colors.grey, // Specify the default color of the icon
                 // isFirstButtonClicked, // Pass the clicked state to the button
@@ -111,7 +111,7 @@ class _MainInterfaceState extends State<MainInterface> {
                 },
                 "Subcategory",
                 40,
-                150,
+                170,
                 // Icons.contacts_sharp,
                 // Colors.grey, // Specify the default color of the icon
                 // isFirstButtonClicked, // Pass the clicked state to the button
@@ -126,7 +126,7 @@ class _MainInterfaceState extends State<MainInterface> {
                 },
                 "Province",
                 40,
-                150,
+                170,
                 // Icons.contacts_sharp,
                 // Colors.grey, // Specify the default color of the icon
                 // isFirstButtonClicked, // Pass the clicked state to the button
@@ -141,7 +141,7 @@ class _MainInterfaceState extends State<MainInterface> {
                 },
                 "City",
                 40,
-                150,
+                170,
                 // Icons.contacts_sharp,
                 // Colors.grey, // Specify the default color of the icon
                 // isFirstButtonClicked, // Pass the clicked state to the button
@@ -183,7 +183,7 @@ class _MainInterfaceState extends State<MainInterface> {
                 },
                 "Tax",
                 40,
-                150,
+                170,
                 // Icons.contacts_sharp,
                 // Colors.grey, // Specify the default color of the icon
                 // isFirstButtonClicked, // Pass the clicked state to the button
@@ -205,7 +205,7 @@ class _MainInterfaceState extends State<MainInterface> {
                 },
                 "Coupons",
                 40,
-                150,
+                170,
                 // Icons.contacts_sharp,
                 // Colors.grey, // Specify the default color of the icon
                 // isFirstButtonClicked, // Pass the clicked state to the button
@@ -225,7 +225,7 @@ class _MainInterfaceState extends State<MainInterface> {
                 },
                 "Time Stamp",
                 40,
-                150,
+                170,
                 // Icons.contacts_sharp,
                 // Colors.grey, // Specify the default color of the icon
                 // isFirstButtonClicked, // Pass the clicked state to the button

@@ -617,41 +617,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
       ),
       backgroundColor: AppColors.background,
 
-      // actions: [
-      //   IconButton(
-      //     icon: Icon(Icons.edit),
-      //     onPressed: _showEditDialog, // Open edit dialog on edit button press
-      //   ),
-      //   IconButton(
-      //     icon: Icon(Icons.delete),
-      //     onPressed: () {
-      //       showDialog(
-      //         context: context,
-      //         builder: (BuildContext context) {
-      //           return AlertDialog(
-      //             title: Text("Confirm Delete"),
-      //             content: Text("Are you sure you want to delete this service?"),
-      //             actions: [
-      //               TextButton(
-      //                 child: Text("Cancel"),
-      //                 onPressed: () => Navigator.of(context).pop(),
-      //               ),
-      //               TextButton(
-      //                 child: Text("Delete"),
-      //                 onPressed: () async {
-      //                   Navigator.of(context).pop();
-      //                   await FirebaseFirestore.instance.collection('service').doc(widget.service.id).delete();
-      //                   Navigator.of(context).pop();
-      //                 },
-      //               ),
-      //             ],
-      //           );
-      //         },
-      //       );
-      //     },
-      //   ),
-      // ],
-      // ),
+
+
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(

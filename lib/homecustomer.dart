@@ -33,11 +33,25 @@ class _HomeCustomerState extends State<HomeCustomer> {
 
   // Mapping category names to Font Awesome icons
   Map<String, IconData> categoryIcons = {
-    'Healthcare': FontAwesomeIcons.medkit,
+    'Healthcare': FontAwesomeIcons.hospital,
     'Design & Multimedia': FontAwesomeIcons.paintBrush,
-    'Telemedicine': FontAwesomeIcons.headset,
-    'Education': FontAwesomeIcons.graduationCap,
-    'Retail': FontAwesomeIcons.shoppingCart,
+    'Telemedicine': FontAwesomeIcons.hospital,
+    'Education': FontAwesomeIcons.school,
+    'Retail': FontAwesomeIcons.store,
+    'Online Services': FontAwesomeIcons.globe,
+    'Development': FontAwesomeIcons.cogs,
+    'Online Consultation': FontAwesomeIcons.comments,
+    'Digital Marketing': FontAwesomeIcons.chartLine,
+    'Online Training': FontAwesomeIcons.chalkboardTeacher,
+    'Event Management': FontAwesomeIcons.calendarAlt,
+    'Video Editing': FontAwesomeIcons.video,
+    'Home & Maintenance ': FontAwesomeIcons.home,
+    'Hospitality': FontAwesomeIcons.utensils,
+    'Social Media Management': FontAwesomeIcons.users,
+    'IT Support': FontAwesomeIcons.laptop,
+    'Personal & Lifestyle ': FontAwesomeIcons.user,
+    'Graphic Design': FontAwesomeIcons.paintBrush,
+    'Finance': FontAwesomeIcons.coins,
   };
 
   @override
@@ -308,7 +322,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                       ))),
           child: const Text('View All',
               style: TextStyle(
-                  color: AppColors.customButton,
+                  color: AppColors.heading,
                   fontFamily: 'Poppins',
                   fontSize: 15,
                   fontWeight: FontWeight.bold)),
@@ -357,7 +371,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                 children: [
                   CircleAvatar(
                     backgroundColor: Colors.blueAccent,
-                    child: Icon(categoryIcon, color: Colors.white),
+                    child: FaIcon(categoryIcon, color: Colors.white),
                   ),
                   const SizedBox(height: 5),
                   Text(
@@ -409,7 +423,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.bold,
-                    color: AppColors.customButton,
+                    color: AppColors.heading,
                     fontSize: 15,
                   ),
                 ),
@@ -526,7 +540,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                     serviceName,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        fontSize: 10,
                         color: Colors.blue[800]),
                     textAlign: TextAlign.center,
                   ),
@@ -539,7 +553,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                         style: TextStyle(
                           color: Colors.green[700],
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                          fontSize: 10,
                         ),
                       ),
                     ],
@@ -548,7 +562,7 @@ class _HomeCustomerState extends State<HomeCustomer> {
                     subcategory,
                     textAlign: TextAlign.justify,
                     style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 8,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,
                         color: Colors.blueGrey),

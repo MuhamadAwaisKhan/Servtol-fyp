@@ -48,6 +48,7 @@ class _CustomerReviewByProviderState extends State<CustomerReviewByProvider> {
       print('Error fetching customer name: $error');
       return 'Customer';
     }
+
   }
 
   Future<List<DocumentSnapshot>> _fetchReviews(String serviceId) async {
@@ -104,7 +105,7 @@ class _CustomerReviewByProviderState extends State<CustomerReviewByProvider> {
                 'Services Provided',
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -112,55 +113,58 @@ class _CustomerReviewByProviderState extends State<CustomerReviewByProvider> {
               if (services.isNotEmpty)
                 ...services.map((serviceSnapshot) {
                   var service = serviceSnapshot.data() as Map<String, dynamic>;
-                  return Card(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    margin: EdgeInsets.symmetric(vertical: 8),
-                    child: ListTile(
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          service['ImageUrl'] ??
-                              'https://yourfallbackimageurl.com',
-                          width: 60,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      title: Text(
-                        service['ServiceName'] ?? 'Service',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Text(
-                        'Price: \u20A8 ${service['Price']}',
-                        style: TextStyle(fontFamily: 'Poppins'),
-                      ),
-                      trailing: Icon(Icons.arrow_forward_ios,
-                          color: Colors.blueAccent),
-                      onTap: () async {
-                        setState(() {
-                          _isLoading = true; // Show loading indicator
-                        });
-                        // Fetch reviews for this service
-                        var reviews = await _fetchReviews(serviceSnapshot.id);
-                        setState(() {
-                          _isLoading = false;
-                        });
-
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ServiceReviewsScreen(
-                              service: service,
-                              reviews: reviews,
+                  return
+                    Card(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                      margin: EdgeInsets.symmetric(vertical: 8),
+                      child: ListTile(
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: SizedBox(
+                            width: 60, // Constrain the width of the leading widget
+                            height: 60, // Constrain the height of the leading widget
+                            child: Image.network(
+                              service['ImageUrl'] ?? 'https://yourfallbackimageurl.com',
+                              fit: BoxFit.cover,
                             ),
                           ),
-                        );
-                      },
-                    ),
-                  );
+                        ),
+                        title: Text(
+                          service['ServiceName'] ?? 'Service',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Price: \u20A8 ${service['Price']}',
+                          style: TextStyle(fontFamily: 'Poppins'),
+                        ),
+                        trailing: Icon(Icons.arrow_forward_ios, color: Colors.blueAccent),
+                        onTap: () async {
+                          setState(() {
+                            _isLoading = true; // Show loading indicator
+                          });
+                          // Fetch reviews for this service
+                          var reviews = await _fetchReviews(serviceSnapshot.id);
+                          setState(() {
+                            _isLoading = false;
+                          });
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ServiceReviewsScreen(
+                                service: service,
+                                reviews: reviews,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+
                 }).toList()
               else
                 Text('No services available.'),

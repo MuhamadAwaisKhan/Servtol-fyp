@@ -148,11 +148,14 @@ class _CategoryServicesScreenState extends State<CategoryServicesScreen> {
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
+                  fontSize: 10,
                 ),
               ),
               subtitle: Text(
                 service['Category'] ?? 'No category',
-                style: TextStyle(fontFamily: 'Poppins', color: Colors.white70),
+                style: TextStyle(fontFamily: 'Poppins', color: Colors.white70,
+                fontSize: 10,
+                ),
               ),
               trailing: Text(
                 "\u20A8 " + (service['Price']?.toString() ?? 'No Price'),

@@ -183,6 +183,7 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> {
               fontWeight: FontWeight.bold,
               fontSize: 17),
         ),
+        centerTitle: true,
         backgroundColor: AppColors.background,
         actions: [
           IconButton(
@@ -303,12 +304,17 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> {
                           style: TextStyle(
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                              color: Colors.white,
+                          fontSize: 14,
+                          ),
                         ),
                         subtitle: Text(
                           serviceData['Category'] ?? 'No category',
                           style: TextStyle(
-                              fontFamily: 'Poppins', color: Colors.white70),
+                              fontFamily: 'Poppins', color: Colors.white70,
+                              fontSize: 14,
+
+                          ),
                         ),
                         trailing: Text(
                           "\$" + (serviceData['Price'] ?? 0).toString(),

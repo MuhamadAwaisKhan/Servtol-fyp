@@ -338,16 +338,17 @@ class _SignupCustomerState extends State<SignupCustomer> {
 
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 28.0),
+                      padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
                         "Already have an Account?",
                         style: TextStyle(
                           color: Colors.black,
                           fontFamily: 'Poppins',
-                          fontSize: 17,
+                          fontSize: 15,
                         ),
                       ),
                     ),
+                    SizedBox(width: 10,),
                     Padding(
                       padding: const EdgeInsets.only(left: 5.0),
                       child: GestureDetector(

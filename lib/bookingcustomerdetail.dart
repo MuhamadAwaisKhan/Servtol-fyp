@@ -1131,7 +1131,9 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                             fontSize: 16,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.bold,
-                          )),
+                          ),
+                      textAlign: TextAlign.justify,
+                      ),
                       SizedBox(height: 5),
                       Text(
                           '${widget.bookings['description'] as String? ?? 'No time'}',
@@ -1169,7 +1171,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                   Text(
                                     '${data['provider']['FirstName'] ?? 'Unknown'} ',
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 11,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black87,
                                     ),
@@ -1184,7 +1186,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                               Text(
                                 "${data['provider']['Occupation'] ?? 'No occupation listed'}",
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 10,
                                   color: Colors.grey[700],
                                 ),
                               ),
@@ -1221,7 +1223,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
                                           ? "${data['provider']['About'].substring(0, 23)}..."
                                           : "${data['provider']['About'] ?? 'No additional information'}",
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 10,
                                         color: Colors.blueAccent,
                                       ),
                                     ),

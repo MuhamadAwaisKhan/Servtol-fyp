@@ -151,7 +151,7 @@ class _AdminReportScreenState extends State<AdminReportScreen>
                         Text(
                           "User Type: $userType",
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             fontFamily: 'Poppins',
                             color: Colors.white,
                           ),
@@ -160,7 +160,7 @@ class _AdminReportScreenState extends State<AdminReportScreen>
                         Text(
                           formattedDate,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 10,
                             fontFamily: 'Poppins',
                             color: Colors.white,
                           ),

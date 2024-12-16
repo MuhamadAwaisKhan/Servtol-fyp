@@ -225,7 +225,7 @@ class _HomeProviderState extends State<HomeProvider> {
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,
-            fontSize: 14,
+            fontSize: 12,
             color: AppColors.heading,
           ),
         ),
@@ -256,12 +256,7 @@ class _HomeProviderState extends State<HomeProvider> {
                   .where('isRead', isEqualTo: false)
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
-              // FirebaseFirestore.instance
-              //     .collection('notification_review')
-              //     .where('providerId', isEqualTo: currentUser?.uid)
-              //     .where('isRead', isEqualTo: false)
-              //     .orderBy('timestamp', descending: true)
-              //     .snapshots(),
+
             ]),
             builder: (context, snapshot) {
               int unreadCount = 0;
@@ -343,7 +338,7 @@ class _HomeProviderState extends State<HomeProvider> {
             child: Text("Hello  $_userName  ",
                 style: TextStyle(
                     fontFamily: 'Poppins',
-                    fontSize: 15,
+                    fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: AppColors.heading)),
           ),
@@ -364,13 +359,13 @@ class _HomeProviderState extends State<HomeProvider> {
         children: [
           SizedBox(height: 7),
           Padding(
-            padding: const EdgeInsets.only(right: 188.0),
+            padding: const EdgeInsets.only(right: 158.0),
             child: Text("Welcome back!",
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   color: Colors.blueGrey,
                   fontWeight: FontWeight.w900,
-                  fontSize: 15,
+                  fontSize: 13,
                   letterSpacing: 1.5,
                   // shadows: [
                   //   Shadow(
@@ -426,7 +421,7 @@ class _HomeProviderState extends State<HomeProvider> {
                     ),
                   );
                 },
-                "Bookings ",
+                "  Bookings            ",
                 50,
                 170,
                 icon:
@@ -493,13 +488,13 @@ class _HomeProviderState extends State<HomeProvider> {
         children: [
           // Title
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 132.0),
+            padding: const EdgeInsets.symmetric(horizontal: 112.0),
             child: Text(
               "Monthly Revenue",
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: 14,
                 color: AppColors.heading,
               ),
               textAlign: TextAlign.center,
@@ -509,7 +504,7 @@ class _HomeProviderState extends State<HomeProvider> {
           // Chart Container
           Center(
             child: Container(
-              width: 350,
+              width: 330,
               height: 230,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -663,7 +658,7 @@ class _HomeProviderState extends State<HomeProvider> {
                 color: AppColors.heading)),
         SizedBox(height: 15),
         Container(
-            width: 360,
+            width: 330,
             padding: EdgeInsets.all(8.0),
             decoration: BoxDecoration(
               color: AppColors.background,
@@ -1152,7 +1147,7 @@ class _HomeProviderState extends State<HomeProvider> {
                                     Text(
                                       doc['ServiceName'] ?? 'No name',
                                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                        fontSize: 15,
+                                        fontSize: 13,
                                         color: Colors.white,
                                         shadows: [
                                           Shadow(
@@ -1179,7 +1174,7 @@ class _HomeProviderState extends State<HomeProvider> {
                                       "\u20A8 " + (doc['Price']?.toString() ?? 'No Price'),
                                       style: TextStyle(
                                         color: Colors.lightGreenAccent[400],
-                                        fontSize: 13,
+                                        fontSize: 10,
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.bold,
                                       ),

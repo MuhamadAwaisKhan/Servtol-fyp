@@ -300,12 +300,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           style: TextStyle(
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                              color: Colors.white,fontSize: 10,),
                         ),
                         subtitle: Text(
                           serviceData['Category'] ?? 'No category',
                           style: TextStyle(
-                              fontFamily: 'Poppins', color: Colors.white70),
+                              fontFamily: 'Poppins', color: Colors.white70,fontSize: 10,),
                         ),
                         trailing: Text(
                           "\u20A8 " + (serviceData['Price'] ?? 0).toString(),

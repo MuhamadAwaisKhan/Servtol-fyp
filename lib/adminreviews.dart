@@ -17,15 +17,19 @@ class adminfeedback extends StatefulWidget {
 class _adminfeedbackState extends State<adminfeedback> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+
   Future<String> _fetchCustomerFullName(String customerId) async {
     try {
+      print('Fetching customer name for ID: $customerId');
       var doc = await _firestore.collection('customer').doc(customerId).get();
       if (doc.exists) {
         var data = doc.data();
+        print('Customer data: $data');
         String firstName = data?['FirstName'] ?? 'Customer';
         String lastName = data?['LastName'] ?? '';
         return '$firstName $lastName'.trim();
       } else {
+        print('Customer document not found.');
         return 'Customer';
       }
     } catch (error) {
@@ -36,13 +40,16 @@ class _adminfeedbackState extends State<adminfeedback> {
 
   Future<String> _fetchproviderFullName(String providerId) async {
     try {
+      print('Fetching provider name for ID: $providerId');
       var doc = await _firestore.collection('provider').doc(providerId).get();
       if (doc.exists) {
         var data = doc.data();
+        print('Provider data: $data');
         String firstName = data?['FirstName'] ?? 'Provider';
         String lastName = data?['LastName'] ?? '';
         return '$firstName $lastName'.trim();
       } else {
+        print('Provider document not found.');
         return 'Provider';
       }
     } catch (error) {
@@ -50,6 +57,9 @@ class _adminfeedbackState extends State<adminfeedback> {
       return 'Provider';
     }
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +151,7 @@ class _adminfeedbackState extends State<adminfeedback> {
                           children: [
                             Text(
                               customerName,
-                              style: const TextStyle(
+                              style:  TextStyle(
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -149,7 +159,7 @@ class _adminfeedbackState extends State<adminfeedback> {
                             ),
                             Text(
                               providerName,
-                              style: const TextStyle(
+                              style:  TextStyle(
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,

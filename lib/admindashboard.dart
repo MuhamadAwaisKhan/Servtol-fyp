@@ -109,7 +109,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     try {
       final snapshot = await _firestore
           .collection('reviews')
-          .where('emojiRating', isLessThan: 2)
+          .where('emojiRating', isGreaterThanOrEqualTo: 2)
           .get();
       return snapshot.docs.length;
     } catch (e) {
@@ -426,7 +426,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             children: [
               Icon(
                 icon,
-                size: 40,
+                size: 30,
                 color: Colors.white,
               ),
               const SizedBox(height: 8),

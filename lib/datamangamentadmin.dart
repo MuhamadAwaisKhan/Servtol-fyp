@@ -83,7 +83,7 @@ class _datamanagementState extends State<datamanagement> {
                 },
                 "Data Management",
                 40,
-                200,
+                230,
               ),
               SizedBox(
                 height: 20,
@@ -97,7 +97,7 @@ class _datamanagementState extends State<datamanagement> {
                 },
                 "Dashboard",
                 40,
-                200,
+                230,
               ),
               SizedBox(
                 height: 20,
@@ -111,7 +111,7 @@ class _datamanagementState extends State<datamanagement> {
                 },
                 "Payment Release",
                 40,
-                200,
+                230,
               ),
               SizedBox(
                 height: 20,
@@ -123,7 +123,7 @@ class _datamanagementState extends State<datamanagement> {
                 },
                 "Graphical Data",
                 40,
-                200,
+                230,
               ),
               SizedBox(
                 height: 20,
@@ -137,7 +137,7 @@ class _datamanagementState extends State<datamanagement> {
                 },
                 "Add Contributor",
                 40,
-                200,
+                230,
               ),
               SizedBox(
                 height: 20,
@@ -151,7 +151,7 @@ class _datamanagementState extends State<datamanagement> {
                 },
                 "Rules & Regulations",
                 40,
-                200,
+                230,
               ),
               SizedBox(
                 height: 20,
@@ -165,7 +165,7 @@ class _datamanagementState extends State<datamanagement> {
                 },
                 "Add About",
                 40,
-                200,
+                230,
               ),
               SizedBox(
                 height: 20,
@@ -177,7 +177,7 @@ class _datamanagementState extends State<datamanagement> {
                 },
                 "Profiles",
                 40,
-                200,
+                230,
               ),
               SizedBox(
                 height: 20,
@@ -188,7 +188,7 @@ class _datamanagementState extends State<datamanagement> {
                 },
                 "Log Out",
                 40,
-                200,
+                230,
               ),
               SizedBox(
                 height: 20,

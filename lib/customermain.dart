@@ -11,7 +11,6 @@ import 'package:servtol/bookingcustomer.dart';
 import 'package:servtol/categoriescustomer.dart';
 import 'package:servtol/chatcustomer.dart';
 import 'package:servtol/homecustomer.dart';
-import 'package:servtol/logincustomer.dart';
 import 'package:servtol/loginprovider.dart';
 import 'package:servtol/profilecustomer.dart';
 import 'package:servtol/util/AppColors.dart';
@@ -135,11 +134,13 @@ class _CustomerMainScreenState extends State<CustomerMainScreen>
         bottomNavigationBar: MotionTabBar(
           labels:  ["Home", "Booking", "Category", "Chat", "Profile"],
           initialSelectedTab: "Home",
+
           controller: _motionTabBarController,
           tabIconColor: Colors.blueGrey,
           tabSelectedColor: Colors.blue,
           tabSize: 50,
           tabBarHeight: 55,
+
           onTabItemSelected: (int value) {
             // Update the tab controller index
             setState(() {
@@ -147,14 +148,14 @@ class _CustomerMainScreenState extends State<CustomerMainScreen>
               // _tabController.animateTo(value);
             });
           },
-          icons: const [
+          icons:  [
             FontAwesomeIcons.house,
             FontAwesomeIcons.calendarCheck,
             FontAwesomeIcons.tableList,
             FontAwesomeIcons.commentDots,
             FontAwesomeIcons.user,
           ],
-          textStyle: const TextStyle(color: Colors.blue),
+          textStyle:  TextStyle(color: Colors.blue,fontFamily: 'Poppins',fontSize: 10),
         ),
       ),
     );

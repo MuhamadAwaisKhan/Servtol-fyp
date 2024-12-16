@@ -336,13 +336,13 @@ class _SignupProviderState extends State<SignupProvider> {
 
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 28.0),
+                  padding: const EdgeInsets.only(left: 18.0),
                   child: Text(
                     "Already have an Account?",
                     style: TextStyle(
                       color: Colors.black,
                       fontFamily: 'Poppins',
-                      fontSize: 17,
+                      fontSize: 15,
                     ),
                   ),
                 ),

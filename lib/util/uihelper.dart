@@ -364,7 +364,9 @@ class uihelper {
                   style: TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.bold,
-                      color: AppColors.heading),
+                      color: AppColors.heading,
+                  fontSize: 13
+                  ),
                   overflow: TextOverflow
                       .ellipsis, // Ensures text does not break layout
                 ),
@@ -375,7 +377,7 @@ class uihelper {
               child: Text(
                 value,
                 style: TextStyle(
-                    fontFamily: 'Poppins', fontSize: 16, color: Colors.black54),
+                    fontFamily: 'Poppins', fontSize: 13, color: Colors.black54),
                 textAlign: TextAlign.right,
                 maxLines: 2, // Allows text wrapping if very long
                 overflow:
@@ -413,7 +415,8 @@ class uihelper {
               content: SingleChildScrollView(
                 child: Text(
                   value,
-                  style: TextStyle(fontFamily: 'Poppins', fontSize: 16),
+                  style: TextStyle(fontFamily: 'Poppins', fontSize: 14),
+                  textAlign: TextAlign.justify,
                 ),
               ),
               actions: [
@@ -454,7 +457,7 @@ class uihelper {
                       displayText,
                       style: TextStyle(
                         fontFamily: 'Poppins',
-                        fontSize: 16,
+                        fontSize: 13,
                         color: Colors.black54,
                       ),
                       textAlign: TextAlign.right,
@@ -822,7 +825,7 @@ class uihelper {
           style: TextStyle(
             color: Colors.white,
             fontFamily: "Poppins",
-            fontSize: 12,
+            fontSize: 11,
           ),
         ),
         style: ElevatedButton.styleFrom(

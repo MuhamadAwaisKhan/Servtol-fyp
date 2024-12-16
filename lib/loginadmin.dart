@@ -114,7 +114,7 @@ class _LoginAdminState extends State<LoginAdmin> {
               "Welcome Back",
               style: TextStyle(
                 fontFamily: 'Poppins',
-                fontSize: 17,
+                fontSize: 15,
                 color: AppColors.heading,
               ),
             ),
@@ -132,7 +132,7 @@ class _LoginAdminState extends State<LoginAdmin> {
               },
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -156,7 +156,7 @@ class _LoginAdminState extends State<LoginAdmin> {
                       style: TextStyle(
                         color: Colors.indigo,
                         fontFamily: 'Poppins',
-                        fontSize: 17,
+                        fontSize: 15,
                       ),
                     ),
                   ],

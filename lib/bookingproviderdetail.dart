@@ -694,10 +694,10 @@ final now=DateTime.now();
                             ],
                           ),
                           // Image in a ClipRect
-                          ClipRect(
+                          ClipOval(
                             child: SizedBox(
-                              height: 70, // Specifies the height of the image
-                              width: 70, // Specifies the width of the image
+                              height: 60, // Specifies the height of the image
+                              width: 60, // Specifies the width of the image
                               child: Image.network(
                                 data['service']['ImageUrl'] ??
                                     'https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=',
@@ -771,7 +771,7 @@ final now=DateTime.now();
                               Text(
                                 '${data['customer']['FirstName'] ?? 'Unknown'} ${data['provider']['LastName'] ?? ''}',
                                 style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
+                                    fontSize: 13,  fontWeight: FontWeight.bold),
                                 overflow: TextOverflow
                                     .ellipsis, // Prevents text from overflowing
                               ),

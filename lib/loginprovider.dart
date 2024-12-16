@@ -193,7 +193,7 @@ class _loginproviderState extends State<loginprovider> {
                 "Welcome Back, You Have Been ",
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 17,
+                  fontSize: 15,
                   color: AppColors.heading,
                 ),
               ),
@@ -201,7 +201,7 @@ class _loginproviderState extends State<loginprovider> {
                 "Missed For A Long Time ",
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 17,
+                  fontSize: 15,
                   color: AppColors.heading,
                 ),
               ),
@@ -339,13 +339,13 @@ class _loginproviderState extends State<loginprovider> {
 
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 38.0),
+                    padding: const EdgeInsets.only(left: 18.0),
                     child: Text(
                       "Don't have an account?",
                       style: TextStyle(
                         color: Colors.black,
                         fontFamily: 'Poppins',
-                        fontSize: 17,
+                        fontSize: 15,
                       ),
                     ),
                   ),
@@ -377,7 +377,7 @@ class _loginproviderState extends State<loginprovider> {
                 ],
               ),
               SizedBox(
-                height: 18,
+                height: 58,
               ),
 
               // uihelper.CustomTextButton(() {

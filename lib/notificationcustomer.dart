@@ -222,14 +222,14 @@ class _customernotificationState extends State<customernotification> {
                                             : 'Booking Update',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 14,
+                                      fontSize: 12,
                                     ),
                                   ),
                                   if (!isPaymentNotification)
                                     Text(
                                       "${notification['bookingId']}",
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 12,
                                         color: Colors.grey[700],
                                       ),
                                     ),

@@ -52,7 +52,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                       },
                 "Provider",
                 40,
-                140,
+                160,
                    ),
               SizedBox(
                 height: 20,
@@ -64,7 +64,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     },
                 "Customer",
                 40,
-                140,
+                160,
                    ),
               SizedBox(
                 height: 20,
@@ -79,7 +79,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 },
                 "Admin",
                 40,
-                140,
+                160,
                ),
               SizedBox(
                 height: 20,
@@ -93,7 +93,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   },
                 "Inspirations",
                 40,
-                140,
+                160,
                 ),
               SizedBox(
                 height: 20,
@@ -107,7 +107,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 },
                 "About",
                 40,
-                140,
+                160,
               ),
               SizedBox(
                 height: 20,

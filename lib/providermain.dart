@@ -147,7 +147,7 @@ class _ProviderMainLayoutState extends State<ProviderMainLayout>
             FontAwesomeIcons.houseLaptop,
             FontAwesomeIcons.user,
           ],
-          textStyle: const TextStyle(color: Colors.blue),
+          textStyle:  TextStyle(color: Colors.blue,fontFamily: 'Poppins',fontSize: 10),
         ),
       ),
     );

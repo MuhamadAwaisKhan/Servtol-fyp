@@ -225,7 +225,7 @@ void login(String email, String password) async {
                 "Welcome Back, You Have Been ",
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 17,
+                  fontSize: 15,
                   color: AppColors.heading,
                 ),
               ),
@@ -233,7 +233,7 @@ void login(String email, String password) async {
                 "Missed For A Long Time ",
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 17,
+                  fontSize: 15,
                   color: AppColors.heading,
                 ),
               ),
@@ -378,7 +378,7 @@ void login(String email, String password) async {
 
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 38.0),
+                    padding: const EdgeInsets.only(left: 18.0),
                     child: Text(
                       "Don't have an account?",
                       style: TextStyle(
@@ -416,7 +416,7 @@ void login(String email, String password) async {
                 ],
               ),
               SizedBox(
-                height: 18,
+                height: 28,
               ),
 
               // uihelper.CustomTextButton(() {

@@ -135,7 +135,7 @@ class _MessageLogProviderScreenState extends State<MessageLogProviderScreen> {
                         style: const TextStyle(
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w600,
-                          fontSize: 18,
+                          fontSize: 13,
                           color: AppColors.primaryTextColor,
                         ),
                       ),
