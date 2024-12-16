@@ -242,6 +242,44 @@ class uihelper {
       ),
     );
   }
+  static CustomButton2(
+      VoidCallback voidCallback,
+      String text,
+      double h,
+      double w, {
+        IconData? icon, // Optional parameter for an icon
+      }) {
+    return SizedBox(
+      height: h,
+      width: w,
+      child: ElevatedButton(
+        onPressed: voidCallback,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.customButton,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(26),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: Colors.white, size: 18), // Add the icon if provided
+              SizedBox(width: 8), // Space between icon and text
+            ],
+            Text(
+              text,
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: "Poppins",
+                fontSize: 15,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   static CustomTextButton(
 
