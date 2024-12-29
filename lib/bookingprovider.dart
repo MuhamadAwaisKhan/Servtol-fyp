@@ -271,6 +271,7 @@ Widget bookingCard(Map<String, dynamic> data, DocumentSnapshot document,
                       data['status'] as String? ?? 'Pending',
                       style: TextStyle(
                         color: Colors.white,
+                        fontSize: 13,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,
                       ),

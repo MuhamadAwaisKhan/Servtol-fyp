@@ -242,7 +242,7 @@ class _servicetypeState extends State<servicetype> {
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 15,
                     color: Colors.redAccent,
                   ),
                 ),
@@ -354,7 +354,8 @@ class _servicetypeState extends State<servicetype> {
               SizedBox(width: 10),
               Text(
                 'Edit Service Type',
-                style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                style: TextStyle(fontFamily: 'Poppins',                     fontSize: 16,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -407,7 +408,8 @@ class _servicetypeState extends State<servicetype> {
                             SizedBox(width: 10),
                             Text(
                               'Confirm Edit',
-                              style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                              style: TextStyle(fontFamily: 'Poppins',                    fontSize: 16,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),

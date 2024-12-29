@@ -276,8 +276,8 @@ class _CityScreenState extends State<CityScreen> {
               Icon(Icons.edit, color: Colors.blue, size: 28),
               SizedBox(width: 8),
               Text(
-                'Edit Subcategory',
-                style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                'Edit City',
+                style: TextStyle(fontFamily: 'Poppins',fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -299,6 +299,8 @@ class _CityScreenState extends State<CityScreen> {
                   selectedCategoryId = newValue;
                 },
                 items: provinceItems,
+                itemHeight: null,
+                isExpanded: true,
                 decoration: InputDecoration(
                   labelText: 'Select Province',
                   labelStyle: TextStyle(color: Colors.blueAccent),

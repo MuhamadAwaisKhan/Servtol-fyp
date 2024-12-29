@@ -145,16 +145,39 @@ class _adminfeedbackState extends State<adminfeedback> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+
+
+
                         // Customer and Provider Info
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
+                              'Customer:',
+                              style:  TextStyle(
+                                fontFamily: 'Poppins',
+                                // fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),),
+                              Text(
                               customerName,
                               style:  TextStyle(
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: 12,
+                              ),
+                              ),
+                          ],
+                        ),
+                            Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Provider:',
+                              style:  TextStyle(
+                                fontFamily: 'Poppins',
+                                // fontWeight: FontWeight.bold,
+                                fontSize: 12,
                               ),
                             ),
                             Text(
@@ -162,7 +185,7 @@ class _adminfeedbackState extends State<adminfeedback> {
                               style:  TextStyle(
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: 12,
                               ),
                             ),
                           ],
@@ -173,6 +196,7 @@ class _adminfeedbackState extends State<adminfeedback> {
 
                         // Rating
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             FaIcon(
                               FontAwesomeIcons.solidStar,

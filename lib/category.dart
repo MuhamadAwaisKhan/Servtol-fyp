@@ -262,8 +262,9 @@ class _categoryscreenState extends State<categoryscreen> {
               Icon(Icons.edit, color: Colors.blue, size: 30),
               SizedBox(width: 10),
               Text(
-                'Edit Service Type',
-                style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                'Edit Category Type',
+                style: TextStyle(fontFamily: 'Poppins',                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -274,7 +275,7 @@ class _categoryscreenState extends State<categoryscreen> {
                 controller: _nameController,
                 style: TextStyle(fontFamily: 'Poppins', color: Colors.black87),
                 decoration: InputDecoration(
-                  labelText: "Enter New Service Type Name",
+                  labelText: "Enter New Category Type Name",
                   labelStyle: TextStyle(color: Colors.grey),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),

@@ -663,9 +663,9 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                         children: [
                           TextSpan(
                               text:
-                                  '\$${price.toStringAsFixed(2)} x $quantity = '),
+                                  '\u20A8 ${price.toStringAsFixed(2)} x $quantity = '),
                           TextSpan(
-                            text: '\$${(price * quantity).toStringAsFixed(2)}',
+                            text: '\u20A8 ${(price * quantity).toStringAsFixed(2)}',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -679,7 +679,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Subtotal'),
-                    Text('\$${subtotal.toStringAsFixed(2)}'),
+                    Text('\u20A8 ${subtotal.toStringAsFixed(2)}'),
                   ],
                 ),
                 Divider(),
@@ -704,7 +704,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                                             color: Colors.green),
                                         title: Text('Booking Fee'),
                                         subtitle: Text(
-                                            '\$${bookingFee.toStringAsFixed(2)}'),
+                                            '\u20A8 ${bookingFee.toStringAsFixed(2)}'),
                                       ),
                                       ListTile(
                                         leading: Icon(Icons.percent,
@@ -733,7 +733,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                           },
                           icon: Icon(Icons.info_outline_rounded),
                         ),
-                        Text('\$${tax.toStringAsFixed(2)}',
+                        Text('\u20A8 ${tax.toStringAsFixed(2)}',
                             style: TextStyle(color: Colors.redAccent)),
                       ],
                     ),
@@ -757,7 +757,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                       children: [
                         Text('Discount', style: TextStyle(color: Colors.green)),
                         Text(
-                            '-\$${(total - discountedTotal).toStringAsFixed(2)}',
+                            '-\u20A8${(total - discountedTotal).toStringAsFixed(2)}',
                             style: TextStyle(color: Colors.green)),
                       ],
                     ),
@@ -770,7 +770,7 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                     Text('Total',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(
-                        '\$${(isCouponApplied ? discountedTotal : total).toStringAsFixed(2)}',
+                        '\u20A8 ${(isCouponApplied ? discountedTotal : total).toStringAsFixed(2)}',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ),

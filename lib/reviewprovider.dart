@@ -115,76 +115,72 @@ class _ServiceReviewsScreenState extends State<ServiceReviewsScreen> {
                               onBackgroundImageError: (_, __) =>
                                   AssetImage('assets/default_avatar.png'),
                             ),
-                            SizedBox(width: 16),
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .spaceBetween,
+                            SizedBox(width: 10),
+
+                            // Customer Details with Flexible to avoid overflow
+                            Expanded(
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Customer Details Column
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment
-                                        .start,
+                                  Text(
+                                    '${customerData['FirstName'] ?? 'Customer'} ${customerData['LastName'] ?? ''}'
+                                        .trim(),
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  if (customerData['Email'] != null)
+                                    Text(
+                                      customerData['Email'],
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  SizedBox(height: 10),
+                                  Row(
                                     children: [
                                       Text(
-                                        '${customerData['FirstName'] ??
-                                            'Customer'} ${customerData['LastName'] ??
-                                            ''}'.trim(),
+                                        'Booking ID: ',
                                         style: TextStyle(
+                                          fontSize: 12,
                                           fontFamily: 'Poppins',
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
+                                          color: Colors.grey[600],
                                         ),
                                       ),
-                                      if (customerData['Email'] != null)
-                                        Text(
-                                          customerData['Email'],
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.grey,
-                                          ),
+                                      Text(
+                                        reviewData['bookingId'],
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey[600],
                                         ),
-                                      SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            'Booking ID: ',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontFamily: 'Poppins',
-                                              color: Colors.grey[600],
-                                            ),
-                                          ),
-                                          Text(
-                                            reviewData['bookingId'],
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.grey[600],
-                                            ),
-                                          ),
-                                        ],
                                       ),
                                     ],
                                   ),
-                                ]),
-                            SizedBox(width: 55,),
-                            // Rating Widget
+                                ],
+                              ),
+                            ),
+
+                            // Rating Widget with spacing adjusted
                             Row(
+                              mainAxisSize: MainAxisSize.min, // Prevent Row from taking excess space
                               children: [
                                 FaIcon(
                                   FontAwesomeIcons.solidStar,
                                   color: Colors.amber,
-                                  size: 20,
+                                  size: 14,
                                 ),
                                 SizedBox(width: 2),
                                 Text(
                                   ' ${reviewData['emojiRating']}.0/5',
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 14,
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black,
@@ -194,6 +190,7 @@ class _ServiceReviewsScreenState extends State<ServiceReviewsScreen> {
                             ),
                           ],
                         ),
+
 
 
                         SizedBox(height: 16),

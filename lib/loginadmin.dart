@@ -63,7 +63,7 @@ class _LoginAdminState extends State<LoginAdmin> {
       NotificationService().uploadFcmToken();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => datamanagement()),
+        MaterialPageRoute(builder: (_) => DataManagement()),
       );
     } on FirebaseAuthException catch (ex) {
       String errorMessage = "An error occurred. Please try again.";

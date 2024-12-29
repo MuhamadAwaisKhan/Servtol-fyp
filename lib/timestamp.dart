@@ -142,11 +142,11 @@ class _timestampState extends State<timestamp> {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          IconButton(
-                            icon: Icon(Icons.edit, color: AppColors.customButton),
-                            onPressed: () => _showEditDialog(
-                                context, timestamp.id, timestamp['Name']),
-                          ),
+                          // IconButton(
+                          //   icon: Icon(Icons.edit, color: AppColors.customButton),
+                          //   onPressed: () => _showEditDialog(
+                          //       context, timestamp.id, timestamp['Name']),
+                          // ),
                           IconButton(
                             icon: Icon(Icons.delete, color: Colors.red),
                             onPressed: () => _deleteServiceType(timestamp.id),
@@ -258,115 +258,74 @@ class _timestampState extends State<timestamp> {
     );
   }
 
-  void _showEditDialog(BuildContext context, String id, String currentName) {
-    TextEditingController _nameController = TextEditingController(text: currentName);
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Row(
-            children: [
-              Icon(Icons.edit, color: Colors.blue, size: 30),
-              SizedBox(width: 10),
-              Text(
-                'Edit Time Stamp',
-                style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _nameController,
-                style: TextStyle(fontFamily: 'Poppins', color: Colors.black87),
-                decoration: InputDecoration(
-                  labelText: "Enter New Time Stamp",
-                  labelStyle: TextStyle(color: Colors.grey),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide(color: Colors.blueAccent, width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide(color: Colors.blue, width: 1.5),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: Colors.red, fontFamily: 'Poppins'),
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            TextButton(
-              child: Text(
-                'Save',
-                style: TextStyle(color: Colors.green, fontFamily: 'Poppins'),
-              ),
-              onPressed: () {
-                if (_nameController.text.isNotEmpty) {
-                  // Ask for confirmation before saving
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) {
-                      return AlertDialog(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        title: Row(
-                          children: [
-                            Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 30),
-                            SizedBox(width: 10),
-                            Text(
-                              'Confirm Edit',
-                              style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        content: Text(
-                          'Are you sure you want to save the changes?',
-                          style: TextStyle(fontFamily: 'Poppins', color: Colors.black87),
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            child: Text(
-                              'No',
-                              style: TextStyle(color: Colors.grey, fontFamily: 'Poppins'),
-                            ),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                          TextButton(
-                            child: Text(
-                              'Yes',
-                              style: TextStyle(color: Colors.green, fontFamily: 'Poppins'),
-                            ),
-                            onPressed: () {
-                              _updateProvince(id, _nameController.text);
-                              Navigator.of(context).pop(); // Close confirmation dialog
-                              Navigator.of(context).pop(); // Close edit dialog
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _updateProvince(String id, String newName) {
-    _db.collection('timestamp').doc(id).update({'Name': newName});
-  }
+  // void _showEditDialog(BuildContext context, String id, String currentName) {
+  //   TextEditingController _nameController = TextEditingController(text: currentName);
+  //
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+  //         title: Row(
+  //           children: [
+  //             Icon(Icons.edit, color: Colors.blue, size: 30),
+  //             SizedBox(width: 10),
+  //             Text(
+  //               'Edit Time Stamp',
+  //               style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+  //             ),
+  //           ],
+  //         ),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             TextField(
+  //               controller: _nameController,
+  //               style: TextStyle(fontFamily: 'Poppins', color: Colors.black87),
+  //               decoration: InputDecoration(
+  //                 labelText: "Enter New Time Stamp",
+  //                 labelStyle: TextStyle(color: Colors.grey),
+  //                 enabledBorder: OutlineInputBorder(
+  //                   borderRadius: BorderRadius.circular(15),
+  //                   borderSide: BorderSide(color: Colors.blueAccent, width: 1),
+  //                 ),
+  //                 focusedBorder: OutlineInputBorder(
+  //                   borderRadius: BorderRadius.circular(15),
+  //                   borderSide: BorderSide(color: Colors.blue, width: 1.5),
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             child: Text(
+  //               'Cancel',
+  //               style: TextStyle(color: Colors.red, fontFamily: 'Poppins'),
+  //             ),
+  //             onPressed: () => Navigator.of(context).pop(),
+  //           ),
+  //           TextButton(
+  //             child: Text(
+  //               'Save',
+  //               style: TextStyle(color: Colors.green, fontFamily: 'Poppins'),
+  //             ),
+  //             onPressed: () {
+  //               if (_nameController.text.isNotEmpty) {
+  //                 // Update Firebase record after checking for empty text
+  //                 _updateProvince(id, _nameController.text);
+  //                 Navigator.of(context).pop(); // Close confirmation dialog (if implemented)
+  //                 Navigator.of(context).pop(); // Close edit dialog
+  //               }
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+  // void _updateProvince(String id, String newName) {
+  //   _db.collection('timestamp').doc(id).update({'Name': newName});
+  // }
 }

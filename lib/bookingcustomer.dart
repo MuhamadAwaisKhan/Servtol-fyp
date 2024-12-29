@@ -323,6 +323,7 @@ class _BookingCustomerState extends State<BookingCustomer> {
                       style: TextStyle(
                         color: Colors.white,
                         fontFamily: 'Poppins',
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

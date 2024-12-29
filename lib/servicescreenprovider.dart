@@ -261,7 +261,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
 
 
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 68.0),
+        padding: const EdgeInsets.only(bottom: 28.0),
         child: FloatingActionButton.extended(
           onPressed: () {
             Navigator.push(context,
@@ -278,7 +278,7 @@ class _ServiceScreenWidgetState extends State<ServiceScreenWidget> {
           backgroundColor: AppColors.customButton,
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
     );
   }
 }

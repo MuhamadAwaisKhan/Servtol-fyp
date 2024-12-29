@@ -477,7 +477,7 @@ class _BookingCustomerDetailState extends State<BookingCustomerDetail> {
             widget.bookings['status'] as String? ?? 'Pending',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: 12,
               fontFamily: 'Poppins',
               fontWeight: FontWeight.bold,
             ),

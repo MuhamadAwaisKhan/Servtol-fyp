@@ -109,7 +109,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     try {
       final snapshot = await _firestore
           .collection('reviews')
-          .where('emojiRating', isGreaterThanOrEqualTo: 2)
+          .where('emojiRating', isLessThanOrEqualTo: 2)
           .get();
       return snapshot.docs.length;
     } catch (e) {
@@ -300,36 +300,37 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       }
                     },
                   ),
+                  _buildDashboardTile(
+                    title: 'Negative Feedback',
+                    dataFetcher: getPositiveFeedback,
+                    icon: FontAwesomeIcons.thumbsUp,
+                    color: Colors.red,
+                    onTap: () async {
+                      try {
+                        final reviewsSnapshot = await _firestore
+                            .collection('reviews')
+                            .where('emojiRating', isLessThanOrEqualTo: 2)
+                            .get();
 
-                _buildDashboardTile(
-                  title: 'Negative Feedback',
-                  dataFetcher: getNegativeFeedback,
-                  icon: FontAwesomeIcons.thumbsUp,
-                  color: Colors.red,
-                  onTap: () async {
-                    try {
-                      final reviewsSnapshot = await _firestore
-                          .collection('reviews')
-                          .where('emojiRating', isLessThanOrEqualTo: 2) // Correct condition
-                          .get();
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => adminfeedback(
-                            reviews: reviewsSnapshot.docs,
-                            title: 'Negative Feedback', // Pass the title
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => adminfeedback(
+                              reviews: reviewsSnapshot.docs,
+                              title: 'Negative Feedback', // Pass the title
+                            ),
                           ),
-                        ),
-                      );
-                    } catch (e) {
-                      debugPrint('Error fetching reviews: $e');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error loading reviews. Please try again.')),
-                      );
-                    }
-                  },
-                ),
+                        );
+                      } catch (e) {
+                        debugPrint('Error fetching reviews: $e');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error loading reviews. Please try again.')),
+                        );
+                      }
+                    },
+                  ),
+
+
 
                   _buildDashboardTile(
                     title: 'Cash Payments',

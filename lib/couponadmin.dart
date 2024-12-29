@@ -116,6 +116,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
                                 'Confirm Update',
                                 style: TextStyle(
                                     fontFamily: 'Poppins',
+                                    fontSize: 14,
                                     fontWeight: FontWeight.bold),
                               ),
                             ],
@@ -179,7 +180,9 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
               Text(
                 'Delete Coupon',
                 style: TextStyle(
-                    fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                    fontFamily: 'Poppins', fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
@@ -293,7 +296,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
           SizedBox(height: 10),
           uihelper.CustomButton(() {
             addCoupon();
-          }, 'Add Coupon', 40, 150),
+          }, 'Add Coupon', 40, 170),
           SizedBox(height: 10),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(

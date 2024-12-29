@@ -84,7 +84,7 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
               controller: searchController,
               style: TextStyle(fontSize: 16),
               decoration: InputDecoration(
-                labelText: 'Search Services',
+                labelText: 'Search Subcategory',
                 labelStyle: TextStyle(fontFamily: 'Poppins'),
                 prefixIcon: Icon(Icons.search, color: Colors.grey),
                 suffixIcon: searchController.text.isNotEmpty
@@ -289,7 +289,8 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
               SizedBox(width: 8),
               Text(
                 'Edit Subcategory',
-                style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                style: TextStyle(fontFamily: 'Poppins',                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -311,9 +312,13 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
                   selectedCategoryId = newValue;
                 },
                 items: categoryItems,
+                itemHeight: null,
+                isExpanded: true,
                 decoration: InputDecoration(
                   labelText: 'Select Category',
-                  labelStyle: TextStyle(color: Colors.blueAccent),
+
+                  labelStyle: TextStyle(color: Colors.blueAccent,                    fontSize: 16,
+                  ),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
                 ),
               ),

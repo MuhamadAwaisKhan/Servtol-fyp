@@ -189,7 +189,7 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
-                  fontSize: 20,
+                  fontSize: 16,
                   color: Colors.redAccent,
                 ),
               ),
@@ -262,8 +262,9 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
               Icon(Icons.edit, color: Colors.blue, size: 30),
               SizedBox(width: 10),
               Text(
-                'Edit Service Type',
-                style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                'Edit Wage Type',
+                style: TextStyle(fontFamily: 'Poppins',                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -274,7 +275,7 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
                 controller: _nameController,
                 style: TextStyle(fontFamily: 'Poppins', color: Colors.black87),
                 decoration: InputDecoration(
-                  labelText: "Enter New Service Type Name",
+                  labelText: "Enter New Wage Type Name",
                   labelStyle: TextStyle(color: Colors.grey),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
@@ -316,7 +317,8 @@ class _WageTypeListScreenState extends State<WageTypeListScreen> {
                             SizedBox(width: 10),
                             Text(
                               'Confirm Edit',
-                              style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                              style: TextStyle(fontFamily: 'Poppins',                    fontSize: 16,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),

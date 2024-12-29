@@ -399,12 +399,13 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     DropdownButtonFormField<String>(
                       isDense: true,
                       // makes the dropdown slightly more compact
-                      itemHeight: 48.0,
+                      itemHeight: null,
                       value: _tempSelectedServiceType,
                       onChanged: (newValue) {
                         setDialogState(
                             () => _tempSelectedServiceType = newValue);
                       },
+                      isExpanded: true,
                       items: ['All', ...serviceTypes].map((type) {
                         return DropdownMenuItem<String>(
                           value: type,
@@ -452,11 +453,13 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     DropdownButtonFormField<String>(
                       isDense: true,
                       // makes the dropdown slightly more compact
-                      itemHeight: 48.0,
                       value: _tempSelectedProvince,
                       onChanged: (newValue) {
                         setDialogState(() => _tempSelectedProvince = newValue);
                       },
+                      itemHeight: null,
+                      isExpanded: true,
+
                       items: ['All', ...provinces].map((type) {
                         return DropdownMenuItem<String>(
                           value: type,
@@ -478,7 +481,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     DropdownButtonFormField<String>(
                       isDense: true,
                       // makes the dropdown slightly more compact
-                      itemHeight: 48.0,
+                      itemHeight: null,
+                      isExpanded: true,
                       value: _tempSelectedCity,
                       onChanged: (newValue) {
                         setDialogState(() => _tempSelectedCity = newValue);
@@ -504,8 +508,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     DropdownButtonFormField<String>(
                       isDense: true,
                       // makes the dropdown slightly more compact
-                      itemHeight: 48.0,
-                      value: _tempSelectedCategory,
+                      itemHeight: null,
+                      isExpanded: true,                      value: _tempSelectedCategory,
                       onChanged: (newValue) {
                         setDialogState(() => _tempSelectedCategory = newValue);
                       },
@@ -531,8 +535,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       width: MediaQuery.of(context).size.width * 0.8, // Adjust the width to fit the screen
                       child: DropdownButtonFormField<String>(
                         isDense: true,
-                        isExpanded: true, // Ensures the dropdown takes full width
-                        itemHeight: 48.0,
+                        itemHeight: null,
+                        isExpanded: true,
                         value: _tempSelectedSubcategory,
                         onChanged: (newValue) {
                           setDialogState(() => _tempSelectedSubcategory = newValue);

@@ -25,6 +25,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            SizedBox(height: 50,),
             // Inspirations and About section with professional design
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
@@ -41,14 +42,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                         );
                       },
                       child: Container(
-                        padding: EdgeInsets.all(16),
+                        padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Colors.blue, Colors.indigo],
+                            colors: [AppColors.customButton, Colors.indigo],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(10),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black26,
@@ -59,27 +60,27 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                         ),
                         child: Column(
                           children: [
-                            Icon(Icons.lightbulb, size: 50, color: Colors.white),
-                            SizedBox(height: 10),
-                            Text(
-                              "Inspirations",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Poppins",
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            Text(
-                              "Discover the people behind our success",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontFamily: "Poppins",
-                                fontSize: 12,
-                              ),
-                            ),
+                            Icon(Icons.lightbulb, size: 30, color: Colors.white),
+                            // SizedBox(height: 10),
+                            // Text(
+                            //   "Inspirations",
+                            //   style: TextStyle(
+                            //     color: Colors.white,
+                            //     fontFamily: "Poppins",
+                            //     fontSize: 15,
+                            //     fontWeight: FontWeight.bold,
+                            //   ),
+                            // ),
+                            // SizedBox(height: 5),
+                            // Text(
+                            //   "Discover the people behind our success",
+                            //   textAlign: TextAlign.center,
+                            //   style: TextStyle(
+                            //     color: Colors.white70,
+                            //     fontFamily: "Poppins",
+                            //     fontSize: 12,
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
@@ -96,14 +97,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                         );
                       },
                       child: Container(
-                        padding: EdgeInsets.all(16),
+                        padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Colors.green, Colors.teal],
+                            colors: [AppColors.customButton, Colors.indigo],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(10),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black26,
@@ -114,27 +115,27 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                         ),
                         child: Column(
                           children: [
-                            Icon(Icons.info, size: 50, color: Colors.white),
-                            SizedBox(height: 10),
-                            Text(
-                              "About",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Poppins",
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            Text(
-                              "Learn more about our vision and mission",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontFamily: "Poppins",
-                                fontSize: 12,
-                              ),
-                            ),
+                            Icon(Icons.info, size: 30, color: Colors.white),
+                            // SizedBox(height: 10),
+                            // Text(
+                            //   "About",
+                            //   style: TextStyle(
+                            //     color: Colors.white,
+                            //     fontFamily: "Poppins",
+                            //     fontSize: 15,
+                            //     fontWeight: FontWeight.bold,
+                            //   ),
+                            // ),
+                            // SizedBox(height: 5),
+                            // Text(
+                            //   "Learn more about our vision and mission",
+                            //   textAlign: TextAlign.center,
+                            //   style: TextStyle(
+                            //     color: Colors.white70,
+                            //     fontFamily: "Poppins",
+                            //     fontSize: 12,
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
@@ -166,7 +167,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   MaterialPageRoute(builder: (context) => loginprovider()),
                 );
               },
-              "Provider",
+              "Provider  ",
               40,
               160,
               icon: FontAwesomeIcons.userTie, // Add FontAwesome icon
@@ -192,7 +193,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   MaterialPageRoute(builder: (context) => LoginAdmin()),
                 );
               },
-              "Admin",
+              " Admin     ",
               40,
               160,
               icon: FontAwesomeIcons.userShield, // Add FontAwesome icon

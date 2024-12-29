@@ -211,6 +211,8 @@ class _CategoryServicesScreenState extends State<CategoryServicesScreen> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
+                itemHeight: null,
+                isExpanded: true,
                 items: subcategories.map((subcategory) {
                   return DropdownMenuItem<String>(
                     value: subcategory,
